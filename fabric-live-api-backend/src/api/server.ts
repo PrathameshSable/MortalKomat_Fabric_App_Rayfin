@@ -6,17 +6,19 @@ import { logger } from "../logger.js";
 import { WriteBackSchema, writeBackToLiveEvent } from "../types.js";
 import type { EventstreamProducer } from "../stream/eventstreamProducer.js";
 import type { EventhouseClient } from "../kql/eventhouseClient.js";
+import type { WarehouseWriter } from "../warehouse/warehouseWriter.js";
 
 interface ServerDeps {
   producer: EventstreamProducer;
   eventhouse: EventhouseClient;
+  warehouse: WarehouseWriter;
 }
 
 /**
  * Builds the app-facing HTTP API. This is what the Fabric (Rayfin) app calls
  * for write-back, since Rayfin apps read via DAX but can't write directly.
  */
-export function createServer({ producer, eventhouse }: ServerDeps): Express {
+export function createServer({ producer, eventhouse, warehouse }: ServerDeps): Express {
   const app = express();
 
   app.use(pinoHttp({ logger }));
@@ -38,10 +40,16 @@ export function createServer({ producer, eventhouse }: ServerDeps): Express {
 
   // ── Health ─────────────────────────────────────────────────────────────────
   app.get("/healthz", (_req: Request, res: Response) => {
-    res.json({ status: "ok", kustoEnabled: eventhouse.enabled, uptime: process.uptime() });
+    res.json({
+      status: "ok",
+      kustoEnabled: eventhouse.enabled,
+      warehouseEnabled: warehouse.enabled,
+      uptime: process.uptime(),
+    });
   });
 
-  // ── Write-back: Fabric app → backend → Eventstream/Eventhouse ───────────────
+  // ── Real-time write-back: Fabric app → backend → Eventstream → Eventhouse ────
+  //    Use for high-frequency / telemetry-style events feeding live dashboards.
   app.post("/api/events", (req: Request, res: Response) => {
     const parsed = WriteBackSchema.safeParse(req.body);
     if (!parsed.success) {
@@ -50,7 +58,24 @@ export function createServer({ producer, eventhouse }: ServerDeps): Express {
     }
     const event = writeBackToLiveEvent(parsed.data);
     producer.enqueue(event);
-    res.status(202).json({ accepted: true, id: event.id });
+    res.status(202).json({ accepted: true, id: event.id, target: "eventstream" });
+  });
+
+  // ── Durable write-back: Fabric app → backend → Fabric Warehouse (T-SQL) ──────
+  //    Use for records that must be relational / queryable / updatable.
+  app.post("/api/writeback", (req: Request, res: Response) => {
+    if (!warehouse.enabled) {
+      res.status(503).json({ error: "Fabric Warehouse not configured" });
+      return;
+    }
+    const parsed = WriteBackSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: "invalid payload", issues: parsed.error.issues });
+      return;
+    }
+    const event = writeBackToLiveEvent(parsed.data);
+    warehouse.enqueue(event);
+    res.status(202).json({ accepted: true, id: event.id, target: "warehouse" });
   });
 
   // ── Optional read API (debug / non-Fabric clients) ──────────────────────────

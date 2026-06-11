@@ -19,22 +19,31 @@ External REST API
       │  poll (or receive webhooks)
       ▼
 ┌──────────────────────────────┐        Fabric (Rayfin) app
-│  fabric-live-api-backend     │◀── HTTP write-back ── (POST /api/events)
-│  • ingest + validate         │
+│  fabric-live-api-backend     │◀── real-time write-back ── POST /api/events
+│  • ingest + validate         │◀── durable  write-back ── POST /api/writeback
 │  • batch → Eventstream       │
-│  • app-facing write-back API │
+│  • batch → Warehouse (T-SQL) │
 └──────────────────────────────┘
-      │  Event Hubs-compatible custom-app endpoint
-      ▼
-Fabric Eventstream ──▶ Eventhouse (KQL DB)
-      │
-      ▼
-Power BI semantic model ──DAX──▶ Rayfin app reads (near-real-time)
+   │ Event Hubs endpoint           │ TDS / T-SQL (port 1433, SPN auth)
+   ▼                               ▼
+Fabric Eventstream            Fabric Warehouse
+   │                               │   (durable, relational, updatable)
+   ▼                               ▼
+Eventhouse (KQL)            Direct Lake semantic model
+   │                               │
+   └──────────► Power BI semantic model ──DAX──► Rayfin app reads (near-real-time)
 ```
 
-Real-time ingestion (Eventstream custom-app source → Eventhouse) is the
-Microsoft-recommended path for high-frequency live data, and batched sends are
-recommended over per-row writes — both are reflected in the code.
+Two write paths, by purpose:
+
+| Path | Target | Use for |
+|---|---|---|
+| `POST /api/events` | Eventstream → **Eventhouse (KQL)** | high-frequency / telemetry feeding live dashboards |
+| `POST /api/writeback` | **Fabric Warehouse (T-SQL)** | durable records that must be relational / queryable / **updatable** |
+
+Both batch their writes (Fabric flags per-row writes as an anti-pattern). The
+Warehouse writer authenticates with a Microsoft Entra **service principal** over
+TDS and **retries on write-write conflicts** (first commit wins in Fabric).
 
 ## Project layout
 
@@ -50,11 +59,14 @@ src/
     eventstreamProducer.ts   batched Event Hubs producer (Eventstream custom app)
   kql/
     eventhouseClient.ts      optional KQL read client (service-principal auth)
+  warehouse/
+    warehouseWriter.ts       Fabric Warehouse T-SQL writer (SPN auth, batched INSERT, conflict retry)
   api/
-    server.ts                Express API: /api/events, /api/events/recent, /webhooks/ingest, /healthz
+    server.ts                Express API: /api/events, /api/writeback, /api/events/recent, /webhooks/ingest, /healthz
   index.ts                   wires it all together + graceful shutdown
 scripts/
   eventhouse-setup.kql       KQL table + JSON ingestion mapping (run in Fabric)
+  warehouse-setup.sql        Warehouse table DDL + MERGE-upsert notes (run in Fabric)
 tests/
   transform.test.ts          vitest unit tests for the transform layer
 ```
@@ -67,10 +79,20 @@ tests/
 2. **Eventstream** with a **Custom App source** and a **KQL Database destination**
    pointing at that table. Copy the custom-app **connection string** (Keys tab) —
    it's Event Hubs-compatible and carries `EntityPath=…`.
-3. *(Optional, for the read API)* a **Microsoft Entra ID app registration**
-   (service principal) granted **Viewer** on the KQL database.
-4. Point a **Power BI semantic model** at the KQL DB and have your Rayfin app
-   query it via DAX (the read path — unchanged from the MK Arena app pattern).
+3. **Fabric Warehouse** *(for durable write-back)* — create a Warehouse and run
+   [`scripts/warehouse-setup.sql`](scripts/warehouse-setup.sql) to create the
+   `dbo.LiveEvents` table. Grab its **SQL connection string** host.
+4. **Microsoft Entra app registration (service principal)** — used by both the
+   Warehouse writer and the optional KQL read client. Required setup:
+   - tenant admin enables **"Service principals can use Fabric APIs"**;
+   - grant the SPN a **workspace role (Contributor)** or item permission on the
+     Warehouse / KQL DB;
+   - ⚠️ a brand-new SPN must make **one Fabric REST API call to bootstrap its
+     token** before `COPY INTO`/external-storage commands work (plain
+     `INSERT`/`MERGE` over TDS is fine without it).
+5. Point a **Power BI semantic model** at the KQL DB and/or Warehouse (Direct
+   Lake) and have your Rayfin app query it via DAX (the read path — unchanged
+   from the MK Arena app pattern).
 
 ## Run it
 
@@ -102,8 +124,9 @@ All config is environment-driven and validated at startup — see
 
 | Method | Path | Purpose |
 |---|---|---|
-| `GET` | `/healthz` | liveness + whether KQL is configured |
-| `POST` | `/api/events` | **write-back from the Fabric app** (validated → Eventstream) |
+| `GET` | `/healthz` | liveness + whether KQL / Warehouse are configured |
+| `POST` | `/api/events` | **real-time write-back** (validated → Eventstream → Eventhouse) |
+| `POST` | `/api/writeback` | **durable write-back** (validated → Fabric Warehouse via T-SQL) |
 | `GET` | `/api/events/recent?limit=50` | recent rows from the Eventhouse (debug/read) |
 | `POST` | `/webhooks/ingest` | receive pushes from the external API (verify signatures before prod) |
 

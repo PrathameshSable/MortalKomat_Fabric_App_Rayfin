@@ -43,14 +43,26 @@ const EnvSchema = z.object({
   KUSTO_QUERY_URI: z.string().url().optional().or(z.literal("")),
   KUSTO_DATABASE: z.string().optional(),
   KUSTO_TABLE: z.string().default("LiveEvents"),
+
+  // Fabric Warehouse — durable, relational write-back via T-SQL (optional)
+  // Server host only, e.g. "<guid>.datawarehouse.fabric.microsoft.com"
+  FABRIC_WAREHOUSE_SERVER: z.string().optional(),
+  FABRIC_WAREHOUSE_DATABASE: z.string().optional(),
+  FABRIC_WAREHOUSE_TABLE: z.string().default("dbo.LiveEvents"),
+  WAREHOUSE_BATCH_MAX_SIZE: z.coerce.number().int().positive().default(200),
+  WAREHOUSE_BATCH_MAX_WAIT_MS: z.coerce.number().int().positive().default(1500),
+
+  // Microsoft Entra service principal — shared by KQL read + Warehouse write.
   AZURE_TENANT_ID: z.string().optional(),
   AZURE_CLIENT_ID: z.string().optional(),
   AZURE_CLIENT_SECRET: z.string().optional(),
 });
 
 export type AppConfig = z.infer<typeof EnvSchema> & {
-  /** True when KQL read/write-back is fully configured. */
+  /** True when KQL read is fully configured. */
   kustoEnabled: boolean;
+  /** True when Fabric Warehouse write-back is fully configured. */
+  warehouseEnabled: boolean;
 };
 
 function load(): AppConfig {
@@ -63,15 +75,17 @@ function load(): AppConfig {
   }
 
   const env = parsed.data;
+  const hasServicePrincipal = Boolean(
+    env.AZURE_TENANT_ID && env.AZURE_CLIENT_ID && env.AZURE_CLIENT_SECRET,
+  );
   const kustoEnabled = Boolean(
-    env.KUSTO_QUERY_URI &&
-      env.KUSTO_DATABASE &&
-      env.AZURE_TENANT_ID &&
-      env.AZURE_CLIENT_ID &&
-      env.AZURE_CLIENT_SECRET,
+    env.KUSTO_QUERY_URI && env.KUSTO_DATABASE && hasServicePrincipal,
+  );
+  const warehouseEnabled = Boolean(
+    env.FABRIC_WAREHOUSE_SERVER && env.FABRIC_WAREHOUSE_DATABASE && hasServicePrincipal,
   );
 
-  return { ...env, kustoEnabled };
+  return { ...env, kustoEnabled, warehouseEnabled };
 }
 
 export const config = load();

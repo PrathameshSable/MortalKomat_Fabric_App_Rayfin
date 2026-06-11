@@ -2,6 +2,7 @@ import { config } from "./config.js";
 import { logger } from "./logger.js";
 import { EventstreamProducer } from "./stream/eventstreamProducer.js";
 import { EventhouseClient } from "./kql/eventhouseClient.js";
+import { WarehouseWriter } from "./warehouse/warehouseWriter.js";
 import { IngestPoller } from "./ingest/poller.js";
 import { createServer } from "./api/server.js";
 
@@ -13,9 +14,10 @@ import { createServer } from "./api/server.js";
 async function main(): Promise<void> {
   const producer = new EventstreamProducer();
   const eventhouse = new EventhouseClient();
+  const warehouse = new WarehouseWriter();
   const poller = new IngestPoller(producer);
 
-  const app = createServer({ producer, eventhouse });
+  const app = createServer({ producer, eventhouse, warehouse });
   const server = app.listen(config.PORT, () => {
     logger.info({ port: config.PORT, env: config.NODE_ENV }, "API listening");
   });
@@ -28,6 +30,7 @@ async function main(): Promise<void> {
     server.close();
     try {
       await producer.close();
+      await warehouse.close();
       await eventhouse.close();
     } catch (err) {
       logger.error({ err: (err as Error).message }, "error during shutdown");

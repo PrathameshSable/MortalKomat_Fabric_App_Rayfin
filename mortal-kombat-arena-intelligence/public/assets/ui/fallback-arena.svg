@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <rect width="1600" height="900" fill="#050302"/>
+  <path d="M0 700 C300 560 520 820 830 650 C1070 520 1260 610 1600 470 L1600 900 L0 900 Z" fill="#ff5a1f" opacity="0.25"/>
+  <text x="800" y="460" text-anchor="middle" font-family="Arial" font-size="72" font-weight="700" fill="#fff4e6">ARENA</text>
+</svg>

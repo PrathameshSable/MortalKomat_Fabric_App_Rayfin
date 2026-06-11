@@ -1,0 +1,376 @@
+{
+  "ashrah": {
+    "slug": "ashrah",
+    "name": "Ashrah",
+    "hero": "/assets/fighters/ashrah/gallery/image-01.webp",
+    "portrait": "/assets/fighters/ashrah/gallery/image-01.webp",
+    "background": "/assets/fighters/ashrah/gallery/image-02.webp",
+    "gallery": [
+      "/assets/fighters/ashrah/gallery/image-01.webp",
+      "/assets/fighters/ashrah/gallery/image-02.webp"
+    ]
+  },
+  "baraka": {
+    "slug": "baraka",
+    "name": "Baraka",
+    "hero": "/assets/fighters/baraka/gallery/image-01.webp",
+    "portrait": "/assets/fighters/baraka/gallery/image-01.webp",
+    "background": "/assets/fighters/baraka/gallery/image-02.webp",
+    "gallery": [
+      "/assets/fighters/baraka/gallery/image-01.webp",
+      "/assets/fighters/baraka/gallery/image-02.webp"
+    ]
+  },
+  "conan-the-barbarian": {
+    "slug": "conan-the-barbarian",
+    "name": "Conan The Barbarian",
+    "hero": "/assets/fighters/conan-the-barbarian/gallery/image-01.webp",
+    "portrait": "/assets/fighters/conan-the-barbarian/gallery/image-01.webp",
+    "background": "/assets/fighters/conan-the-barbarian/gallery/image-01.webp",
+    "gallery": [
+      "/assets/fighters/conan-the-barbarian/gallery/image-01.webp"
+    ]
+  },
+  "cyrax": {
+    "slug": "cyrax",
+    "name": "Cyrax",
+    "hero": "/assets/fighters/cyrax/gallery/image-01.webp",
+    "portrait": "/assets/fighters/cyrax/gallery/image-01.webp",
+    "background": "/assets/fighters/cyrax/gallery/image-02.webp",
+    "gallery": [
+      "/assets/fighters/cyrax/gallery/image-01.webp",
+      "/assets/fighters/cyrax/gallery/image-02.webp"
+    ]
+  },
+  "ermac": {
+    "slug": "ermac",
+    "name": "Ermac",
+    "hero": "/assets/fighters/ermac/gallery/image-01.webp",
+    "portrait": "/assets/fighters/ermac/gallery/image-01.webp",
+    "background": "/assets/fighters/ermac/gallery/image-02.webp",
+    "gallery": [
+      "/assets/fighters/ermac/gallery/image-01.webp",
+      "/assets/fighters/ermac/gallery/image-02.webp"
+    ]
+  },
+  "general-shao": {
+    "slug": "general-shao",
+    "name": "General Shao",
+    "hero": "/assets/fighters/general-shao/gallery/image-01.webp",
+    "portrait": "/assets/fighters/general-shao/gallery/image-01.webp",
+    "background": "/assets/fighters/general-shao/gallery/image-02.webp",
+    "gallery": [
+      "/assets/fighters/general-shao/gallery/image-01.webp",
+      "/assets/fighters/general-shao/gallery/image-02.webp"
+    ]
+  },
+  "geras": {
+    "slug": "geras",
+    "name": "Geras",
+    "hero": "/assets/fighters/geras/gallery/image-01.webp",
+    "portrait": "/assets/fighters/geras/gallery/image-01.webp",
+    "background": "/assets/fighters/geras/gallery/image-02.webp",
+    "gallery": [
+      "/assets/fighters/geras/gallery/image-01.webp",
+      "/assets/fighters/geras/gallery/image-02.webp"
+    ]
+  },
+  "ghostface": {
+    "slug": "ghostface",
+    "name": "Ghostface",
+    "hero": "/assets/fighters/ghostface/gallery/image-01.webp",
+    "portrait": "/assets/fighters/ghostface/gallery/image-01.webp",
+    "background": "/assets/fighters/ghostface/gallery/image-01.webp",
+    "gallery": [
+      "/assets/fighters/ghostface/gallery/image-01.webp"
+    ]
+  },
+  "havik": {
+    "slug": "havik",
+    "name": "Havik",
+    "hero": "/assets/fighters/havik/gallery/image-01.webp",
+    "portrait": "/assets/fighters/havik/gallery/image-01.webp",
+    "background": "/assets/fighters/havik/gallery/image-02.webp",
+    "gallery": [
+      "/assets/fighters/havik/gallery/image-01.webp",
+      "/assets/fighters/havik/gallery/image-02.webp"
+    ]
+  },
+  "homelander": {
+    "slug": "homelander",
+    "name": "Homelander",
+    "hero": null,
+    "portrait": null,
+    "background": null,
+    "gallery": []
+  },
+  "johnny-cage": {
+    "slug": "johnny-cage",
+    "name": "Johnny Cage",
+    "hero": "/assets/fighters/johnny-cage/gallery/image-01.webp",
+    "portrait": "/assets/fighters/johnny-cage/gallery/image-01.webp",
+    "background": "/assets/fighters/johnny-cage/gallery/image-02.webp",
+    "gallery": [
+      "/assets/fighters/johnny-cage/gallery/image-01.webp",
+      "/assets/fighters/johnny-cage/gallery/image-02.webp"
+    ]
+  },
+  "kenshi-takahashi": {
+    "slug": "kenshi-takahashi",
+    "name": "Kenshi Takahashi",
+    "hero": "/assets/fighters/kenshi-takahashi/gallery/image-01.webp",
+    "portrait": "/assets/fighters/kenshi-takahashi/gallery/image-01.webp",
+    "background": "/assets/fighters/kenshi-takahashi/gallery/image-02.webp",
+    "gallery": [
+      "/assets/fighters/kenshi-takahashi/gallery/image-01.webp",
+      "/assets/fighters/kenshi-takahashi/gallery/image-02.webp"
+    ]
+  },
+  "kitana": {
+    "slug": "kitana",
+    "name": "Kitana",
+    "hero": "/assets/fighters/kitana/gallery/image-01.webp",
+    "portrait": "/assets/fighters/kitana/gallery/image-01.webp",
+    "background": "/assets/fighters/kitana/gallery/image-02.webp",
+    "gallery": [
+      "/assets/fighters/kitana/gallery/image-01.webp",
+      "/assets/fighters/kitana/gallery/image-02.webp"
+    ]
+  },
+  "kung-lao": {
+    "slug": "kung-lao",
+    "name": "Kung Lao",
+    "hero": "/assets/fighters/kung-lao/gallery/image-01.webp",
+    "portrait": "/assets/fighters/kung-lao/gallery/image-01.webp",
+    "background": "/assets/fighters/kung-lao/gallery/image-02.webp",
+    "gallery": [
+      "/assets/fighters/kung-lao/gallery/image-01.webp",
+      "/assets/fighters/kung-lao/gallery/image-02.webp"
+    ]
+  },
+  "li-mei": {
+    "slug": "li-mei",
+    "name": "Li Mei",
+    "hero": "/assets/fighters/li-mei/gallery/image-01.webp",
+    "portrait": "/assets/fighters/li-mei/gallery/image-01.webp",
+    "background": "/assets/fighters/li-mei/gallery/image-02.webp",
+    "gallery": [
+      "/assets/fighters/li-mei/gallery/image-01.webp",
+      "/assets/fighters/li-mei/gallery/image-02.webp"
+    ]
+  },
+  "liu-kang": {
+    "slug": "liu-kang",
+    "name": "Liu Kang",
+    "hero": "/assets/fighters/liu-kang/gallery/image-01.webp",
+    "portrait": "/assets/fighters/liu-kang/gallery/image-01.webp",
+    "background": "/assets/fighters/liu-kang/gallery/image-02.webp",
+    "gallery": [
+      "/assets/fighters/liu-kang/gallery/image-01.webp",
+      "/assets/fighters/liu-kang/gallery/image-02.webp"
+    ]
+  },
+  "mileena": {
+    "slug": "mileena",
+    "name": "Mileena",
+    "hero": "/assets/fighters/mileena/gallery/image-01.webp",
+    "portrait": "/assets/fighters/mileena/gallery/image-01.webp",
+    "background": "/assets/fighters/mileena/gallery/image-02.webp",
+    "gallery": [
+      "/assets/fighters/mileena/gallery/image-01.webp",
+      "/assets/fighters/mileena/gallery/image-02.webp"
+    ]
+  },
+  "nitara": {
+    "slug": "nitara",
+    "name": "Nitara",
+    "hero": "/assets/fighters/nitara/gallery/image-01.webp",
+    "portrait": "/assets/fighters/nitara/gallery/image-01.webp",
+    "background": "/assets/fighters/nitara/gallery/image-01.webp",
+    "gallery": [
+      "/assets/fighters/nitara/gallery/image-01.webp"
+    ]
+  },
+  "noob-saibot": {
+    "slug": "noob-saibot",
+    "name": "Noob Saibot",
+    "hero": "/assets/fighters/noob-saibot/gallery/image-01.webp",
+    "portrait": "/assets/fighters/noob-saibot/gallery/image-01.webp",
+    "background": "/assets/fighters/noob-saibot/gallery/image-02.webp",
+    "gallery": [
+      "/assets/fighters/noob-saibot/gallery/image-01.webp",
+      "/assets/fighters/noob-saibot/gallery/image-02.webp"
+    ]
+  },
+  "omni-man": {
+    "slug": "omni-man",
+    "name": "Omni Man",
+    "hero": null,
+    "portrait": null,
+    "background": null,
+    "gallery": []
+  },
+  "peacemaker": {
+    "slug": "peacemaker",
+    "name": "Peacemaker",
+    "hero": "/assets/fighters/peacemaker/gallery/image-01.webp",
+    "portrait": "/assets/fighters/peacemaker/gallery/image-01.webp",
+    "background": "/assets/fighters/peacemaker/gallery/image-01.webp",
+    "gallery": [
+      "/assets/fighters/peacemaker/gallery/image-01.webp"
+    ]
+  },
+  "quan-chi": {
+    "slug": "quan-chi",
+    "name": "Quan Chi",
+    "hero": "/assets/fighters/quan-chi/gallery/image-01.webp",
+    "portrait": "/assets/fighters/quan-chi/gallery/image-01.webp",
+    "background": "/assets/fighters/quan-chi/gallery/image-02.webp",
+    "gallery": [
+      "/assets/fighters/quan-chi/gallery/image-01.webp",
+      "/assets/fighters/quan-chi/gallery/image-02.webp"
+    ]
+  },
+  "raiden": {
+    "slug": "raiden",
+    "name": "Raiden",
+    "hero": "/assets/fighters/raiden/gallery/image-01.webp",
+    "portrait": "/assets/fighters/raiden/gallery/image-01.webp",
+    "background": "/assets/fighters/raiden/gallery/image-02.webp",
+    "gallery": [
+      "/assets/fighters/raiden/gallery/image-01.webp",
+      "/assets/fighters/raiden/gallery/image-02.webp"
+    ]
+  },
+  "rain": {
+    "slug": "rain",
+    "name": "Rain",
+    "hero": "/assets/fighters/rain/gallery/image-01.webp",
+    "portrait": "/assets/fighters/rain/gallery/image-01.webp",
+    "background": "/assets/fighters/rain/gallery/image-02.webp",
+    "gallery": [
+      "/assets/fighters/rain/gallery/image-01.webp",
+      "/assets/fighters/rain/gallery/image-02.webp"
+    ]
+  },
+  "reiko": {
+    "slug": "reiko",
+    "name": "Reiko",
+    "hero": "/assets/fighters/reiko/gallery/image-01.webp",
+    "portrait": "/assets/fighters/reiko/gallery/image-01.webp",
+    "background": "/assets/fighters/reiko/gallery/image-02.webp",
+    "gallery": [
+      "/assets/fighters/reiko/gallery/image-01.webp",
+      "/assets/fighters/reiko/gallery/image-02.webp"
+    ]
+  },
+  "reptile": {
+    "slug": "reptile",
+    "name": "Reptile",
+    "hero": "/assets/fighters/reptile/gallery/image-01.webp",
+    "portrait": "/assets/fighters/reptile/gallery/image-01.webp",
+    "background": "/assets/fighters/reptile/gallery/image-02.webp",
+    "gallery": [
+      "/assets/fighters/reptile/gallery/image-01.webp",
+      "/assets/fighters/reptile/gallery/image-02.webp"
+    ]
+  },
+  "scorpion": {
+    "slug": "scorpion",
+    "name": "Scorpion",
+    "hero": "/assets/fighters/scorpion/gallery/image-01.webp",
+    "portrait": "/assets/fighters/scorpion/gallery/image-01.webp",
+    "background": "/assets/fighters/scorpion/gallery/image-02.webp",
+    "gallery": [
+      "/assets/fighters/scorpion/gallery/image-01.webp",
+      "/assets/fighters/scorpion/gallery/image-02.webp"
+    ]
+  },
+  "sektor": {
+    "slug": "sektor",
+    "name": "Sektor",
+    "hero": "/assets/fighters/sektor/gallery/image-01.webp",
+    "portrait": "/assets/fighters/sektor/gallery/image-01.webp",
+    "background": "/assets/fighters/sektor/gallery/image-02.webp",
+    "gallery": [
+      "/assets/fighters/sektor/gallery/image-01.webp",
+      "/assets/fighters/sektor/gallery/image-02.webp"
+    ]
+  },
+  "shang-tsung": {
+    "slug": "shang-tsung",
+    "name": "Shang Tsung",
+    "hero": "/assets/fighters/shang-tsung/gallery/image-01.webp",
+    "portrait": "/assets/fighters/shang-tsung/gallery/image-01.webp",
+    "background": "/assets/fighters/shang-tsung/gallery/image-02.webp",
+    "gallery": [
+      "/assets/fighters/shang-tsung/gallery/image-01.webp",
+      "/assets/fighters/shang-tsung/gallery/image-02.webp"
+    ]
+  },
+  "sindel": {
+    "slug": "sindel",
+    "name": "Sindel",
+    "hero": "/assets/fighters/sindel/gallery/image-01.webp",
+    "portrait": "/assets/fighters/sindel/gallery/image-01.webp",
+    "background": "/assets/fighters/sindel/gallery/image-02.webp",
+    "gallery": [
+      "/assets/fighters/sindel/gallery/image-01.webp",
+      "/assets/fighters/sindel/gallery/image-02.webp"
+    ]
+  },
+  "smoke": {
+    "slug": "smoke",
+    "name": "Smoke",
+    "hero": "/assets/fighters/smoke/gallery/image-01.webp",
+    "portrait": "/assets/fighters/smoke/gallery/image-01.webp",
+    "background": "/assets/fighters/smoke/gallery/image-02.webp",
+    "gallery": [
+      "/assets/fighters/smoke/gallery/image-01.webp",
+      "/assets/fighters/smoke/gallery/image-02.webp"
+    ]
+  },
+  "sub-zero": {
+    "slug": "sub-zero",
+    "name": "Sub Zero",
+    "hero": "/assets/fighters/sub-zero/gallery/image-01.webp",
+    "portrait": "/assets/fighters/sub-zero/gallery/image-01.webp",
+    "background": "/assets/fighters/sub-zero/gallery/image-02.webp",
+    "gallery": [
+      "/assets/fighters/sub-zero/gallery/image-01.webp",
+      "/assets/fighters/sub-zero/gallery/image-02.webp"
+    ]
+  },
+  "t-1000-terminator": {
+    "slug": "t-1000-terminator",
+    "name": "T 1000 Terminator",
+    "hero": "/assets/fighters/t-1000-terminator/gallery/image-01.webp",
+    "portrait": "/assets/fighters/t-1000-terminator/gallery/image-01.webp",
+    "background": "/assets/fighters/t-1000-terminator/gallery/image-01.webp",
+    "gallery": [
+      "/assets/fighters/t-1000-terminator/gallery/image-01.webp"
+    ]
+  },
+  "takeda-takahashi": {
+    "slug": "takeda-takahashi",
+    "name": "Takeda Takahashi",
+    "hero": "/assets/fighters/takeda-takahashi/gallery/image-01.webp",
+    "portrait": "/assets/fighters/takeda-takahashi/gallery/image-01.webp",
+    "background": "/assets/fighters/takeda-takahashi/gallery/image-02.webp",
+    "gallery": [
+      "/assets/fighters/takeda-takahashi/gallery/image-01.webp",
+      "/assets/fighters/takeda-takahashi/gallery/image-02.webp"
+    ]
+  },
+  "tanya": {
+    "slug": "tanya",
+    "name": "Tanya",
+    "hero": "/assets/fighters/tanya/gallery/image-01.webp",
+    "portrait": "/assets/fighters/tanya/gallery/image-01.webp",
+    "background": "/assets/fighters/tanya/gallery/image-02.webp",
+    "gallery": [
+      "/assets/fighters/tanya/gallery/image-01.webp",
+      "/assets/fighters/tanya/gallery/image-02.webp"
+    ]
+  }
+}

@@ -1,0 +1,133 @@
+DEFINE
+    MEASURE FactMatchParticipant[Matches Played] =
+        COUNTROWS ( FactMatchParticipant )
+
+    MEASURE FactMatchParticipant[Total Matches] =
+        DISTINCTCOUNT ( FactMatchParticipant[MatchKey] )
+
+    MEASURE FactMatchParticipant[Wins] =
+        SUM ( FactMatchParticipant[IsWinner] )
+
+    MEASURE FactMatchParticipant[Losses] =
+        [Matches Played] - [Wins]
+
+    MEASURE FactMatchParticipant[Win Rate] =
+        DIVIDE ( [Wins], [Matches Played] )
+
+    MEASURE FactMatchParticipant[Total XP] =
+        SUM ( FactMatchParticipant[XP] )
+
+    MEASURE FactMatchParticipant[Average XP Per Match] =
+        DIVIDE ( [Total XP], [Matches Played] )
+
+    MEASURE FactMatchParticipant[Total Score] =
+        SUM ( FactMatchParticipant[Score] )
+
+    MEASURE FactMatchParticipant[Average Score] =
+        AVERAGE ( FactMatchParticipant[Score] )
+
+    MEASURE FactMatchParticipant[Total KOs] =
+        SUM ( FactMatchParticipant[KOCount] )
+
+    MEASURE FactMatchParticipant[KO Rate] =
+        DIVIDE ( [Total KOs], [Matches Played] )
+
+    MEASURE FactMatchParticipant[Fatalities] =
+        SUM ( FactMatchParticipant[FatalityCount] )
+
+    MEASURE FactMatchParticipant[Brutalities] =
+        SUM ( FactMatchParticipant[BrutalityCount] )
+
+    MEASURE FactMatchParticipant[Perfect Rounds] =
+        SUM ( FactMatchParticipant[PerfectRoundFlag] )
+
+    MEASURE FactMatchParticipant[Damage Dealt] =
+        SUM ( FactMatchParticipant[DamageDealt] )
+
+    MEASURE FactMatchParticipant[Damage Taken] =
+        SUM ( FactMatchParticipant[DamageTaken] )
+
+    MEASURE FactMatchParticipant[Damage Efficiency] =
+        DIVIDE ( [Damage Dealt], [Damage Taken] )
+
+    MEASURE FactMatchParticipant[Max Combo Hits] =
+        MAX ( FactMatchParticipant[MaxComboHits] )
+
+    MEASURE FactMatchParticipant[Average Combo Hits] =
+        AVERAGE ( FactMatchParticipant[MaxComboHits] )
+
+    MEASURE FactMatchParticipant[Special Moves Landed] =
+        SUM ( FactMatchParticipant[SpecialMovesLanded] )
+
+    MEASURE FactMatchParticipant[Fighter Rank by Score] =
+        RANKX (
+            ALL ( DimFighter[FighterName] ),
+            [Total Score],
+            ,
+            DESC,
+            DENSE
+        )
+
+    MEASURE FactMatchParticipant[Fighter Rank by XP] =
+        RANKX (
+            ALL ( DimFighter[FighterName] ),
+            [Total XP],
+            ,
+            DESC,
+            DENSE
+        )
+
+    MEASURE FactMatchParticipant[Fighter Rank by Win Rate] =
+        RANKX (
+            ALL ( DimFighter[FighterName] ),
+            [Win Rate],
+            ,
+            DESC,
+            DENSE
+        )
+
+    MEASURE FactMatchParticipant[Kameo Matches] =
+        COUNTROWS ( FactMatchParticipant )
+
+    MEASURE FactMatchParticipant[Kameo Wins] =
+        SUM ( FactMatchParticipant[IsWinner] )
+
+    MEASURE FactMatchParticipant[Kameo Win Rate] =
+        DIVIDE ( [Kameo Wins], [Kameo Matches] )
+
+    MEASURE FactCombatEvent[Combat Events] =
+        COUNTROWS ( FactCombatEvent )
+
+    MEASURE FactCombatEvent[Event Damage] =
+        SUM ( FactCombatEvent[DamageValue] )
+
+    MEASURE FactCombatEvent[Event KOs] =
+        SUM ( FactCombatEvent[IsKO] )
+
+    MEASURE FactCombatEvent[Event Fatalities] =
+        SUM ( FactCombatEvent[IsFatality] )
+
+    MEASURE FactCombatEvent[Event Brutalities] =
+        SUM ( FactCombatEvent[IsBrutality] )
+
+    MEASURE FactFighterDailySnapshot[Current Fighter Level] =
+        MAX ( FactFighterDailySnapshot[LevelToDate] )
+
+    MEASURE FactFighterDailySnapshot[Current Leaderboard Rank] =
+        MIN ( FactFighterDailySnapshot[LeaderboardRank] )
+
+EVALUATE
+ROW (
+    "Total Matches", [Total Matches],
+    "Matches Played", [Matches Played],
+    "Wins", [Wins],
+    "Losses", [Losses],
+    "Win Rate", [Win Rate],
+    "Total XP", [Total XP],
+    "Total Score", [Total Score],
+    "Total KOs", [Total KOs],
+    "Fatalities", [Fatalities],
+    "Brutalities", [Brutalities],
+    "Damage Efficiency", [Damage Efficiency],
+    "Combat Events", [Combat Events]
+)

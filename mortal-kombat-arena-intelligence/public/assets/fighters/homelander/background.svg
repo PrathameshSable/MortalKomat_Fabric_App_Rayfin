@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <defs>
+    <radialGradient id="a" cx="30%" cy="20%" r="70%">
+      <stop offset="0%" stop-color="#ef4444" stop-opacity="0.45"/>
+      <stop offset="50%" stop-color="#1d4ed8" stop-opacity="0.30"/>
+      <stop offset="100%" stop-color="#050302"/>
+    </radialGradient>
+    <filter id="soft">
+      <feGaussianBlur stdDeviation="12"/>
+    </filter>
+  </defs>
+  <rect width="1600" height="900" fill="url(#a)"/>
+  <g opacity="0.36" filter="url(#soft)">
+    <circle cx="180" cy="180" r="160" fill="#ef4444"/>
+    <circle cx="1340" cy="210" r="240" fill="#ef4444"/>
+    <circle cx="840" cy="720" r="220" fill="#1d4ed8"/>
+  </g>
+  <g opacity="0.18">
+    <path d="M0 720 C320 620 620 780 960 640 C1240 530 1400 610 1600 520" stroke="#ef4444" stroke-width="8" fill="none"/>
+    <path d="M0 790 C300 700 700 810 1050 690 C1300 600 1460 680 1600 610" stroke="#fff4e6" stroke-width="2" fill="none"/>
+  </g>
+  <text x="80" y="790" font-family="Arial Black, Impact, sans-serif" font-size="90" fill="#fff4e6" opacity="0.20">Homelander</text>
+</svg>

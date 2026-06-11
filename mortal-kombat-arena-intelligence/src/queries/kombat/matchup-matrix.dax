@@ -1,0 +1,17 @@
+EVALUATE
+TOPN (
+    2000,
+    SUMMARIZECOLUMNS (
+        dimfighter[FighterName],
+        dimopponentfighter[OpponentFighterName],
+        "Matches Played", [Matches Played],
+        "Wins", [Wins],
+        "Losses", [Losses],
+        "Win Rate", [Win Rate],
+        "Total KOs", [Total KOs],
+        "Damage Efficiency", [Damage Efficiency]
+    ),
+    [Matches Played],
+    DESC
+)
+ORDER BY [Matches Played] DESC

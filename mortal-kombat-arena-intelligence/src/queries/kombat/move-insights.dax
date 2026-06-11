@@ -1,0 +1,20 @@
+EVALUATE
+TOPN (
+    25,
+    SUMMARIZECOLUMNS (
+        dimmove[MoveName],
+        dimmove[MoveType],
+        dimmove[Element],
+        dimmove[IsFinisher],
+        "Combat Events", [Combat Events],
+        "Event Damage", [Event Damage],
+        "Event XP", [Event XP],
+        "Event Score", [Event Score],
+        "Event KOs", [Event KOs],
+        "Event Fatalities", [Event Fatalities],
+        "Event Brutalities", [Event Brutalities]
+    ),
+    [Combat Events],
+    DESC
+)
+ORDER BY [Combat Events] DESC

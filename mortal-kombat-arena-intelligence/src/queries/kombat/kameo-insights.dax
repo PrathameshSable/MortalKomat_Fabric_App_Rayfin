@@ -1,0 +1,19 @@
+EVALUATE
+TOPN (
+    21,
+    SUMMARIZECOLUMNS (
+        dimkameofighter[KameoFighterName],
+        dimkameofighter[KameoGroup],
+        dimkameofighter[Element],
+        dimkameofighter[AssistStyle],
+        dimkameofighter[PortraitImagePath],
+        "Kameo Matches", [Kameo Matches],
+        "Kameo Wins", [Kameo Wins],
+        "Kameo Win Rate", [Kameo Win Rate],
+        "Total KOs", [Total KOs],
+        "Total Score", [Total Score]
+    ),
+    [Kameo Win Rate],
+    DESC
+)
+ORDER BY [Kameo Win Rate] DESC

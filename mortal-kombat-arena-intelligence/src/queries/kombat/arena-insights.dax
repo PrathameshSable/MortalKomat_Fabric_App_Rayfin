@@ -1,0 +1,14 @@
+EVALUATE
+SUMMARIZECOLUMNS (
+    dimarena[ArenaName],
+    dimarena[Realm],
+    dimarena[ArenaHazard],
+    dimarena[LightingTheme],
+    "Matches Played", [Matches Played],
+    "Win Rate", [Win Rate],
+    "Total KOs", [Total KOs],
+    "Fatalities", [Fatalities],
+    "Average Score", [Average Score],
+    "Damage Efficiency", [Damage Efficiency]
+)
+ORDER BY [Matches Played] DESC

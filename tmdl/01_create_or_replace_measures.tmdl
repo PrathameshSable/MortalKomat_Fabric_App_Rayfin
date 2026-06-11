@@ -1,0 +1,175 @@
+createOrReplace
+
+    ref table _Measures
+
+        measure 'Matches Played' = COUNTROWS ( FactMatchParticipant )
+            formatString: "#,##0"
+            displayFolder: "01 Match Performance"
+
+        measure 'Total Matches' = DISTINCTCOUNT ( FactMatchParticipant[MatchKey] )
+            formatString: "#,##0"
+            displayFolder: "01 Match Performance"
+
+        measure Wins = SUM ( FactMatchParticipant[IsWinner] )
+            formatString: "#,##0"
+            displayFolder: "01 Match Performance"
+
+        measure Losses = [Matches Played] - [Wins]
+            formatString: "#,##0"
+            displayFolder: "01 Match Performance"
+
+        measure 'Win Rate' = DIVIDE ( [Wins], [Matches Played] )
+            formatString: "0.0%;-0.0%;0.0%"
+            displayFolder: "01 Match Performance"
+
+        measure 'Total XP' = SUM ( FactMatchParticipant[XP] )
+            formatString: "#,##0"
+            displayFolder: "02 XP and Score"
+
+        measure 'Average XP Per Match' = DIVIDE ( [Total XP], [Matches Played] )
+            formatString: "#,##0"
+            displayFolder: "02 XP and Score"
+
+        measure 'Total Score' = SUM ( FactMatchParticipant[Score] )
+            formatString: "#,##0"
+            displayFolder: "02 XP and Score"
+
+        measure 'Average Score' = AVERAGE ( FactMatchParticipant[Score] )
+            formatString: "#,##0"
+            displayFolder: "02 XP and Score"
+
+        measure 'Total KOs' = SUM ( FactMatchParticipant[KOCount] )
+            formatString: "#,##0"
+            displayFolder: "03 Combat Metrics"
+
+        measure 'KO Rate' = DIVIDE ( [Total KOs], [Matches Played] )
+            formatString: "0.00"
+            displayFolder: "03 Combat Metrics"
+
+        measure Fatalities = SUM ( FactMatchParticipant[FatalityCount] )
+            formatString: "#,##0"
+            displayFolder: "03 Combat Metrics"
+
+        measure Brutalities = SUM ( FactMatchParticipant[BrutalityCount] )
+            formatString: "#,##0"
+            displayFolder: "03 Combat Metrics"
+
+        measure 'Perfect Rounds' = SUM ( FactMatchParticipant[PerfectRoundFlag] )
+            formatString: "#,##0"
+            displayFolder: "03 Combat Metrics"
+
+        measure 'Max Combo Hits' = MAX ( FactMatchParticipant[MaxComboHits] )
+            formatString: "#,##0"
+            displayFolder: "03 Combat Metrics"
+
+        measure 'Average Combo Hits' = AVERAGE ( FactMatchParticipant[MaxComboHits] )
+            formatString: "0.00"
+            displayFolder: "03 Combat Metrics"
+
+        measure 'Special Moves Landed' = SUM ( FactMatchParticipant[SpecialMovesLanded] )
+            formatString: "#,##0"
+            displayFolder: "03 Combat Metrics"
+
+        measure 'Rounds Played' = SUM ( FactMatchParticipant[RoundsPlayed] )
+            formatString: "#,##0"
+            displayFolder: "03 Combat Metrics"
+
+        measure 'Rounds Won' = SUM ( FactMatchParticipant[RoundsWon] )
+            formatString: "#,##0"
+            displayFolder: "03 Combat Metrics"
+
+        measure 'Rounds Lost' = SUM ( FactMatchParticipant[RoundsLost] )
+            formatString: "#,##0"
+            displayFolder: "03 Combat Metrics"
+
+        measure 'Round Win Rate' = DIVIDE ( [Rounds Won], [Rounds Played] )
+            formatString: "0.0%;-0.0%;0.0%"
+            displayFolder: "03 Combat Metrics"
+
+        measure 'Damage Dealt' = SUM ( FactMatchParticipant[DamageDealt] )
+            formatString: "#,##0"
+            displayFolder: "04 Damage"
+
+        measure 'Damage Taken' = SUM ( FactMatchParticipant[DamageTaken] )
+            formatString: "#,##0"
+            displayFolder: "04 Damage"
+
+        measure 'Damage Efficiency' = DIVIDE ( [Damage Dealt], [Damage Taken] )
+            formatString: "0.00"
+            displayFolder: "04 Damage"
+
+        measure 'Fighter Rank by Score' = RANKX ( ALL ( DimFighter[FighterName] ), [Total Score], , DESC, DENSE )
+            formatString: "#,##0"
+            displayFolder: "05 Rankings"
+
+        measure 'Fighter Rank by XP' = RANKX ( ALL ( DimFighter[FighterName] ), [Total XP], , DESC, DENSE )
+            formatString: "#,##0"
+            displayFolder: "05 Rankings"
+
+        measure 'Fighter Rank by Win Rate' = RANKX ( ALL ( DimFighter[FighterName] ), [Win Rate], , DESC, DENSE )
+            formatString: "#,##0"
+            displayFolder: "05 Rankings"
+
+        measure 'Kameo Matches' = COUNTROWS ( FactMatchParticipant )
+            formatString: "#,##0"
+            displayFolder: "06 Kameo Intelligence"
+
+        measure 'Kameo Wins' = SUM ( FactMatchParticipant[IsWinner] )
+            formatString: "#,##0"
+            displayFolder: "06 Kameo Intelligence"
+
+        measure 'Kameo Win Rate' = DIVIDE ( [Kameo Wins], [Kameo Matches] )
+            formatString: "0.0%;-0.0%;0.0%"
+            displayFolder: "06 Kameo Intelligence"
+
+        measure 'Combat Events' = COUNTROWS ( FactCombatEvent )
+            formatString: "#,##0"
+            displayFolder: "07 Combat Events"
+
+        measure 'Event Damage' = SUM ( FactCombatEvent[DamageValue] )
+            formatString: "#,##0"
+            displayFolder: "07 Combat Events"
+
+        measure 'Event XP' = SUM ( FactCombatEvent[XPGranted] )
+            formatString: "#,##0"
+            displayFolder: "07 Combat Events"
+
+        measure 'Event Score' = SUM ( FactCombatEvent[ScoreGranted] )
+            formatString: "#,##0"
+            displayFolder: "07 Combat Events"
+
+        measure 'Event KOs' = SUM ( FactCombatEvent[IsKO] )
+            formatString: "#,##0"
+            displayFolder: "07 Combat Events"
+
+        measure 'Event Fatalities' = SUM ( FactCombatEvent[IsFatality] )
+            formatString: "#,##0"
+            displayFolder: "07 Combat Events"
+
+        measure 'Event Brutalities' = SUM ( FactCombatEvent[IsBrutality] )
+            formatString: "#,##0"
+            displayFolder: "07 Combat Events"
+
+        measure 'Current Fighter Level' = MAX ( FactFighterDailySnapshot[LevelToDate] )
+            formatString: "#,##0"
+            displayFolder: "08 Fighter Progression"
+
+        measure 'Current Leaderboard Rank' = MIN ( FactFighterDailySnapshot[LeaderboardRank] )
+            formatString: "#,##0"
+            displayFolder: "08 Fighter Progression"
+
+        measure 'Total XP To Date' = MAX ( FactFighterDailySnapshot[TotalXPToDate] )
+            formatString: "#,##0"
+            displayFolder: "08 Fighter Progression"
+
+        measure 'Total Matches To Date' = MAX ( FactFighterDailySnapshot[TotalMatchesToDate] )
+            formatString: "#,##0"
+            displayFolder: "08 Fighter Progression"
+
+        measure 'Total Wins To Date' = MAX ( FactFighterDailySnapshot[TotalWinsToDate] )
+            formatString: "#,##0"
+            displayFolder: "08 Fighter Progression"
+
+        measure 'Total KOs To Date' = MAX ( FactFighterDailySnapshot[TotalKOsToDate] )
+            formatString: "#,##0"
+            displayFolder: "08 Fighter Progression"

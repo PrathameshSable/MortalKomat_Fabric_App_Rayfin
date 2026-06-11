@@ -1,0 +1,38 @@
+# ---- dependencies & build output ----
+node_modules/
+dist/
+
+# ---- environment & deployment state (machine-specific, recreated by the Rayfin CLI) ----
+# `rayfin login` + `rayfin up` regenerate these for your own workspace.
+.env
+.env.local
+.env.*.local
+mortal-kombat-arena-intelligence/rayfin/.env
+mortal-kombat-arena-intelligence/rayfin/.deployments.json
+mortal-kombat-arena-intelligence/rayfin/.lockfile.json
+
+# ---- personal tenant/workspace configuration (use the committed *.example files) ----
+mortal-kombat-arena-intelligence/fabric.yaml
+mortal-kombat-arena-intelligence/rayfin/rayfin.yml
+deployment/00_environment_values.ps1
+
+# ---- generated code (rebuilt by `npx fabric-app-data generate`) ----
+mortal-kombat-arena-intelligence/src/fabric.generated.ts
+
+# ---- raw source art (2+ GB) — the app uses the optimized copies in public/assets ----
+incoming-assets/
+
+# ---- copyrighted artwork: not distributed; see public/assets/README.md ----
+# (SVG fallbacks, READMEs and manifests stay committed so the structure is clear)
+mortal-kombat-arena-intelligence/public/assets/**/*.webp
+mortal-kombat-arena-intelligence/public/assets/**/*.png
+mortal-kombat-arena-intelligence/public/assets/**/*.jpg
+mortal-kombat-arena-intelligence/public/assets/**/*.jpeg
+mortal-kombat-arena-intelligence/public/assets/**/*.gif
+mortal-kombat-arena-intelligence/public/assets/**/*.mp4
+
+# ---- editor & local scratch ----
+.vscode/
+.playwright/
+*.backup_*
+*.log

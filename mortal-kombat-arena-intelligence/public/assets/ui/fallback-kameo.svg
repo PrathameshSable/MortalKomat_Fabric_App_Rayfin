@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="700" height="700" viewBox="0 0 700 700">
+  <rect width="700" height="700" fill="#120705"/>
+  <circle cx="350" cy="300" r="180" fill="#ff5a1f" opacity="0.35"/>
+  <text x="350" y="380" text-anchor="middle" font-family="Arial" font-size="44" font-weight="700" fill="#fff4e6">KAMEO</text>
+</svg>

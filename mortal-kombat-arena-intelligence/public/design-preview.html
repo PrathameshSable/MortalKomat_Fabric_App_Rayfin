@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Arena Intelligence — 1280×720 Canvas Preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Saira:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+/* ============================================================
+   ARENA INTELLIGENCE — FIXED 1280×720 CANVAS PREVIEW
+   Every page fits the canvas with zero page scrolling.
+   Only tables + roster profile use internal scroll.
+   ============================================================ */
+
+:root {
+    --mk-bg: #050302;
+    --mk-panel: rgba(18, 12, 9, 0.86);
+    --mk-border: rgba(255, 111, 28, 0.28);
+    --mk-text: #fff4e6;
+    --mk-muted: #b9a798;
+    --mk-gold: #f8b84e;
+    --mk-red: #d71920;
+    --mk-orange: #ff5a1f;
+    --mk-ice: #62c8ff;
+    --font-display: "Anton", "Arial Narrow", sans-serif;
+    --font-body: "Saira", "Segoe UI", sans-serif;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+
+body {
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    align-content: center;
+    gap: 14px;
+    padding: 20px;
+    font-family: var(--font-body);
+    color: var(--mk-text);
+    background: #0c0a09;
+}
+
+h1, h2, h3 { font-family: var(--font-display); font-weight: 400; letter-spacing: 0.015em; text-transform: uppercase; }
+.num { font-variant-numeric: tabular-nums; }
+
+.canvas-label {
+    color: #6b6258;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+}
+
+/* ---------- THE FIXED CANVAS ---------- */
+.canvas {
+    position: relative;
+    width: 1280px;
+    height: 720px;
+    flex: none;
+    overflow: hidden;
+    padding: 12px;
+    display: grid;
+    grid-template-rows: 44px 1fr;
+    gap: 10px;
+    border-radius: 12px;
+    outline: 2px dashed rgba(255, 255, 255, 0.14);
+    outline-offset: 4px;
+    background:
+        radial-gradient(circle at 15% 10%, rgba(255, 92, 31, 0.18), transparent 32%),
+        radial-gradient(circle at 88% 8%, rgba(215, 25, 32, 0.14), transparent 28%),
+        linear-gradient(135deg, #040201 0%, #120705 45%, #050302 100%);
+}
+
+/* ---------- slim nav (44px) ---------- */
+.nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 0 12px;
+    border: 1px solid rgba(255, 111, 28, 0.22);
+    border-radius: 12px;
+    background: rgba(5, 3, 2, 0.78);
+}
+
+.brand { display: flex; align-items: center; gap: 10px; }
+.brand img { height: 30px; filter: drop-shadow(0 0 10px rgba(215, 25, 32, 0.45)); }
+.brand strong { font-family: var(--font-display); font-size: 13.5px; letter-spacing: 0.07em; text-transform: uppercase; }
+.brand em { color: var(--mk-muted); font-size: 10px; font-style: normal; margin-left: 8px; }
+
+.tabs { display: flex; gap: 6px; }
+.tabs button {
+    appearance: none;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 9px;
+    padding: 6px 13px;
+    color: var(--mk-muted);
+    background: rgba(255, 255, 255, 0.035);
+    cursor: pointer;
+    font-family: var(--font-body);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    transition: border-color 150ms ease, background 150ms ease, color 150ms ease;
+}
+.tabs button:hover { color: var(--mk-text); border-color: rgba(248, 184, 78, 0.45); }
+.tabs button.active {
+    color: #160504;
+    background: linear-gradient(135deg, var(--mk-gold), var(--mk-orange));
+    border-color: transparent;
+    box-shadow: 0 0 18px rgba(255, 90, 31, 0.35);
+}
+
+/* ---------- pages ---------- */
+.page { display: none; min-height: 0; }
+.page.active { display: grid; animation: page-in 360ms cubic-bezier(0.22, 1, 0.36, 1); }
+@keyframes page-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+.eyebrow { color: var(--mk-gold); font-size: 10px; font-weight: 800; letter-spacing: 0.2em; text-transform: uppercase; }
+
+.btn {
+    appearance: none;
+    border: 1px solid rgba(248, 184, 78, 0.48);
+    border-radius: 999px;
+    padding: 8px 16px;
+    font-family: var(--font-body);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    cursor: pointer;
+    color: #160504;
+    background: linear-gradient(135deg, var(--mk-gold), var(--mk-orange));
+    box-shadow: 0 0 24px rgba(255, 90, 31, 0.26);
+    transition: transform 160ms ease, box-shadow 160ms ease;
+}
+.btn:hover { transform: translateY(-2px); box-shadow: 0 6px 32px rgba(255, 90, 31, 0.4); }
+.btn.ghost { color: var(--mk-gold); background: rgba(0, 0, 0, 0.34); }
+
+.panel {
+    min-height: 0;
+    padding: 12px 14px;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 90, 31, 0.24);
+    background:
+        radial-gradient(circle at top left, rgba(255, 90, 31, 0.10), transparent 34%),
+        linear-gradient(145deg, rgba(30, 20, 15, 0.95), rgba(8, 6, 5, 0.95));
+}
+
+/* ============================================================
+   HOME — compressed Kombat Spotlight (fits 630px)
+   ============================================================ */
+#page-home { grid-template-rows: 1fr 36px; gap: 10px; }
+
+.home-stage {
+    position: relative;
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: 330px 1fr 250px;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 111, 28, 0.30);
+    background: url("assets/backgrounds/home-arena.png") center 30% / cover no-repeat;
+}
+
+/* landing video behind everything, arena png as poster/fallback */
+.stage-video {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.stage-shade {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: linear-gradient(110deg, rgba(5, 3, 2, 0.95) 0%, rgba(5, 3, 2, 0.45) 48%, rgba(5, 3, 2, 0.86) 100%);
+}
+
+.ghost-name {
+    position: absolute;
+    z-index: 1;
+    left: 47%;
+    top: 5%;
+    transform: translateX(-42%);
+    font-family: var(--font-display);
+    font-size: 120px;
+    line-height: 1;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: transparent;
+    -webkit-text-stroke: 1.5px rgba(255, 244, 230, 0.10);
+    pointer-events: none;
+    transition: opacity 400ms ease;
+}
+
+.stage-copy {
+    position: relative;
+    z-index: 4;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 22px;
+}
+
+.stage-copy h1 { margin: 8px 0 8px; font-size: 38px; line-height: 1.02; text-shadow: 0 0 18px rgba(255, 90, 31, 0.45), 0 10px 26px rgba(0, 0, 0, 0.8); }
+.stage-copy > div > p { max-width: 290px; margin: 0; color: var(--mk-muted); font-size: 12.5px; line-height: 1.55; }
+.actions { display: flex; gap: 8px; margin-top: 14px; }
+
+.plate {
+    position: relative;
+    overflow: hidden;
+    padding: 12px 14px 12px 19px;
+    border-radius: 14px;
+    border: 1px solid color-mix(in srgb, var(--sc, var(--mk-gold)) 40%, rgba(255, 255, 255, 0.1));
+    background:
+        radial-gradient(circle at 0% 0%, color-mix(in srgb, var(--sc, var(--mk-gold)) 14%, transparent), transparent 55%),
+        rgba(8, 6, 5, 0.78);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 26px color-mix(in srgb, var(--sc, var(--mk-gold)) 14%, transparent);
+    transition: border-color 600ms ease, box-shadow 600ms ease;
+}
+.plate::before {
+    content: "";
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 4px;
+    background: linear-gradient(180deg, color-mix(in srgb, var(--sc, var(--mk-gold)) 90%, #fff), var(--sc, var(--mk-gold)) 55%, transparent);
+    box-shadow: 0 0 14px var(--sc, var(--mk-gold));
+}
+.plate-body.swap { animation: plate-swap 420ms cubic-bezier(0.22, 1, 0.36, 1); }
+@keyframes plate-swap { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+.rank-chip {
+    display: inline-block;
+    margin-bottom: 5px;
+    padding: 3px 9px;
+    border-radius: 999px;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #160504;
+    background: linear-gradient(135deg, color-mix(in srgb, var(--sc, var(--mk-gold)) 70%, #ffd), var(--sc, var(--mk-gold)));
+}
+.plate h2 { margin: 2px 0 1px; font-size: 26px; line-height: 1; white-space: nowrap; text-shadow: 0 0 16px color-mix(in srgb, var(--sc, var(--mk-gold)) 55%, transparent); }
+.plate .style-line { margin: 0 0 9px; color: var(--mk-muted); font-size: 11px; }
+.plate-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
+.plate-stats div { padding: 6px 7px; border-radius: 9px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.08); border-top: 2px solid color-mix(in srgb, var(--sc, var(--mk-gold)) 45%, transparent); }
+.plate-stats span { display: block; color: var(--mk-muted); font-size: 8px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+.plate-stats strong { display: block; margin-top: 2px; font-size: 12px; font-weight: 700; }
+
+.spotlight { position: relative; z-index: 2; min-height: 0; }
+.spotlight::after {
+    content: "";
+    position: absolute;
+    left: 50%; bottom: 3%;
+    width: 70%; height: 40px;
+    transform: translateX(-50%);
+    border-radius: 50%;
+    background: radial-gradient(ellipse, color-mix(in srgb, var(--sc, var(--mk-gold)) 45%, transparent), transparent 70%);
+    filter: blur(14px);
+    transition: background 500ms ease;
+}
+.spotlight img {
+    position: absolute;
+    left: 50%; bottom: 0;
+    transform: translateX(-50%);
+    max-height: 96%;
+    max-width: 105%;
+    object-fit: contain;
+    filter: drop-shadow(0 20px 30px rgba(0, 0, 0, 0.8)) drop-shadow(0 0 26px color-mix(in srgb, var(--sc, var(--mk-gold)) 36%, transparent));
+    transition: opacity 500ms ease, transform 500ms ease;
+}
+.spotlight img.out { opacity: 0; transform: translateX(-50%) translateY(14px) scale(0.97); }
+
+.lead-rail {
+    position: relative;
+    z-index: 4;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 16px 14px;
+    background: linear-gradient(270deg, rgba(0, 0, 0, 0.6), transparent);
+    border-left: 1px solid rgba(255, 255, 255, 0.06);
+}
+.lead-rail .eyebrow { margin-bottom: 4px; }
+
+.lead-row {
+    appearance: none;
+    display: grid;
+    grid-template-columns: 22px 40px 1fr;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 9px;
+    border-radius: 11px;
+    border: 1px solid transparent;
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--mk-text);
+    text-align: left;
+    cursor: pointer;
+    font-family: var(--font-body);
+    transition: border-color 180ms ease, background 180ms ease, transform 180ms ease;
+}
+.lead-row:hover { transform: translateX(-3px); background: rgba(255, 255, 255, 0.06); }
+.lead-row.active {
+    border-color: color-mix(in srgb, var(--rc, var(--mk-gold)) 65%, transparent);
+    background: color-mix(in srgb, var(--rc, var(--mk-gold)) 12%, rgba(0, 0, 0, 0.3));
+}
+.lead-row .rank { font-family: var(--font-display); font-size: 14px; color: var(--mk-gold); }
+.lead-row img { width: 40px; height: 40px; object-fit: contain; object-position: top; }
+.lead-row .who strong { display: block; font-size: 12px; font-weight: 700; }
+.lead-row .who span { display: block; color: var(--mk-muted); font-size: 9px; letter-spacing: 0.05em; text-transform: uppercase; }
+.lead-row .score-bar { grid-column: 1 / -1; height: 3px; border-radius: 999px; background: rgba(255, 255, 255, 0.07); overflow: hidden; }
+.lead-row .score-bar i { display: block; height: 100%; background: linear-gradient(90deg, var(--mk-gold), var(--mk-orange)); }
+
+.ticker {
+    overflow: hidden;
+    border-radius: 11px;
+    border: 1px solid var(--mk-border);
+    background: rgba(12, 5, 4, 0.74);
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent);
+}
+.ticker-track { display: inline-flex; gap: 44px; padding: 9px 22px; white-space: nowrap; animation: ticker-scroll 36s linear infinite; }
+.ticker:hover .ticker-track { animation-play-state: paused; }
+@keyframes ticker-scroll { to { transform: translateX(-50%); } }
+.ticker-item { display: inline-flex; align-items: center; gap: 7px; color: var(--mk-muted); font-size: 10.5px; font-weight: 600; letter-spacing: 0.09em; text-transform: uppercase; }
+.ticker-item strong { color: var(--mk-gold); font-size: 12px; font-weight: 800; }
+.ticker-item .dot { color: var(--mk-orange); }
+
+/* ============================================================
+   COMMAND CENTER — title row / KPI strip / two scrolling tables
+   ============================================================ */
+#page-command { grid-template-rows: 30px 70px 32px 1fr; gap: 10px; }
+
+.cmd-slicers { display: flex; align-items: center; gap: 8px; }
+.cmd-slicers .eyebrow { margin-right: 4px; }
+.cmd-slicers .mini-select, .cmd-slicers .mini-input { height: 28px; }
+.cmd-slicers .mini-input { flex: 0 1 220px; }
+.slicer-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(248, 184, 78, 0.35);
+    background: rgba(255, 90, 31, 0.10);
+    color: var(--mk-gold);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+}
+.slicer-chip:hover { background: rgba(255, 90, 31, 0.2); }
+
+.cmd-title { display: flex; align-items: baseline; gap: 14px; }
+.cmd-title h2 { margin: 0; font-size: 22px; }
+.cmd-title .eyebrow { transform: translateY(-2px); }
+.cmd-title .spacer { flex: 1; }
+
+.kpi-strip { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
+.kpi {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 90, 31, 0.24);
+    background:
+        radial-gradient(circle at top left, rgba(255, 90, 31, 0.14), transparent 40%),
+        linear-gradient(145deg, rgba(35, 24, 18, 0.95), rgba(8, 6, 5, 0.95));
+    transition: transform 180ms ease, border-color 180ms ease;
+}
+.kpi:hover {
+    transform: translateY(-3px);
+    border-color: rgba(248, 184, 78, 0.55);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 26px rgba(255, 90, 31, 0.22);
+}
+.kpi .icon { transition: transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1); }
+.kpi:hover .icon { transform: scale(1.15) rotate(-7deg); }
+.kpi .icon {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 30px; height: 30px;
+    border-radius: 9px;
+    font-size: 13px;
+    background: linear-gradient(135deg, var(--mk-gold), var(--mk-orange));
+}
+.kpi span { display: block; color: var(--mk-muted); font-size: 8.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
+.kpi strong { display: block; font-family: var(--font-display); font-size: 19px; }
+.kpi .delta { font-size: 9px; font-weight: 700; color: #39ff88; }
+.kpi .delta.down { color: #ff6b6b; }
+
+.skeleton { position: relative; overflow: hidden; }
+.skeleton > * { visibility: hidden; }
+.skeleton::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(100deg, transparent 30%, rgba(255, 200, 130, 0.10) 50%, transparent 70%);
+    animation: shimmer 1.4s infinite;
+}
+@keyframes shimmer { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
+
+.cmd-tables { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; min-height: 0; }
+.cmd-tables .panel { display: grid; grid-template-rows: auto 1fr; gap: 6px; }
+.cmd-tables h3 { margin: 0; font-size: 15px; }
+.cmd-tables .panel-head { display: flex; align-items: baseline; justify-content: space-between; }
+
+.table-scroll { min-height: 0; overflow-y: auto; border-radius: 8px; }
+.table-scroll::-webkit-scrollbar { width: 6px; }
+.table-scroll::-webkit-scrollbar-thumb { background: rgba(255, 144, 60, 0.3); border-radius: 999px; }
+
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 7px 9px; text-align: left; }
+th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    color: var(--mk-gold);
+    font-size: 9.5px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    background: #221208;
+}
+td { font-size: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+tbody tr:nth-child(even) td { background: rgba(255, 255, 255, 0.022); }
+tbody tr { transition: background 120ms ease; }
+tbody tr:hover td { background: rgba(255, 90, 31, 0.10); }
+tbody tr:hover td:first-child { box-shadow: inset 3px 0 0 var(--mk-orange); color: var(--mk-gold); }
+td.r, th.r { text-align: right; }
+
+/* ============================================================
+   ROSTER — character-select grid + slide-in profile panel
+   ============================================================ */
+#page-roster { grid-template-rows: 36px 1fr; gap: 10px; position: relative; overflow: hidden; }
+
+.filter-row { display: flex; gap: 8px; align-items: center; }
+.filter-row .eyebrow { flex: none; margin-right: 4px; }
+.mini-input, .mini-select {
+    height: 30px;
+    border: 1px solid rgba(248, 184, 78, 0.28);
+    border-radius: 9px;
+    padding: 0 10px;
+    color: var(--mk-text);
+    background: rgba(5, 3, 2, 0.82);
+    outline: none;
+    font-family: var(--font-body);
+    font-size: 11px;
+}
+.mini-input { flex: 1; min-width: 120px; }
+.mini-input:focus, .mini-select:focus { border-color: rgba(248, 184, 78, 0.72); }
+.count-note { color: var(--mk-muted); font-size: 11px; white-space: nowrap; }
+.count-note strong { color: var(--mk-gold); }
+
+.select-grid {
+    display: grid;
+    grid-template-columns: repeat(9, 1fr);
+    grid-auto-rows: 1fr;
+    gap: 8px;
+    min-height: 0;
+}
+
+.tile {
+    appearance: none;
+    position: relative;
+    overflow: hidden;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    background:
+        radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--tc, var(--mk-orange)) 22%, transparent), transparent 60%),
+        rgba(10, 6, 4, 0.9);
+    cursor: pointer;
+    padding: 0;
+    transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+}
+.tile img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+    transition: transform 200ms ease;
+}
+.tile .tile-name {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    z-index: 2;
+    padding: 14px 5px 4px;
+    font-family: var(--font-display);
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    text-align: center;
+    text-transform: uppercase;
+    color: var(--mk-text);
+    background: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.88) 55%);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.tile .tile-win {
+    position: absolute;
+    top: 4px; right: 4px;
+    z-index: 2;
+    padding: 2px 6px;
+    border-radius: 999px;
+    font-size: 8.5px;
+    font-weight: 800;
+    color: var(--mk-gold);
+    background: rgba(0, 0, 0, 0.62);
+    border: 1px solid rgba(248, 184, 78, 0.3);
+    opacity: 0;
+    transition: opacity 160ms ease;
+}
+.tile:hover { transform: scale(1.06); z-index: 3; border-color: rgba(248, 184, 78, 0.7); box-shadow: 0 8px 28px rgba(0, 0, 0, 0.6), 0 0 22px color-mix(in srgb, var(--tc, var(--mk-orange)) 35%, transparent); }
+.tile:hover img { transform: scale(1.1); }
+.tile:hover .tile-win { opacity: 1; }
+.tile.selected { border-color: var(--mk-gold); box-shadow: 0 0 0 2px rgba(248, 184, 78, 0.55), 0 0 26px color-mix(in srgb, var(--tc, var(--mk-orange)) 40%, transparent); }
+.tile .tile-fallback {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    font-family: var(--font-display);
+    font-size: 28px;
+    color: color-mix(in srgb, var(--tc, var(--mk-orange)) 80%, #fff);
+}
+
+/* slide-in profile panel */
+.profile-panel {
+    position: absolute;
+    top: 46px;
+    right: 0;
+    bottom: 0;
+    z-index: 10;
+    width: 400px;
+    overflow: hidden;
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr) auto auto;
+    gap: 8px;
+    padding: 14px;
+    border-radius: 14px;
+    border: 1px solid color-mix(in srgb, var(--pc, var(--mk-gold)) 50%, transparent);
+    background:
+        radial-gradient(circle at 80% 0%, color-mix(in srgb, var(--pc, var(--mk-gold)) 18%, transparent), transparent 50%),
+        rgba(8, 5, 3, 0.96);
+    backdrop-filter: blur(16px);
+    box-shadow: -20px 0 60px rgba(0, 0, 0, 0.6);
+    transform: translateX(108%);
+    transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.profile-panel.open { transform: translateX(0); }
+.profile-head { display: flex; justify-content: space-between; align-items: start; }
+.profile-head h3 { margin: 2px 0 0; font-size: 24px; }
+.profile-head p { margin: 2px 0 0; color: var(--mk-muted); font-size: 11px; }
+.profile-close {
+    appearance: none;
+    border: 1px solid rgba(248, 184, 78, 0.42);
+    border-radius: 999px;
+    width: 26px; height: 26px;
+    color: var(--mk-gold);
+    background: rgba(0, 0, 0, 0.36);
+    font-size: 12px;
+    cursor: pointer;
+}
+.profile-render { position: relative; min-height: 0; display: grid; place-items: end center; }
+.profile-render img { max-height: 100%; max-width: 92%; object-fit: contain; filter: drop-shadow(0 16px 26px rgba(0, 0, 0, 0.75)) drop-shadow(0 0 22px color-mix(in srgb, var(--pc, var(--mk-gold)) 35%, transparent)); }
+.profile-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.profile-stats div { padding: 8px; border-radius: 10px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.08); border-top: 2px solid color-mix(in srgb, var(--pc, var(--mk-gold)) 45%, transparent); }
+.profile-stats span { display: block; color: var(--mk-muted); font-size: 8px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+.profile-stats strong { display: block; margin-top: 2px; font-size: 13px; }
+
+/* head-to-head matchups: defeats most / defeated by */
+.profile-matchups { display: grid; gap: 6px; }
+.matchup-row {
+    display: grid;
+    grid-template-columns: auto 34px 1fr auto;
+    align-items: center;
+    gap: 9px;
+    padding: 7px 10px;
+    border-radius: 11px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    cursor: pointer;
+    transition: background 150ms ease, border-color 150ms ease;
+}
+.matchup-row:hover { background: rgba(255, 255, 255, 0.07); border-color: rgba(248, 184, 78, 0.4); }
+.matchup-row .mu-label { width: 86px; font-size: 8px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; }
+.matchup-row.prey .mu-label { color: #39ff88; }
+.matchup-row.nemesis .mu-label { color: #ff6b6b; }
+.matchup-row img { width: 34px; height: 34px; object-fit: contain; object-position: top; filter: drop-shadow(0 4px 7px rgba(0, 0, 0, 0.6)); }
+.matchup-row .mu-who strong { display: block; font-size: 12px; }
+.matchup-row .mu-who span { display: block; color: var(--mk-muted); font-size: 9px; }
+.matchup-row .mu-count {
+    padding: 3px 9px;
+    border-radius: 999px;
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+}
+.matchup-row.prey .mu-count { color: #0a2415; background: #39ff88; }
+.matchup-row.nemesis .mu-count { color: #2a0b0b; background: #ff6b6b; }
+
+/* ============================================================
+   COMPARE — single-screen VS with center tale-of-the-tape
+   ============================================================ */
+#page-compare { grid-template-rows: 36px 1fr; gap: 10px; }
+
+.vs-selectors { display: grid; grid-template-columns: 1fr 64px 1fr; gap: 10px; align-items: center; }
+.vs-chip {
+    display: grid;
+    place-items: center;
+    height: 32px;
+    border-radius: 10px;
+    font-family: var(--font-display);
+    font-size: 16px;
+    color: #140705;
+    background: linear-gradient(135deg, var(--mk-gold), var(--mk-orange));
+    box-shadow: 0 0 22px rgba(255, 90, 31, 0.30);
+}
+
+.vs-arena { display: grid; grid-template-columns: 1fr 420px 1fr; gap: 10px; min-height: 0; }
+
+.vs-side {
+    position: relative;
+    overflow: hidden;
+    border-radius: 14px;
+    border: 1px solid var(--mk-border);
+    background:
+        radial-gradient(circle at 50% 10%, color-mix(in srgb, var(--fc, var(--mk-gold)) 22%, transparent), transparent 45%),
+        rgba(12, 5, 4, 0.84);
+}
+.vs-side .side-render { position: absolute; inset: 8px 8px 86px; display: grid; place-items: end center; }
+.vs-side .side-render img { max-height: 100%; max-width: 94%; object-fit: contain; filter: drop-shadow(0 18px 28px rgba(0, 0, 0, 0.75)) drop-shadow(0 0 24px color-mix(in srgb, var(--fc, var(--mk-gold)) 30%, transparent)); transition: opacity 350ms ease; }
+.vs-side .side-plate {
+    position: absolute;
+    left: 8px; right: 8px; bottom: 8px;
+    padding: 9px 12px;
+    border-radius: 11px;
+    background: linear-gradient(180deg, rgba(20, 10, 8, 0.55), rgba(20, 10, 8, 0.94));
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+}
+.vs-side .side-plate h3 { margin: 0; font-size: 18px; }
+.vs-side .side-plate p { margin: 1px 0 6px; color: var(--mk-muted); font-size: 10px; }
+.vs-side .side-mini { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
+.vs-side .side-mini div { padding: 5px 6px; border-radius: 8px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.08); }
+.vs-side .side-mini span { display: block; font-size: 7.5px; letter-spacing: 0.07em; text-transform: uppercase; color: var(--mk-muted); }
+.vs-side .side-mini strong { display: block; font-size: 11px; }
+
+.vs-center { display: grid; grid-template-rows: auto 1fr; gap: 4px; padding: 12px 16px; }
+.vs-center h3 { margin: 0; font-size: 15px; text-align: center; }
+.vs-metrics { display: grid; align-content: space-evenly; gap: 2px; min-height: 0; }
+
+.metric-row {
+    display: grid;
+    grid-template-columns: 56px 1fr 78px 1fr 56px;
+    gap: 8px;
+    align-items: center;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+.metric-row:last-child { border-bottom: 0; }
+.metric-row .label { text-align: center; color: var(--mk-gold); font-size: 8.5px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; }
+.metric-row .val { font-family: var(--font-display); font-size: 14px; }
+.metric-row .val.right { text-align: right; }
+.metric-row .val.win { color: var(--mk-gold); text-shadow: 0 0 12px rgba(248, 184, 78, 0.55); }
+
+.bar { position: relative; height: 7px; border-radius: 999px; background: rgba(255, 255, 255, 0.07); overflow: hidden; }
+.bar i { position: absolute; top: 0; bottom: 0; width: 0; border-radius: 999px; transition: width 800ms cubic-bezier(0.22, 1, 0.36, 1); }
+.bar.left i { right: 0; background: linear-gradient(90deg, var(--mk-gold), var(--mk-orange)); }
+.bar.right i { left: 0; background: linear-gradient(90deg, var(--mk-ice), #a855f7); }
+
+/* ---------- notes under the canvas ---------- */
+.preview-banner {
+    max-width: 1280px;
+    padding: 12px 18px;
+    border-radius: 12px;
+    border: 1px dashed rgba(98, 200, 255, 0.4);
+    background: rgba(98, 200, 255, 0.05);
+    color: var(--mk-ice);
+    font-size: 12px;
+    line-height: 1.6;
+}
+</style>
+</head>
+<body>
+
+<div class="canvas-label">Fabric App Canvas — exactly 1280 × 720, no page scrolling</div>
+
+<div class="canvas">
+    <nav class="nav">
+        <div class="brand">
+            <img src="assets/branding/mk-logo.webp" alt="MK" onerror="this.style.display='none'" />
+            <strong>Arena Intelligence</strong>
+            <em>Microsoft Fabric + Rayfin</em>
+        </div>
+        <div class="tabs">
+            <button class="active" data-tab="home">Home</button>
+            <button data-tab="command">Command Center</button>
+            <button data-tab="roster">Roster</button>
+            <button data-tab="compare">Compare</button>
+        </div>
+    </nav>
+
+    <!-- ==================== HOME ==================== -->
+    <section class="page active" id="page-home">
+        <div class="home-stage" id="homeStage" style="--sc:#e8b964">
+            <video class="stage-video" autoplay muted loop playsinline
+                   poster="assets/backgrounds/home-arena.png"
+                   src="assets/backgrounds/landing-video.mp4"></video>
+            <div class="stage-shade"></div>
+            <div class="ghost-name" id="ghostName">Geras</div>
+
+            <div class="stage-copy">
+                <div>
+                    <span class="eyebrow">Live Fabric Data App</span>
+                    <h1>Arena<br />Intelligence</h1>
+                    <p>Live combat analytics from Microsoft Fabric semantic models, DAX and Rayfin. 35 fighters. 15,000 matches. One champion.</p>
+                    <div class="actions">
+                        <button class="btn" onclick="switchTab('roster')">Choose Fighter</button>
+                        <button class="btn ghost" onclick="switchTab('compare')">Compare</button>
+                    </div>
+                </div>
+
+                <div class="plate" id="plate">
+                    <div class="plate-body" id="plateBody">
+                        <span class="rank-chip" id="plateRank">Rank #1 · Hourglass</span>
+                        <h2 id="plateName">Geras</h2>
+                        <p class="style-line" id="plateStyle">Time Guardian · Hard</p>
+                        <div class="plate-stats" id="plateStats"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="spotlight" id="spotlight">
+                <img id="renderA" src="assets/fighters/geras/gallery/image-01.webp" alt="Featured fighter" />
+                <img id="renderB" class="out" alt="" />
+            </div>
+
+            <aside class="lead-rail" id="leadRail">
+                <span class="eyebrow">Top 5 · Total Score</span>
+            </aside>
+        </div>
+
+        <div class="ticker">
+            <div class="ticker-track" id="tickerTrack"></div>
+        </div>
+    </section>
+
+    <!-- ==================== COMMAND CENTER ==================== -->
+    <section class="page" id="page-command">
+        <div class="cmd-title">
+            <span class="eyebrow">Command Center</span>
+            <h2>Combat Performance</h2>
+            <div class="spacer"></div>
+            <button class="btn ghost" style="padding:5px 12px;font-size:10px" onclick="toggleSkeletons()">Toggle loading</button>
+        </div>
+
+        <div class="kpi-strip" id="kpiStrip">
+            <div class="kpi"><div class="icon">⚔️</div><div><span>Total Matches</span><strong class="num" data-count="15000">0</strong></div></div>
+            <div class="kpi"><div class="icon">✦</div><div><span>Total XP</span><strong class="num" data-count="29300885">0</strong></div></div>
+            <div class="kpi"><div class="icon">🏆</div><div><span>Total Score</span><strong class="num" data-count="374932450">0</strong></div></div>
+            <div class="kpi"><div class="icon">💀</div><div><span>KOs</span><strong class="num" data-count="67505">0</strong></div></div>
+            <div class="kpi"><div class="icon">◆</div><div><span>Win Rate</span><strong class="num" data-count="50" data-suffix="%">0</strong></div></div>
+            <div class="kpi"><div class="icon">🔥</div><div><span>Fatalities</span><strong class="num" data-count="3488">0</strong></div></div>
+        </div>
+
+        <div class="cmd-slicers">
+            <span class="eyebrow">Slicers</span>
+            <select class="mini-select" id="slicerRealm"><option value="">All realms</option></select>
+            <select class="mini-select" id="slicerMatches">
+                <option value="0">Any matches</option>
+                <option value="2450">2,450+ matches</option>
+                <option value="2500">2,500+ matches</option>
+            </select>
+            <input class="mini-input" id="slicerKameo" placeholder="Search kameo or assist..." />
+            <span class="slicer-chip" id="slicerReset" style="display:none">✕ Clear filters</span>
+        </div>
+
+        <div class="cmd-tables">
+            <div class="panel">
+                <div class="panel-head">
+                    <h3>Battlefield Performance</h3>
+                    <span class="eyebrow" id="arenaCount">Arena Intelligence</span>
+                </div>
+                <div class="table-scroll">
+                    <table>
+                        <thead><tr><th>Arena</th><th>Realm</th><th class="r">Matches</th><th class="r">Win rate</th><th class="r">KOs</th></tr></thead>
+                        <tbody id="arenaRows"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="panel">
+                <div class="panel-head">
+                    <h3>Best Assist Fighters</h3>
+                    <span class="eyebrow">Kameo Intelligence</span>
+                </div>
+                <div class="table-scroll">
+                    <table>
+                        <thead><tr><th>Kameo</th><th>Assist</th><th class="r">Matches</th><th class="r">Win rate</th></tr></thead>
+                        <tbody id="kameoRows"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== ROSTER ==================== -->
+    <section class="page" id="page-roster">
+        <div class="filter-row">
+            <span class="eyebrow">Choose Your Fighter</span>
+            <input class="mini-input" id="rosterSearch" placeholder="Search fighter..." />
+            <select class="mini-select"><option>All groups</option><option>Main Game</option><option>Kombat Pack</option></select>
+            <select class="mini-select"><option>All realms</option><option>Earthrealm</option><option>Outworld</option><option>Netherrealm</option></select>
+            <select class="mini-select"><option>Sort: Score</option><option>Sort: XP</option><option>Sort: Win rate</option></select>
+            <span class="count-note"><strong id="tileCount">35</strong> / 35</span>
+        </div>
+
+        <div class="select-grid" id="selectGrid"></div>
+
+        <aside class="profile-panel" id="profilePanel">
+            <div class="profile-head">
+                <div>
+                    <span class="rank-chip" id="profRank">Rank #1</span>
+                    <h3 id="profName">—</h3>
+                    <p id="profStyle">—</p>
+                </div>
+                <button class="profile-close" onclick="closeProfile()">✕</button>
+            </div>
+            <div class="profile-render"><img id="profImg" alt="" /></div>
+            <div class="profile-stats" id="profStats"></div>
+            <div class="profile-matchups" id="profMatchups"></div>
+        </aside>
+    </section>
+
+    <!-- ==================== COMPARE ==================== -->
+    <section class="page" id="page-compare">
+        <div class="vs-selectors">
+            <select class="mini-select" id="selA"></select>
+            <div class="vs-chip">VS</div>
+            <select class="mini-select" id="selB"></select>
+        </div>
+
+        <div class="vs-arena">
+            <div class="vs-side" id="sideA">
+                <div class="side-render"><img id="imgA" alt="" /></div>
+                <div class="side-plate">
+                    <h3 id="nameA">—</h3>
+                    <p id="styleA">—</p>
+                    <div class="side-mini" id="miniA"></div>
+                </div>
+            </div>
+
+            <div class="panel vs-center">
+                <h3>Tale of the Tape</h3>
+                <div class="vs-metrics" id="vsMetrics"></div>
+            </div>
+
+            <div class="vs-side" id="sideB">
+                <div class="side-render"><img id="imgB" alt="" /></div>
+                <div class="side-plate">
+                    <h3 id="nameB">—</h3>
+                    <p id="styleB">—</p>
+                    <div class="side-mini" id="miniB"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<div class="preview-banner">
+    <strong>1280×720 redesign + new requests:</strong> Home now plays the landing video behind the spotlight (muted loop, arena art as fallback) · Command Center gained a slicer row (realm + min-matches filter the arena table, search filters kameos, ✕ clears) and richer hover (KPI lift/glow with icon pop, table rows highlight with an orange accent) · Roster profile now shows head-to-head: <em>Defeats most</em> (green) and <em>Defeated by</em> (red) — click a rival to jump to their profile. In the real app these come from matchup-matrix.dax. No page ever scrolls.
+</div>
+
+<script>
+/* ---------- fighter data: all 35, deterministic mock stats ---------- */
+const NAME_MAP = {
+    "t-1000-terminator": "T-1000", "omni-man": "Omni-Man", "noob-saibot": "Noob Saibot",
+    "sub-zero": "Sub-Zero", "li-mei": "Li Mei", "kung-lao": "Kung Lao",
+    "johnny-cage": "Johnny Cage", "quan-chi": "Quan Chi", "shang-tsung": "Shang Tsung",
+    "general-shao": "General Shao", "kenshi-takahashi": "Kenshi Takahashi",
+    "takeda-takahashi": "Takeda Takahashi", "liu-kang": "Liu Kang",
+    "conan-the-barbarian": "Conan", "ghostface": "Ghostface"
+};
+const SLUGS = ["geras","nitara","havik","johnny-cage","scorpion","sub-zero","raiden","kitana","liu-kang","mileena",
+    "noob-saibot","quan-chi","kung-lao","sektor","cyrax","reptile","reiko","general-shao","takeda-takahashi","peacemaker",
+    "omni-man","homelander","ashrah","baraka","ermac","kenshi-takahashi","li-mei","rain","shang-tsung","sindel",
+    "smoke","tanya","ghostface","conan-the-barbarian","t-1000-terminator"];
+const COLORS = ["#e8b964","#ff4d6a","#58e08a","#ffd36a","#ffb02e","#62c8ff","#9be7ff","#7fd4ff","#ff7a3d","#ff5fa8","#a5b4d4","#a78bfa"];
+const REALMS = ["Hourglass","Vaeternus","Chaosrealm","Earthrealm","Earthrealm","Earthrealm","Earthrealm","Outworld","Earthrealm","Outworld",
+    "Netherrealm","Netherrealm","Earthrealm","Earthrealm","Earthrealm","Zaterra","Outworld","Outworld","Earthrealm","Earthrealm",
+    "Viltrum","Earthrealm","Netherrealm","Outworld","Outworld","Earthrealm","Outworld","Outworld","Outworld","Outworld",
+    "Earthrealm","Outworld","Earthrealm","Cimmeria","Future"];
+const STYLES = ["Time Guardian · Hard","Vampire · Hard","Anarchist · Hard","Brawler · Easy","Ninja · Medium","Ninja · Medium","Monk · Easy","Royalty · Medium","Martial Artist · Medium","Assassin · Hard",
+    "Wraith · Expert","Sorcerer · Expert","Shaolin · Medium","Cyber Ninja · Hard","Cyber Ninja · Hard","Shapeshifter · Medium","Soldier · Medium","General · Hard","Whip Swords · Hard","Shooter · Medium",
+    "Brutalist · Hard","Tyrant · Hard","Demon Hunter · Medium","Tarkatan · Hard","Telekinetic · Expert","Swordsman · Hard","Fist Fighter · Easy","Hydromancer · Medium","Shapeshifter · Expert","Queen · Hard",
+    "Enenra · Medium","Pyromancer · Medium","Slasher · Medium","Barbarian · Hard","Mimetic · Expert"];
+
+function rngFor(slug) {
+    let seed = [...slug].reduce((a, c) => a + c.charCodeAt(0), 7);
+    return () => { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; };
+}
+
+const FIGHTERS = SLUGS.map((slug, i) => {
+    const r = rngFor(slug);
+    const matches = 855 + Math.floor(r() * 62);
+    const winRate = 0.488 + r() * 0.036;
+    const xp = 822000 + Math.floor(r() * 106000);
+    const kos = 1948 + Math.floor(r() * 165);
+    const score = 10350000 + Math.floor((xp / 930000) * 1200000 + r() * 90000) - i * 18000;
+    return {
+        slug,
+        name: NAME_MAP[slug] || slug.split("-").map(w => w[0].toUpperCase() + w.slice(1)).join(" "),
+        realm: REALMS[i], style: STYLES[i], c: COLORS[i % COLORS.length],
+        matches, winRate, xp, kos, score,
+        wins: Math.round(matches * winRate)
+    };
+});
+
+/* pin the real top-5 stats so home matches live data */
+const REAL = { geras: [927078, 2094, 0.521, 915, 11605670], nitara: [896465, 2053, 0.516, 899, 11410908],
+    havik: [881968, 2044, 0.522, 889, 11288430], "johnny-cage": [865062, 2109, 0.508, 892, 11187204],
+    scorpion: [876000, 1996, 0.507, 883, 11102560] };
+for (const f of FIGHTERS) {
+    if (REAL[f.slug]) { [f.xp, f.kos, f.winRate, f.matches, f.score] = REAL[f.slug]; f.wins = Math.round(f.matches * f.winRate); }
+}
+const BY_SCORE = [...FIGHTERS].sort((a, b) => b.score - a.score);
+const rankOf = f => BY_SCORE.indexOf(f) + 1;
+const imgOf = f => `assets/fighters/${f.slug}/gallery/image-01.webp`;
+const fmt = n => n.toLocaleString();
+const pct = v => (v * 100).toFixed(1) + "%";
+const compact = n => new Intl.NumberFormat("en", { notation: "compact", maximumFractionDigits: 2 }).format(n);
+
+/* ---------- tabs ---------- */
+function switchTab(name) {
+    document.querySelectorAll(".tabs button").forEach(b => b.classList.toggle("active", b.dataset.tab === name));
+    document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+    const page = document.getElementById("page-" + name);
+    void page.offsetWidth;
+    page.classList.add("active");
+    if (name === "command") runCountUps(page);
+    if (name === "compare") renderVs();
+}
+document.querySelectorAll(".tabs button").forEach(b => b.addEventListener("click", () => switchTab(b.dataset.tab)));
+
+/* ---------- count-ups ---------- */
+function runCountUps(scope) {
+    scope.querySelectorAll("[data-count]").forEach(el => {
+        const target = parseFloat(el.dataset.count);
+        const suffix = el.dataset.suffix || "";
+        const t0 = performance.now();
+        function frame(t) {
+            const p = Math.min((t - t0) / 1000, 1);
+            const eased = 1 - Math.pow(1 - p, 3);
+            el.textContent = Math.round(target * eased).toLocaleString() + (suffix === "%" ? ".0%" : suffix);
+            if (p < 1) requestAnimationFrame(frame);
+        }
+        requestAnimationFrame(frame);
+    });
+}
+
+function toggleSkeletons() {
+    document.querySelectorAll("#kpiStrip .kpi").forEach(k => k.classList.toggle("skeleton"));
+}
+
+/* ---------- home spotlight ---------- */
+const TOP5 = BY_SCORE.slice(0, 5);
+const stage = document.getElementById("homeStage");
+const ghostName = document.getElementById("ghostName");
+let renderFront = document.getElementById("renderA");
+let renderBack = document.getElementById("renderB");
+let spotIdx = 0, spotTimer = null;
+
+const leadRail = document.getElementById("leadRail");
+leadRail.insertAdjacentHTML("beforeend", TOP5.map((f, i) => `
+    <button class="lead-row ${i === 0 ? "active" : ""}" style="--rc:${f.c}" data-idx="${i}">
+        <span class="rank num">#${i + 1}</span>
+        <img src="${imgOf(f)}" alt="" loading="lazy" />
+        <span class="who"><strong>${f.name}</strong><span>${compact(f.score)} · ${pct(f.winRate)}</span></span>
+        <span class="score-bar"><i style="width:${(f.score / TOP5[0].score * 100).toFixed(1)}%"></i></span>
+    </button>`).join(""));
+
+function showFighter(i) {
+    spotIdx = i;
+    const f = TOP5[i];
+    renderBack.src = imgOf(f);
+    const swap = () => {
+        renderFront.classList.add("out");
+        renderBack.classList.remove("out");
+        [renderFront, renderBack] = [renderBack, renderFront];
+    };
+    renderBack.complete ? swap() : renderBack.addEventListener("load", swap, { once: true });
+
+    stage.style.setProperty("--sc", f.c);
+    ghostName.textContent = f.name;
+    const body = document.getElementById("plateBody");
+    body.classList.remove("swap"); void body.offsetWidth; body.classList.add("swap");
+    document.getElementById("plateRank").textContent = `Rank #${i + 1} · ${f.realm}`;
+    document.getElementById("plateName").textContent = f.name;
+    document.getElementById("plateStyle").textContent = f.style;
+    document.getElementById("plateStats").innerHTML = `
+        <div><span>XP</span><strong class="num">${fmt(f.xp)}</strong></div>
+        <div><span>KOs</span><strong class="num">${fmt(f.kos)}</strong></div>
+        <div><span>Win</span><strong class="num">${pct(f.winRate)}</strong></div>
+        <div><span>Matches</span><strong class="num">${fmt(f.matches)}</strong></div>`;
+    leadRail.querySelectorAll(".lead-row").forEach((r, ri) => r.classList.toggle("active", ri === i));
+}
+function startSpotlight() {
+    clearInterval(spotTimer);
+    spotTimer = setInterval(() => showFighter((spotIdx + 1) % TOP5.length), 5000);
+}
+leadRail.addEventListener("click", e => {
+    const row = e.target.closest(".lead-row");
+    if (!row) return;
+    showFighter(Number(row.dataset.idx));
+    startSpotlight();
+});
+showFighter(0);
+startSpotlight();
+
+/* ---------- ticker ---------- */
+const TICKER = [["Total Matches", "15,000"], ["Total XP", "29,300,885"], ["Total Score", "374,932,450"],
+    ["KOs", "67,505"], ["Win Rate", "50.0%"], ["Fatalities", "3,488"], ["#1 Fighter", TOP5[0].name],
+    ["Top Arena", "Living Forest"], ["Best Kameo", "Khameleon"], ["Fighters Loaded", "35"]];
+const half = TICKER.map(([k, v]) => `<span class="ticker-item"><span class="dot">◆</span> ${k} <strong class="num">${v}</strong></span>`).join("");
+document.getElementById("tickerTrack").innerHTML = half + half;
+
+/* ---------- command center tables ---------- */
+const ARENAS = [["Living Forest","Earthrealm",2612,5897],["Netherrealm Gate","Netherrealm",2586,5873],["Chaosrealm Rift","Chaosrealm",2526,5680],
+    ["Zaterran Jungle","Zaterra",2524,5764],["Vaeternus Crypt","Vaeternus",2510,5612],["Lin Kuei Fortress","Earthrealm",2508,5643],
+    ["Outworld Palace","Outworld",2504,5618],["Wu Shi Academy","Earthrealm",2460,5500],["Fire Temple","Earthrealm",2433,5471],
+    ["Tarkatan Colony","Outworld",2401,5390],["The Hourglass","Hourglass",2387,5344],["Shirai Ryu Garden","Earthrealm",2349,5302]];
+
+const KAMEOS = [["Khameleon","Style Shift",1369,"53.6%"],["Kung Lao","Control Assist",1434,"52.7%"],["Shujinko","Move Mimic",1534,"51.3%"],
+    ["Madam Bo","Disrupt Assist",1410,"50.9%"],["Goro","Grapple Assist",1406,"50.6%"],["Sareena","Projectile Assist",1393,"50.6%"],
+    ["Janet Cage","Stunt Assist",1470,"50.5%"],["Motaro","Mobility Assist",1429,"50.4%"],["Darrius","Combo Assist",1424,"50.1%"],
+    ["Frost","Freeze Assist",1388,"49.9%"],["Cyrax","Net Assist",1352,"49.7%"],["Sektor","Rocket Assist",1340,"49.5%"]];
+
+const slicerRealm = document.getElementById("slicerRealm");
+const slicerMatches = document.getElementById("slicerMatches");
+const slicerKameo = document.getElementById("slicerKameo");
+const slicerReset = document.getElementById("slicerReset");
+slicerRealm.insertAdjacentHTML("beforeend",
+    [...new Set(ARENAS.map(a => a[1]))].sort().map(r => `<option>${r}</option>`).join(""));
+
+function renderCmdTables() {
+    const realm = slicerRealm.value;
+    const minMatches = Number(slicerMatches.value);
+    const kameoText = slicerKameo.value.trim().toLowerCase();
+
+    const arenas = ARENAS.filter(a => (!realm || a[1] === realm) && a[2] >= minMatches);
+    document.getElementById("arenaRows").innerHTML = arenas.map(a =>
+        `<tr><td>${a[0]}</td><td>${a[1]}</td><td class="r num">${fmt(a[2])}</td><td class="r num">50.0%</td><td class="r num">${fmt(a[3])}</td></tr>`).join("")
+        || `<tr><td colspan="5" style="color:var(--mk-muted)">No arenas match the slicers.</td></tr>`;
+    document.getElementById("arenaCount").textContent = `${arenas.length} of ${ARENAS.length} arenas`;
+
+    const kameos = KAMEOS.filter(k => !kameoText || k[0].toLowerCase().includes(kameoText) || k[1].toLowerCase().includes(kameoText));
+    document.getElementById("kameoRows").innerHTML = kameos.map(k =>
+        `<tr><td>${k[0]}</td><td>${k[1]}</td><td class="r num">${fmt(k[2])}</td><td class="r num">${k[3]}</td></tr>`).join("")
+        || `<tr><td colspan="4" style="color:var(--mk-muted)">No kameos match the search.</td></tr>`;
+
+    slicerReset.style.display = (realm || minMatches > 0 || kameoText) ? "inline-flex" : "none";
+}
+[slicerRealm, slicerMatches].forEach(el => el.addEventListener("change", renderCmdTables));
+slicerKameo.addEventListener("input", renderCmdTables);
+slicerReset.addEventListener("click", () => {
+    slicerRealm.value = ""; slicerMatches.value = "0"; slicerKameo.value = "";
+    renderCmdTables();
+});
+renderCmdTables();
+
+/* ---------- roster character-select grid ---------- */
+const grid = document.getElementById("selectGrid");
+function renderGrid(filter) {
+    const text = (filter || "").trim().toLowerCase();
+    const visible = FIGHTERS.filter(f => !text || f.name.toLowerCase().includes(text) || f.realm.toLowerCase().includes(text));
+    document.getElementById("tileCount").textContent = visible.length;
+    grid.innerHTML = visible.map(f => `
+        <button class="tile" style="--tc:${f.c}" data-slug="${f.slug}" aria-label="${f.name}">
+            <img src="${imgOf(f)}" alt="" loading="lazy"
+                 onerror="this.remove();this.parentElement.insertAdjacentHTML('afterbegin','&lt;div class=&quot;tile-fallback&quot;&gt;${f.name.split(" ").map(w=>w[0]).join("").slice(0,2)}&lt;/div&gt;')" />
+            <span class="tile-win num">${pct(f.winRate)}</span>
+            <span class="tile-name">${f.name}</span>
+        </button>`).join("");
+}
+renderGrid("");
+document.getElementById("rosterSearch").addEventListener("input", e => renderGrid(e.target.value));
+
+/* head-to-head: in the real app this comes from matchup-matrix.dax
+   (fighter × opponent with Wins/Losses) — mocked deterministically here */
+function matchupsFor(f) {
+    const r = rngFor(f.slug + "-vs");
+    const others = FIGHTERS.filter(x => x !== f);
+    const prey = others[Math.floor(r() * others.length)];
+    let nemesis = others[Math.floor(r() * others.length)];
+    if (nemesis === prey) nemesis = others[(others.indexOf(prey) + 7) % others.length];
+    return {
+        prey, preyWins: 19 + Math.floor(r() * 13), preyMatches: 38 + Math.floor(r() * 10),
+        nemesis, nemesisLosses: 18 + Math.floor(r() * 13), nemesisMatches: 36 + Math.floor(r() * 10)
+    };
+}
+
+const profilePanel = document.getElementById("profilePanel");
+function openProfile(f) {
+    grid.querySelectorAll(".tile").forEach(t => t.classList.toggle("selected", t.dataset.slug === f.slug));
+    profilePanel.style.setProperty("--pc", f.c);
+    document.getElementById("profRank").textContent = `Rank #${rankOf(f)} · ${f.realm}`;
+    document.getElementById("profName").textContent = f.name;
+    document.getElementById("profStyle").textContent = f.style;
+    document.getElementById("profImg").src = imgOf(f);
+    document.getElementById("profStats").innerHTML = `
+        <div><span>XP</span><strong class="num">${fmt(f.xp)}</strong></div>
+        <div><span>KOs</span><strong class="num">${fmt(f.kos)}</strong></div>
+        <div><span>Win</span><strong class="num">${pct(f.winRate)}</strong></div>
+        <div><span>Matches</span><strong class="num">${fmt(f.matches)}</strong></div>
+        <div><span>Wins</span><strong class="num">${fmt(f.wins)}</strong></div>
+        <div><span>Score</span><strong class="num">${compact(f.score)}</strong></div>`;
+
+    const m = matchupsFor(f);
+    document.getElementById("profMatchups").innerHTML = `
+        <div class="matchup-row prey" data-slug="${m.prey.slug}" title="Open ${m.prey.name}">
+            <span class="mu-label">Defeats most</span>
+            <img src="${imgOf(m.prey)}" alt="" />
+            <span class="mu-who"><strong>${m.prey.name}</strong><span>${m.preyMatches} encounters</span></span>
+            <span class="mu-count">${m.preyWins} W</span>
+        </div>
+        <div class="matchup-row nemesis" data-slug="${m.nemesis.slug}" title="Open ${m.nemesis.name}">
+            <span class="mu-label">Defeated by</span>
+            <img src="${imgOf(m.nemesis)}" alt="" />
+            <span class="mu-who"><strong>${m.nemesis.name}</strong><span>${m.nemesisMatches} encounters</span></span>
+            <span class="mu-count">${m.nemesisLosses} L</span>
+        </div>`;
+
+    profilePanel.classList.add("open");
+}
+
+grid.addEventListener("click", e => {
+    const tile = e.target.closest(".tile");
+    if (!tile) return;
+    openProfile(FIGHTERS.find(x => x.slug === tile.dataset.slug));
+});
+
+/* clicking a rival jumps to their profile */
+document.getElementById("profMatchups").addEventListener("click", e => {
+    const row = e.target.closest(".matchup-row");
+    if (!row) return;
+    openProfile(FIGHTERS.find(x => x.slug === row.dataset.slug));
+});
+function closeProfile() {
+    profilePanel.classList.remove("open");
+    grid.querySelectorAll(".tile").forEach(t => t.classList.remove("selected"));
+}
+
+/* ---------- compare ---------- */
+const selA = document.getElementById("selA");
+const selB = document.getElementById("selB");
+for (const sel of [selA, selB]) {
+    sel.innerHTML = BY_SCORE.map(f => `<option value="${f.slug}">${f.name} — rank #${rankOf(f)}</option>`).join("");
+}
+selA.value = "scorpion";
+selB.value = "sub-zero";
+
+function sideHtml(f, el, imgEl, nameEl, styleEl, miniEl) {
+    el.style.setProperty("--fc", f.c);
+    imgEl.src = imgOf(f);
+    nameEl.textContent = f.name;
+    styleEl.textContent = `${f.realm} · ${f.style} · Rank #${rankOf(f)}`;
+    miniEl.innerHTML = `
+        <div><span>XP</span><strong class="num">${compact(f.xp)}</strong></div>
+        <div><span>KOs</span><strong class="num">${fmt(f.kos)}</strong></div>
+        <div><span>Win</span><strong class="num">${pct(f.winRate)}</strong></div>
+        <div><span>Score</span><strong class="num">${compact(f.score)}</strong></div>`;
+}
+
+function renderVs() {
+    const a = FIGHTERS.find(f => f.slug === selA.value);
+    const b = FIGHTERS.find(f => f.slug === selB.value);
+    sideHtml(a, document.getElementById("sideA"), document.getElementById("imgA"), document.getElementById("nameA"), document.getElementById("styleA"), document.getElementById("miniA"));
+    sideHtml(b, document.getElementById("sideB"), document.getElementById("imgB"), document.getElementById("nameB"), document.getElementById("styleB"), document.getElementById("miniB"));
+
+    const METRICS = [
+        ["Matches", a.matches, b.matches, fmt(a.matches), fmt(b.matches)],
+        ["Wins", a.wins, b.wins, fmt(a.wins), fmt(b.wins)],
+        ["Win rate", a.winRate, b.winRate, pct(a.winRate), pct(b.winRate)],
+        ["Total XP", a.xp, b.xp, compact(a.xp), compact(b.xp)],
+        ["KOs", a.kos, b.kos, fmt(a.kos), fmt(b.kos)],
+        ["Score", a.score, b.score, compact(a.score), compact(b.score)]
+    ];
+    const rows = document.getElementById("vsMetrics");
+    rows.innerHTML = METRICS.map(([label, va, vb, fa, fb]) => {
+        const max = Math.max(va, vb);
+        const aWins = va >= vb;
+        return `
+        <div class="metric-row">
+            <div class="val num ${aWins ? "win" : ""}">${fa}</div>
+            <div class="bar left"><i data-w="${(va / max * 100).toFixed(1)}"></i></div>
+            <div class="label">${label}</div>
+            <div class="bar right"><i data-w="${(vb / max * 100).toFixed(1)}"></i></div>
+            <div class="val num right ${!aWins ? "win" : ""}">${fb}</div>
+        </div>`;
+    }).join("");
+    requestAnimationFrame(() => rows.querySelectorAll(".bar i").forEach((bar, i) => {
+        bar.style.transitionDelay = (i * 40) + "ms";
+        bar.style.width = bar.dataset.w + "%";
+    }));
+}
+selA.addEventListener("change", renderVs);
+selB.addEventListener("change", renderVs);
+renderVs();
+</script>
+</body>
+</html>

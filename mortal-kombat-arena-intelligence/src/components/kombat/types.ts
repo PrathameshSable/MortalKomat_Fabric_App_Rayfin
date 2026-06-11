@@ -1,0 +1,26 @@
+export type FighterRow = {
+    fighterName: string;
+    rosterGroup: string;
+    realm: string;
+    element: string;
+    combatStyle: string;
+    alignment: string;
+    difficulty: string;
+    primaryColor: string;
+    secondaryColor: string;
+    portraitImagePath: string;
+    fullBodyImagePath: string;
+    cardBackgroundPath: string;
+    model3DPath: string;
+    matchesPlayed: number;
+    wins: number;
+    losses: number;
+    winRate: number;
+    totalXP: number;
+    totalScore: number;
+    totalKOs: number;
+    fatalities: number;
+    brutalities: number;
+    damageEfficiency: number;
+    rank: number;
+};

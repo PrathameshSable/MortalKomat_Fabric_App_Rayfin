@@ -1,0 +1,13 @@
+EVALUATE
+SUMMARIZECOLUMNS (
+    dimdate[Date],
+    dimdate[Year],
+    dimdate[MonthNo],
+    dimdate[MonthName],
+    "Total XP", [Total XP],
+    "Total Score", [Total Score],
+    "Total KOs", [Total KOs],
+    "Fatalities", [Fatalities],
+    "Matches Played", [Matches Played]
+)
+ORDER BY dimdate[Date]

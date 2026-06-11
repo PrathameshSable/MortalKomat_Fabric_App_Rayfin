@@ -1,0 +1,10 @@
+# Copy this file to `fabric.yaml` and fill in YOUR semantic model's ids.
+# Both GUIDs are visible in the model's URL in the Fabric portal:
+#   .../groups/<workspaceId>/datasets/<itemId>/...
+activeProfile: default
+profiles:
+  default:
+    semanticModels:
+      kombatModel:
+        workspaceId: 00000000-0000-0000-0000-000000000000
+        itemId: 00000000-0000-0000-0000-000000000000

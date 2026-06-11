@@ -1,0 +1,33 @@
+EVALUATE
+TOPN (
+    35,
+    SUMMARIZECOLUMNS (
+        dimfighter[FighterName],
+        dimfighter[RosterGroup],
+        dimfighter[Realm],
+        dimfighter[Element],
+        dimfighter[CombatStyle],
+        dimfighter[Alignment],
+        dimfighter[Difficulty],
+        dimfighter[PrimaryColor],
+        dimfighter[SecondaryColor],
+        dimfighter[PortraitImagePath],
+        dimfighter[FullBodyImagePath],
+        dimfighter[CardBackgroundPath],
+        dimfighter[Model3DPath],
+        "Matches Played", [Matches Played],
+        "Wins", [Wins],
+        "Losses", [Losses],
+        "Win Rate", [Win Rate],
+        "Total XP", [Total XP],
+        "Total Score", [Total Score],
+        "Total KOs", [Total KOs],
+        "Fatalities", [Fatalities],
+        "Brutalities", [Brutalities],
+        "Damage Efficiency", [Damage Efficiency],
+        "Fighter Rank by Score", [Fighter Rank by Score]
+    ),
+    [Total Score],
+    DESC
+)
+ORDER BY [Total Score] DESC

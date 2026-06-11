@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1200" viewBox="0 0 900 1200">
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="35%" r="60%">
+      <stop offset="0%" stop-color="#e11d48" stop-opacity="0.95"/>
+      <stop offset="45%" stop-color="#e11d48" stop-opacity="0.38"/>
+      <stop offset="100%" stop-color="#050302" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="body" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e11d48"/>
+      <stop offset="45%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#050302"/>
+    </linearGradient>
+    <filter id="blurGlow">
+      <feGaussianBlur stdDeviation="18" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="30" stdDeviation="22" flood-color="#000000" flood-opacity="0.82"/>
+    </filter>
+  </defs>
+
+  <rect width="900" height="1200" fill="transparent"/>
+  <ellipse cx="450" cy="560" rx="360" ry="470" fill="url(#glow)" filter="url(#blurGlow)"/>
+
+  <g opacity="0.45">
+    <path d="M130 1020 C260 950 640 950 770 1020" stroke="#e11d48" stroke-width="4" fill="none"/>
+    <path d="M170 980 C300 910 600 910 730 980" stroke="#e11d48" stroke-width="2" fill="none"/>
+    <path d="M210 940 C340 880 560 880 690 940" stroke="#e11d48" stroke-width="2" fill="none"/>
+  </g>
+
+  <g filter="url(#shadow)">
+    <path d="M450 130
+             C555 130 635 210 635 320
+             C635 390 600 450 545 485
+             C650 535 710 645 710 790
+             C710 935 620 1040 450 1040
+             C280 1040 190 935 190 790
+             C190 645 250 535 355 485
+             C300 450 265 390 265 320
+             C265 210 345 130 450 130Z"
+          fill="url(#body)" opacity="0.92"/>
+
+    <path d="M330 560 L210 830 L320 815 L410 585 Z" fill="#020202" opacity="0.62"/>
+    <path d="M570 560 L690 830 L580 815 L490 585 Z" fill="#020202" opacity="0.62"/>
+    <path d="M370 560 L330 1040 L430 1040 L455 620 Z" fill="#050302" opacity="0.70"/>
+    <path d="M530 560 L570 1040 L470 1040 L445 620 Z" fill="#050302" opacity="0.70"/>
+
+    <circle cx="450" cy="290" r="118" fill="#0b0503" opacity="0.78"/>
+    <circle cx="410" cy="275" r="14" fill="#e11d48"/>
+    <circle cx="490" cy="275" r="14" fill="#e11d48"/>
+
+    <path d="M320 455 C410 500 490 500 580 455" stroke="#e11d48" stroke-width="16" stroke-linecap="round" opacity="0.75"/>
+    <path d="M275 680 C390 715 510 715 625 680" stroke="#e11d48" stroke-width="9" stroke-linecap="round" opacity="0.55"/>
+  </g>
+
+  <g filter="url(#blurGlow)">
+    <text x="450" y="1130"
+          text-anchor="middle"
+          font-family="Arial Black, Impact, sans-serif"
+          font-size="86"
+          fill="#e11d48"
+          opacity="0.96">O</text>
+  </g>
+
+  <text x="450" y="1182"
+        text-anchor="middle"
+        font-family="Arial, sans-serif"
+        font-size="28"
+        letter-spacing="6"
+        fill="#fff4e6"
+        opacity="0.72">Power</text>
+</svg>

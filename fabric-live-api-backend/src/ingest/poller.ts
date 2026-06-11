@@ -1,0 +1,61 @@
+import { config } from "../config.js";
+import { logger } from "../logger.js";
+import { toLiveEvent } from "../types.js";
+import type { EventstreamProducer } from "../stream/eventstreamProducer.js";
+import { ExternalApiClient } from "./apiClient.js";
+
+/**
+ * Periodically pulls from the external REST API and forwards normalized events
+ * to the Eventstream producer. One poll never overlaps the next, so a slow
+ * upstream can't pile up concurrent requests.
+ */
+export class IngestPoller {
+  private readonly api = new ExternalApiClient();
+  private readonly abort = new AbortController();
+  private timer: NodeJS.Timeout | null = null;
+  private running = false;
+
+  constructor(private readonly producer: EventstreamProducer) {}
+
+  start(): void {
+    if (!config.INGEST_POLL_ENABLED) {
+      logger.info("ingest poller disabled (INGEST_POLL_ENABLED=false)");
+      return;
+    }
+    logger.info(
+      { intervalMs: config.INGEST_POLL_INTERVAL_MS },
+      "starting external API ingest poller",
+    );
+    this.scheduleNext(0);
+  }
+
+  private scheduleNext(delayMs: number): void {
+    if (this.abort.signal.aborted) return;
+    this.timer = setTimeout(() => void this.tick(), delayMs);
+  }
+
+  private async tick(): Promise<void> {
+    if (this.running) return;
+    this.running = true;
+    try {
+      const records = await this.api.fetchRecords(this.abort.signal);
+      if (records.length > 0) {
+        this.producer.enqueueMany(records.map(toLiveEvent));
+        logger.debug({ count: records.length }, "ingested records from external API");
+      }
+    } catch (err) {
+      if (!this.abort.signal.aborted) {
+        logger.error({ err: (err as Error).message }, "ingest tick failed");
+      }
+    } finally {
+      this.running = false;
+      this.scheduleNext(config.INGEST_POLL_INTERVAL_MS);
+    }
+  }
+
+  stop(): void {
+    this.abort.abort();
+    if (this.timer) clearTimeout(this.timer);
+    logger.info("ingest poller stopped");
+  }
+}

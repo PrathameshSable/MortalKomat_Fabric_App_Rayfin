@@ -1,0 +1,55 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// DAX measures for the flight-intelligence semantic model.
+// Build a Direct Lake semantic model over the Eventhouse `Flights` table (or the
+// `LatestFlights()` snapshot), then define these in the model's DAX query view.
+// The Rayfin app reads them via useSemanticModelQuery (one .dax file per need).
+// ─────────────────────────────────────────────────────────────────────────────
+
+// ── Core counts ──────────────────────────────────────────────────────────────
+MEASURE Flights[Active Flights] = DISTINCTCOUNT( Flights[icao24] )
+
+MEASURE Flights[Airborne Flights] =
+    CALCULATE( DISTINCTCOUNT( Flights[icao24] ), Flights[onGround] = FALSE )
+
+MEASURE Flights[Grounded Flights] =
+    CALCULATE( DISTINCTCOUNT( Flights[icao24] ), Flights[onGround] = TRUE )
+
+MEASURE Flights[Countries Tracked] = DISTINCTCOUNT( Flights[originCountry] )
+
+// ── Altitude ─────────────────────────────────────────────────────────────────
+MEASURE Flights[Avg Altitude (m)] =
+    AVERAGEX( FILTER( Flights, NOT ISBLANK( Flights[geoAltitude] ) ), Flights[geoAltitude] )
+
+MEASURE Flights[Max Altitude (m)] = MAX( Flights[geoAltitude] )
+
+MEASURE Flights[Avg Altitude (ft)] = [Avg Altitude (m)] * 3.28084
+
+// ── Speed ────────────────────────────────────────────────────────────────────
+MEASURE Flights[Avg Speed (m/s)] =
+    AVERAGEX( FILTER( Flights, NOT ISBLANK( Flights[velocity] ) ), Flights[velocity] )
+
+MEASURE Flights[Avg Speed (km/h)] = [Avg Speed (m/s)] * 3.6
+
+MEASURE Flights[Max Speed (km/h)] = MAX( Flights[velocity] ) * 3.6
+
+// ── Climb / descent split (vertical rate in m/s) ─────────────────────────────
+MEASURE Flights[Climbing] =
+    CALCULATE( DISTINCTCOUNT( Flights[icao24] ), Flights[verticalRate] > 0.5 )
+
+MEASURE Flights[Descending] =
+    CALCULATE( DISTINCTCOUNT( Flights[icao24] ), Flights[verticalRate] < -0.5 )
+
+MEASURE Flights[Cruising] =
+    [Airborne Flights] - [Climbing] - [Descending]
+
+// ── Example query the app would run for the "Top Countries" panel ────────────
+// EVALUATE
+//   TOPN(
+//     10,
+//     SUMMARIZECOLUMNS(
+//       Flights[originCountry],
+//       "Flights", [Active Flights],
+//       "AvgAltFt", [Avg Altitude (ft)]
+//     ),
+//     [Active Flights], DESC
+//   )

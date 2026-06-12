@@ -27,12 +27,28 @@ const EnvSchema = z.object({
         .filter(Boolean),
     ),
 
-  // External REST API
-  EXTERNAL_API_BASE_URL: z.string().url(),
+  // Ingestion source selector
+  INGEST_SOURCE: z.enum(["opensky", "generic"]).default("opensky"),
+  INGEST_POLL_INTERVAL_MS: z.coerce.number().int().positive().default(8000),
+  INGEST_POLL_ENABLED: booleanish.default("true"),
+
+  // Generic REST API source (INGEST_SOURCE=generic)
+  EXTERNAL_API_BASE_URL: z.string().url().default("https://api.example.com"),
   EXTERNAL_API_PATH: z.string().default("/"),
   EXTERNAL_API_KEY: z.string().optional(),
-  INGEST_POLL_INTERVAL_MS: z.coerce.number().int().positive().default(2000),
-  INGEST_POLL_ENABLED: booleanish.default("true"),
+
+  // OpenSky flight source (INGEST_SOURCE=opensky)
+  OPENSKY_API_BASE: z.string().url().default("https://opensky-network.org"),
+  OPENSKY_TOKEN_URL: z
+    .string()
+    .url()
+    .default(
+      "https://auth.opensky-network.org/auth/realms/opensky-network/protocol/openid-connect/token",
+    ),
+  OPENSKY_CLIENT_ID: z.string().optional(),
+  OPENSKY_CLIENT_SECRET: z.string().optional(),
+  /** Optional bounding box "lamin,lomin,lamax,lomax" to limit the query. */
+  OPENSKY_BBOX: z.string().optional(),
 
   // Eventstream (Event Hubs compatible custom-app endpoint)
   EVENTSTREAM_CONNECTION_STRING: z.string().min(1),

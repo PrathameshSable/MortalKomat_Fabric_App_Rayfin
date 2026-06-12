@@ -1,21 +1,22 @@
 import { config } from "../config.js";
 import { logger } from "../logger.js";
-import { toLiveEvent } from "../types.js";
 import type { EventstreamProducer } from "../stream/eventstreamProducer.js";
-import { ExternalApiClient } from "./apiClient.js";
+import type { IngestSource } from "./source.js";
 
 /**
- * Periodically pulls from the external REST API and forwards normalized events
+ * Periodically pulls from an {@link IngestSource} and forwards normalized events
  * to the Eventstream producer. One poll never overlaps the next, so a slow
  * upstream can't pile up concurrent requests.
  */
 export class IngestPoller {
-  private readonly api = new ExternalApiClient();
   private readonly abort = new AbortController();
   private timer: NodeJS.Timeout | null = null;
   private running = false;
 
-  constructor(private readonly producer: EventstreamProducer) {}
+  constructor(
+    private readonly source: IngestSource,
+    private readonly producer: EventstreamProducer,
+  ) {}
 
   start(): void {
     if (!config.INGEST_POLL_ENABLED) {
@@ -23,8 +24,8 @@ export class IngestPoller {
       return;
     }
     logger.info(
-      { intervalMs: config.INGEST_POLL_INTERVAL_MS },
-      "starting external API ingest poller",
+      { source: this.source.name, intervalMs: config.INGEST_POLL_INTERVAL_MS },
+      "starting ingest poller",
     );
     this.scheduleNext(0);
   }
@@ -38,10 +39,13 @@ export class IngestPoller {
     if (this.running) return;
     this.running = true;
     try {
-      const records = await this.api.fetchRecords(this.abort.signal);
-      if (records.length > 0) {
-        this.producer.enqueueMany(records.map(toLiveEvent));
-        logger.debug({ count: records.length }, "ingested records from external API");
+      const events = await this.source.fetchEvents(this.abort.signal);
+      if (events.length > 0) {
+        this.producer.enqueueMany(events);
+        logger.debug(
+          { source: this.source.name, count: events.length },
+          "ingested events",
+        );
       }
     } catch (err) {
       if (!this.abort.signal.aborted) {

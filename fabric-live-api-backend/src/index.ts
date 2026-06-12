@@ -4,18 +4,29 @@ import { EventstreamProducer } from "./stream/eventstreamProducer.js";
 import { EventhouseClient } from "./kql/eventhouseClient.js";
 import { WarehouseWriter } from "./warehouse/warehouseWriter.js";
 import { IngestPoller } from "./ingest/poller.js";
+import { GenericApiSource, type IngestSource } from "./ingest/source.js";
+import { OpenSkySource } from "./flights/openSkySource.js";
 import { createServer } from "./api/server.js";
+
+function selectSource(): IngestSource {
+  switch (config.INGEST_SOURCE) {
+    case "opensky":
+      return new OpenSkySource();
+    case "generic":
+      return new GenericApiSource();
+  }
+}
 
 /**
  * Entry point. Wires together:
- *   external REST API  ──poll──▶  Eventstream  ──▶  Eventhouse
- *   Fabric app  ──HTTP write-back──▶  Eventstream  ──▶  Eventhouse
+ *   live source (OpenSky flights)  ──poll──▶  Eventstream  ──▶  Eventhouse
+ *   Fabric app  ──write-back──▶  Eventstream / Warehouse
  */
 async function main(): Promise<void> {
   const producer = new EventstreamProducer();
   const eventhouse = new EventhouseClient();
   const warehouse = new WarehouseWriter();
-  const poller = new IngestPoller(producer);
+  const poller = new IngestPoller(selectSource(), producer);
 
   const app = createServer({ producer, eventhouse, warehouse });
   const server = app.listen(config.PORT, () => {

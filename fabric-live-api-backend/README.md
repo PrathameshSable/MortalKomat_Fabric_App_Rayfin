@@ -45,16 +45,35 @@ Both batch their writes (Fabric flags per-row writes as an anti-pattern). The
 Warehouse writer authenticates with a Microsoft Entra **service principal** over
 TDS and **retries on write-write conflicts** (first commit wins in Fabric).
 
+## Live flight mode (OpenSky) — default
+
+Set `INGEST_SOURCE=opensky` (the default) to ingest **real aircraft** from the
+[OpenSky Network](https://openskynetwork.github.io/opensky-api/rest.html)
+`/states/all` endpoint. Create an API client at *opensky-network.org → Account →
+API clients* for OAuth2 `OPENSKY_CLIENT_ID` / `OPENSKY_CLIENT_SECRET`, and
+optionally set `OPENSKY_BBOX` to limit the region. Each aircraft becomes a
+`FlightEvent` (`src/flights/flightTypes.ts`) flowing to the Eventstream →
+Eventhouse `Flights` table. Set `INGEST_SOURCE=generic` for the original metric
+API instead.
+
+> Network: the host running this backend must be allowed to reach
+> `opensky-network.org` and `auth.opensky-network.org`.
+
 ## Project layout
 
 ```
 src/
   config.ts                  env loading + validation (fail-fast)
   logger.ts                  pino logger
-  types.ts                   Zod schemas + LiveEvent model  ⚠️ adapt to your API
+  types.ts                   StreamEvent + LiveEvent models
+  flights/
+    flightTypes.ts           OpenSky state-vector parser → FlightEvent (Zod)
+    openSkyAuth.ts           OAuth2 client-credentials token provider
+    openSkySource.ts         /states/all ingest source
   ingest/
+    source.ts                IngestSource interface + generic source
     apiClient.ts             external REST client (retry + backoff + validation)
-    poller.ts                non-overlapping poll loop → Eventstream
+    poller.ts                source-agnostic poll loop → Eventstream
   stream/
     eventstreamProducer.ts   batched Event Hubs producer (Eventstream custom app)
   kql/

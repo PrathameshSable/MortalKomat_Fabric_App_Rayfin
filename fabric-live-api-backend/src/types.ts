@@ -25,7 +25,14 @@ export type ExternalRecord = z.infer<typeof ExternalRecordSchema>;
  * Keep this stable — your KQL table schema and the Fabric semantic model are
  * built on it.
  */
-export interface LiveEvent {
+/**
+ * Base shape for anything published to the Eventstream. Using a type alias
+ * (not an interface) keeps it assignable to `Record<string, unknown>`, so the
+ * producer can carry both `LiveEvent` (generic metrics) and `FlightEvent`.
+ */
+export type StreamEvent = Record<string, unknown>;
+
+export type LiveEvent = {
   /** Stable id of the underlying record. */
   id: string;
   /** Where it came from: the external API, or "app" for write-back. */
@@ -43,7 +50,7 @@ export interface LiveEvent {
   ingestedAt: string;
   /** Free-form passthrough for anything extra. */
   payload: Record<string, unknown>;
-}
+};
 
 /** Map a validated external record into our normalized LiveEvent. */
 export function toLiveEvent(record: ExternalRecord): LiveEvent {

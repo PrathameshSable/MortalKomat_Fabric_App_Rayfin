@@ -1,7 +1,7 @@
 import { EventHubProducerClient, type EventData } from "@azure/event-hubs";
 import { config } from "../config.js";
 import { logger } from "../logger.js";
-import type { LiveEvent } from "../types.js";
+import type { StreamEvent } from "../types.js";
 
 /**
  * Publishes normalized LiveEvents to a Fabric Eventstream via its custom-app
@@ -14,7 +14,7 @@ import type { LiveEvent } from "../types.js";
  */
 export class EventstreamProducer {
   private readonly client: EventHubProducerClient;
-  private buffer: LiveEvent[] = [];
+  private buffer: StreamEvent[] = [];
   private flushTimer: NodeJS.Timeout | null = null;
   private closed = false;
 
@@ -23,7 +23,7 @@ export class EventstreamProducer {
   }
 
   /** Queue an event for delivery; flushes automatically when the batch is full. */
-  enqueue(event: LiveEvent): void {
+  enqueue(event: StreamEvent): void {
     if (this.closed) throw new Error("producer is closed");
     this.buffer.push(event);
     if (this.buffer.length >= config.EVENTSTREAM_BATCH_MAX_SIZE) {
@@ -33,7 +33,7 @@ export class EventstreamProducer {
     }
   }
 
-  enqueueMany(events: LiveEvent[]): void {
+  enqueueMany(events: StreamEvent[]): void {
     for (const e of events) this.enqueue(e);
   }
 
@@ -57,7 +57,7 @@ export class EventstreamProducer {
 
     try {
       const batch = await this.client.createBatch();
-      const overflow: LiveEvent[] = [];
+      const overflow: StreamEvent[] = [];
       for (const event of toSend) {
         const data: EventData = { body: event };
         if (!batch.tryAdd(data)) {

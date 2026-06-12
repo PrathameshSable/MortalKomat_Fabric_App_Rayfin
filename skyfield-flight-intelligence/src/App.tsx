@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { SampleFlightProvider } from "./data/sampleFlights.js";
+import { resolveFlightSource } from "./data/flightSource.js";
 import { computeStats, type Flight, type FlightStats } from "./data/types.js";
+import { EMPTY_FILTER, makeFilterFn, type FlightFilter } from "./data/filter.js";
 import { Scene } from "./three/Scene.js";
 import { KpiStrip, TopCountries, FlightDetails } from "./components/Hud.js";
 import { ControlsPanel, type Settings } from "./components/ControlsPanel.js";
+import { SearchPanel } from "./components/SearchPanel.js";
 
 const EMPTY_STATS: FlightStats = {
   total: 0, airborne: 0, grounded: 0, countries: 0,
@@ -11,37 +13,50 @@ const EMPTY_STATS: FlightStats = {
 };
 
 export default function App() {
-  // Demo data engine. To go live, swap this for createFabricFlightProvider(...)
-  // (see src/data/fabric/) and feed positions from the semantic model.
-  const provider = useMemo(() => new SampleFlightProvider(1200), []);
-  const isLive = false;
+  // Live Fabric data if a semantic-model client is injected; else sample fleet.
+  const source = useMemo(() => resolveFlightSource(1200), []);
+  const isLive = source.isLive;
 
   const [settings, setSettings] = useState<Settings>({
     count: 1200,
     planeSize: 0.05,
     speed: 1.5,
     autoRotate: true,
+    showArcs: true,
   });
+  const [filter, setFilter] = useState<FlightFilter>(EMPTY_FILTER);
   const [selected, setSelected] = useState<Flight | null>(null);
   const [stats, setStats] = useState<FlightStats>(EMPTY_STATS);
+  const [counts, setCounts] = useState({ shown: 0, total: 0 });
 
-  // Keep selection in a ref so it survives re-renders of the scene.
-  const selectedRef = useRef<Flight | null>(null);
-  selectedRef.current = selected;
+  const filterFn = useMemo(() => makeFilterFn(filter), [filter]);
+  // Keep a ref so the render loop always sees the latest predicate.
+  const filterRef = useRef(filterFn);
+  filterRef.current = filterFn;
+  const stableFilterFn = useCallback((f: Flight) => filterRef.current(f), []);
 
   useEffect(() => {
-    provider.setCount(settings.count);
-  }, [provider, settings.count]);
+    source.setCount?.(settings.count);
+  }, [source, settings.count]);
 
   useEffect(() => {
-    const update = () => setStats(computeStats(provider.current()));
+    return () => source.stop?.();
+  }, [source]);
+
+  useEffect(() => {
+    const update = () => {
+      const all = source.current();
+      const visible = all.filter(filterFn);
+      setStats(computeStats(visible));
+      setCounts({ shown: visible.length, total: all.length });
+    };
     update();
-    const id = setInterval(update, 800);
+    const id = setInterval(update, 700);
     return () => clearInterval(id);
-  }, [provider]);
+  }, [source, filterFn]);
 
-  const getFlights = useCallback(() => provider.current(), [provider]);
-  const advance = useCallback((dt: number) => provider.advance(dt), [provider]);
+  const getFlights = useCallback(() => source.current(), [source]);
+  const advance = useCallback((dt: number) => source.advance(dt), [source]);
 
   return (
     <div className="stage">
@@ -51,6 +66,8 @@ export default function App() {
         planeSize={settings.planeSize}
         speed={settings.speed}
         autoRotate={settings.autoRotate}
+        showArcs={settings.showArcs}
+        filterFn={stableFilterFn}
         selected={selected}
         onSelect={setSelected}
         onClearSelection={() => setSelected(null)}
@@ -58,6 +75,7 @@ export default function App() {
 
       <KpiStrip stats={stats} />
       <TopCountries stats={stats} />
+      <SearchPanel filter={filter} onChange={setFilter} shown={counts.shown} total={counts.total} />
       <FlightDetails flight={selected} />
       <ControlsPanel settings={settings} onChange={setSettings} isLive={isLive} />
 

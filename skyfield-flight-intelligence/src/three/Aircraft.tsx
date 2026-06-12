@@ -30,10 +30,11 @@ interface AircraftProps {
   advance: (dt: number) => void;
   size: number;
   speed: number;
+  filterFn?: (f: Flight) => boolean;
   onSelect: (flight: Flight) => void;
 }
 
-export function Aircraft({ getFlights, advance, size, speed, onSelect }: AircraftProps) {
+export function Aircraft({ getFlights, advance, size, speed, filterFn, onSelect }: AircraftProps) {
   const orderRef = useRef<Flight[]>([]);
   const tmp = useMemo(() => new THREE.Vector3(), []);
 
@@ -55,7 +56,8 @@ export function Aircraft({ getFlights, advance, size, speed, onSelect }: Aircraf
 
   useFrame((_, delta) => {
     advance(Math.min(delta, 0.1) * speed);
-    const flights = getFlights();
+    const all = getFlights();
+    const flights = filterFn ? all.filter(filterFn) : all;
     orderRef.current = flights;
 
     const pos = points.geometry.attributes.position as THREE.BufferAttribute;

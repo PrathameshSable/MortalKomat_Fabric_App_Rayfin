@@ -52,6 +52,7 @@ function makeFlight(i: number): Flight {
 
 export class SampleFlightProvider implements FlightProvider {
   readonly name = "sample";
+  readonly isLive = false;
   private flights: Flight[];
 
   constructor(count = 900) {

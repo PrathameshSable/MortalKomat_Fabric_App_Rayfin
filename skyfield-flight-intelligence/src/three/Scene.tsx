@@ -6,6 +6,7 @@ import type { Flight } from "../data/types.js";
 import { latLonToVector3 } from "../lib/geo.js";
 import { Globe, GLOBE_RADIUS } from "./Globe.js";
 import { Aircraft } from "./Aircraft.js";
+import { FlightArcs } from "./FlightArcs.js";
 
 interface SceneProps {
   getFlights: () => Flight[];
@@ -13,6 +14,8 @@ interface SceneProps {
   planeSize: number;
   speed: number;
   autoRotate: boolean;
+  showArcs: boolean;
+  filterFn?: (f: Flight) => boolean;
   selected: Flight | null;
   onSelect: (flight: Flight) => void;
   onClearSelection: () => void;
@@ -40,7 +43,8 @@ function SelectionMarker({ flight }: { flight: Flight }) {
 
 export function Scene(props: SceneProps) {
   const {
-    getFlights, advance, planeSize, speed, autoRotate, selected, onSelect, onClearSelection,
+    getFlights, advance, planeSize, speed, autoRotate, showArcs, filterFn,
+    selected, onSelect, onClearSelection,
   } = props;
 
   return (
@@ -57,11 +61,13 @@ export function Scene(props: SceneProps) {
       <Stars radius={120} depth={60} count={6000} factor={4} saturation={0} fade speed={0.6} />
 
       <Globe />
+      {showArcs && <FlightArcs getFlights={getFlights} filterFn={filterFn} />}
       <Aircraft
         getFlights={getFlights}
         advance={advance}
         size={planeSize}
         speed={speed}
+        filterFn={filterFn}
         onSelect={onSelect}
       />
       {selected && <SelectionMarker flight={selected} />}

@@ -3,6 +3,7 @@ export interface Settings {
   planeSize: number;
   speed: number;
   autoRotate: boolean;
+  showArcs: boolean;
 }
 
 interface ControlsPanelProps {
@@ -45,6 +46,15 @@ export function ControlsPanel({ settings, onChange, isLive }: ControlsPanelProps
           type="range" min={0.02} max={0.12} step={0.005}
           value={settings.planeSize}
           onChange={(e) => set("planeSize", Number(e.target.value))}
+        />
+      </label>
+
+      <label className="ctl ctl--row">
+        <span>Flight paths</span>
+        <input
+          type="checkbox"
+          checked={settings.showArcs}
+          onChange={(e) => set("showArcs", e.target.checked)}
         />
       </label>
 

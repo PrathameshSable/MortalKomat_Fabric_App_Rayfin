@@ -102,9 +102,33 @@ html, body {
   color: var(--muted); margin-bottom: 10px;
 }
 .panel--left { left: 22px; top: 96px; }
-.panel--right { right: 22px; top: 96px; }
+.panel--right { right: 22px; top: 96px; max-width: 260px; }
 .panel--controls { right: 22px; bottom: 22px; width: 240px; }
+.panel--search { left: 22px; top: 330px; width: 260px; }
 .panel--muted .hint { color: var(--muted); font-size: 12px; line-height: 1.5; margin: 0; }
+
+/* ── Search & filter ────────────────────────────────────────────────────────*/
+.search-input {
+  width: 100%; box-sizing: border-box;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--glass-line);
+  border-radius: 8px; padding: 8px 10px;
+  color: var(--ink); font-family: var(--font); font-size: 12px;
+  outline: none;
+}
+.search-input::placeholder { color: var(--muted); }
+.search-input:focus { border-color: var(--accent); }
+.band-row { display: flex; gap: 6px; margin: 10px 0; }
+.band {
+  flex: 1; padding: 5px 0; border-radius: 7px; cursor: pointer;
+  background: rgba(255, 255, 255, 0.05); color: var(--muted);
+  border: 1px solid var(--glass-line); font-family: var(--font);
+  font-size: 11px; letter-spacing: 1px; text-transform: uppercase;
+  transition: all 0.15s;
+}
+.band--on { background: var(--accent); color: #02101f; border-color: var(--accent); font-weight: 700; }
+.shown-tag { margin-top: 8px; font-size: 11px; color: var(--muted); }
+.shown-tag b { color: var(--accent); }
 
 /* ── Top-countries bars ─────────────────────────────────────────────────────*/
 .bars { list-style: none; margin: 0; padding: 0; display: grid; gap: 9px; }

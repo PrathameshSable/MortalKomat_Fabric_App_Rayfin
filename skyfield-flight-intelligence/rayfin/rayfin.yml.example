@@ -1,0 +1,10 @@
+# Copy to rayfin/rayfin.yml, then deploy with:  npx rayfin up
+# Creates a Rayfin item in your Fabric workspace and hosts the built app.
+name: skyfield-flight-intelligence
+displayName: Skyfield — Live Flight Intelligence
+build:
+  command: npm run build
+  outputDir: dist
+canvas:
+  width: 1280
+  height: 720

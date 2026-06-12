@@ -17,13 +17,29 @@ function rand(min: number, max: number): number {
   return min + Math.random() * (max - min);
 }
 
+// Weighted country picker so "busiest airspace" looks realistic (a few hubs
+// dominate) instead of a perfectly even split.
+const COUNTRY_WEIGHTS = [
+  26, 14, 11, 9, 8, 6, 5, 4, 4, 3, 3, 2, 2, 2, 1, 1,
+];
+const WEIGHT_TOTAL = COUNTRY_WEIGHTS.reduce((a, b) => a + b, 0);
+
+function pickCountry(): string {
+  let r = Math.random() * WEIGHT_TOTAL;
+  for (let i = 0; i < COUNTRIES.length; i++) {
+    r -= COUNTRY_WEIGHTS[i]!;
+    if (r <= 0) return COUNTRIES[i]!;
+  }
+  return COUNTRIES[0]!;
+}
+
 function makeFlight(i: number): Flight {
   const onGround = Math.random() < 0.08;
   const prefix = AIRLINE_PREFIXES[i % AIRLINE_PREFIXES.length];
   return {
     icao24: (0x400000 + i).toString(16),
     callsign: `${prefix}${100 + (i % 900)}`,
-    originCountry: COUNTRIES[i % COUNTRIES.length]!,
+    originCountry: pickCountry(),
     longitude: rand(-180, 180),
     latitude: rand(-75, 75),
     geoAltitude: onGround ? 0 : rand(2000, 12500),

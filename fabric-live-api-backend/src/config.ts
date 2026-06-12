@@ -29,7 +29,8 @@ const EnvSchema = z.object({
 
   // Ingestion source selector
   INGEST_SOURCE: z.enum(["opensky", "generic"]).default("opensky"),
-  INGEST_POLL_INTERVAL_MS: z.coerce.number().int().positive().default(8000),
+  // 25s keeps OpenSky within its 4000-credit/day budget when using a 1-credit bbox.
+  INGEST_POLL_INTERVAL_MS: z.coerce.number().int().positive().default(25000),
   INGEST_POLL_ENABLED: booleanish.default("true"),
 
   // Generic REST API source (INGEST_SOURCE=generic)

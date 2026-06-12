@@ -103,9 +103,14 @@ Fill in `.env`:
 INGEST_SOURCE=opensky
 OPENSKY_CLIENT_ID=<your opensky client id>
 OPENSKY_CLIENT_SECRET=<your opensky client secret>
-OPENSKY_BBOX=                                  # optional "lamin,lomin,lamax,lomax"
+OPENSKY_BBOX=48,2,52,8           # ~24 sq° = 1 credit/call; widen for more planes
+INGEST_POLL_INTERVAL_MS=25000    # 25s ≈ 3,456 calls/day, inside the 4000 credit/day budget
 EVENTSTREAM_CONNECTION_STRING=<from B2 Keys tab>
 ```
+
+> **OpenSky credits:** a free account gets ~4000/day; a `/states/all` call costs
+> 1–4 credits by bbox area (<25 sq°=1, 25–100=2, 100–400=3, >400/none=4). Keep
+> the box small to run all day; widen it and raise the interval to compensate.
 
 ```bash
 npm run dev      # polls OpenSky every ~8s → Eventstream → Eventhouse

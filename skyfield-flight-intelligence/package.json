@@ -8,6 +8,7 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "build:fabric": "fabric-app-data generate -o src/fabric.generated.ts && tsc --noEmit && vite build",
+    "build:fabric:sample": "tsc --noEmit && vite build --mode sample",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit"
   },

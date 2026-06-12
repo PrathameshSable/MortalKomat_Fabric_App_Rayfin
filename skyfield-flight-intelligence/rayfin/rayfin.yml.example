@@ -1,10 +1,24 @@
-# Copy to rayfin/rayfin.yml, then deploy with:  npx rayfin up
-# Creates a Rayfin item in your Fabric workspace and hosts the built app.
+# Copy this file to rayfin/rayfin.yml before running `npx rayfin up`.
+# Your deployed hosting URL is added to allowedRedirectUris automatically
+# after the first deploy.
+id: skyfield-flight-intelligence
 name: skyfield-flight-intelligence
-displayName: Skyfield — Live Flight Intelligence
-build:
-  command: npm run build
-  outputDir: dist
-canvas:
-  width: 1280
-  height: 720
+version: 1.0.0
+services:
+  auth:
+    enabled: true
+    fabric:
+      enabled: true
+    allowedRedirectUris:
+      - http://localhost:5174
+  data:
+    enabled: false
+  storage:
+    enabled: false
+  staticHosting:
+    enabled: true
+    folder: dist
+    buildCommand: npm run build:fabric
+    indexDocument: index.html
+  functions:
+    enabled: false

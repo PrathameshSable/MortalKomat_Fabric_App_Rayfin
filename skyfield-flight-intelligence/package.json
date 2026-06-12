@@ -7,10 +7,14 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
+    "build:fabric": "fabric-app-data generate -o src/fabric.generated.ts && tsc --noEmit && vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@microsoft/fabric-app-data": "^1.0.0",
+    "@microsoft/fabric-app-data-embed-client": "^1.0.0",
+    "@microsoft/fabric-app-data-proxy": "^1.0.0",
     "@react-three/drei": "^9.114.3",
     "@react-three/fiber": "^8.17.10",
     "react": "^18.3.1",
@@ -18,6 +22,8 @@
     "three": "^0.169.0"
   },
   "devDependencies": {
+    "@microsoft/fabric-app-data-cli": "^1.0.0",
+    "@microsoft/rayfin-cli": "^1.33.1",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@types/three": "^0.169.0",

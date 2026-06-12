@@ -1,6 +1,6 @@
 import type { Flight, FlightProvider } from "./types.js";
 import { SampleFlightProvider } from "./sampleFlights.js";
-import { createFabricFlightProvider, type SemanticModelClient } from "./fabric/fabricProvider.js";
+import { createFabricFlightProvider } from "./fabric/fabricProvider.js";
 
 /**
  * What the 3D scene reads from. Both demo and live implementations expose the
@@ -75,15 +75,27 @@ export class LiveFlightSource implements FlightSource {
 }
 
 /**
- * Resolve the data source at runtime. In a Rayfin deployment, inject a Fabric
- * semantic-model client on `globalThis.__fabricClient` (e.g. from the SDK's
- * `getFabricClient()`); otherwise we fall back to the animated sample fleet so
- * the app always renders.
+ * True when the app is running embedded (i.e. inside the Fabric portal iframe).
+ * A cross-origin access to `window.top` throws — which itself means we're
+ * embedded under a different origin (the portal).
+ */
+function isFabricEmbedded(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    return window.self !== window.top;
+  } catch {
+    return true;
+  }
+}
+
+/**
+ * Resolve the data source at runtime: live Fabric semantic-model data when
+ * embedded in the portal, otherwise the animated sample fleet so the app always
+ * renders (local dev / standalone). Force sample with VITE_FORCE_SAMPLE=true.
  */
 export function resolveFlightSource(sampleCount = 1200): FlightSource {
-  const client = (globalThis as { __fabricClient?: SemanticModelClient }).__fabricClient;
-  if (client) {
-    const source = new LiveFlightSource(createFabricFlightProvider(client));
+  if (isFabricEmbedded() && import.meta.env.VITE_FORCE_SAMPLE !== "true") {
+    const source = new LiveFlightSource(createFabricFlightProvider());
     source.start();
     return source;
   }

@@ -1,29 +1,11 @@
+import { getFabricClient } from "@/lib/fabric-client";
 import type { Flight, FlightProvider } from "../types.js";
 import { LIVE_FLIGHTS_DAX } from "./flightQueries.js";
 
-/**
- * Minimal shape of the Fabric semantic-model client. The real Microsoft Fabric
- * SDK (`@microsoft/fabric-app-data`, via `getFabricClient()` — the same one the
- * MK Arena app uses) satisfies this. Keeping it as a narrow interface lets this
- * app build and run standalone, and you inject the real client when deploying
- * as a Rayfin item.
- */
-export interface SemanticModelQueryResult {
-  status: "success" | "error";
-  table?: { rows: unknown[][] };
-  error?: { message: string };
-}
+const num = (v: unknown): number | null => (v == null ? null : Number(v));
 
-export interface SemanticModelClient {
-  semanticModel(connection: string): {
-    query(dax: string, opts?: { bypassCache?: boolean }): Promise<SemanticModelQueryResult>;
-  };
-}
-
-/** row[] index → Flight field, matching LIVE_FLIGHTS_DAX column order. */
+/** row[] index → Flight, matching LIVE_FLIGHTS_DAX column order. */
 function rowToFlight(row: unknown[]): Flight {
-  const num = (v: unknown): number | null =>
-    v == null ? null : Number(v);
   return {
     icao24: String(row[0] ?? ""),
     callsign: row[1] == null ? null : String(row[1]),
@@ -39,19 +21,17 @@ function rowToFlight(row: unknown[]): Flight {
 }
 
 /**
- * Live provider backed by the Fabric semantic model. Pass the connection alias
- * from fabric.yaml (e.g. "flightsModel") and the SDK client.
+ * Live provider backed by the Fabric semantic model (Direct Lake over the
+ * Eventhouse `Flights` table). Runs LIVE_FLIGHTS_DAX through the SDK and maps
+ * the result rows to the Flight contract.
  */
-export function createFabricFlightProvider(
-  client: SemanticModelClient,
-  connection = "flightsModel",
-): FlightProvider {
+export function createFabricFlightProvider(connection = "flightsModel"): FlightProvider {
   return {
     name: "fabric",
     async getFlights(): Promise<Flight[]> {
-      const result = await client.semanticModel(connection).query(LIVE_FLIGHTS_DAX);
-      if (result.status === "error" || !result.table) {
-        throw new Error(result.error?.message ?? "semantic model query failed");
+      const result = await getFabricClient().semanticModel(connection).query(LIVE_FLIGHTS_DAX);
+      if (result.status !== "success") {
+        throw new Error(result.error.message);
       }
       return result.table.rows.map(rowToFlight);
     },

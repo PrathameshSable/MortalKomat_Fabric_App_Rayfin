@@ -15,7 +15,9 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "types": ["three"]
+    "baseUrl": ".",
+    "paths": { "@/*": ["src/*"] },
+    "types": ["three", "vite/client"]
   },
   "include": ["src"]
 }

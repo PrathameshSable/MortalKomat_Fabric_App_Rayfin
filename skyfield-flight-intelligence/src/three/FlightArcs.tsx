@@ -2,7 +2,7 @@ import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { hasRoute, type Flight } from "../data/types.js";
-import { altitudeColor } from "../lib/geo.js";
+import { flightColor, type ColorMode } from "../lib/geo.js";
 import { forwardArc, greatCircleArc } from "../lib/greatCircle.js";
 import { GLOBE_RADIUS } from "./Globe.js";
 
@@ -13,6 +13,7 @@ const MAX_VERTS = MAX_ARCS * ROUTE_STEPS * 2;
 
 interface FlightArcsProps {
   getFlights: () => Flight[];
+  colorMode: ColorMode;
   filterFn?: (f: Flight) => boolean;
 }
 
@@ -22,7 +23,7 @@ interface FlightArcsProps {
  * route map. Otherwise falls back to a short velocity-based heading trail.
  * Altitude-colored, rebuilt a few times a second. Rebuilt off-frame for perf.
  */
-export function FlightArcs({ getFlights, filterFn }: FlightArcsProps) {
+export function FlightArcs({ getFlights, colorMode, filterFn }: FlightArcsProps) {
   const acc = useRef(0);
 
   const segments = useMemo(() => {
@@ -51,7 +52,7 @@ export function FlightArcs({ getFlights, filterFn }: FlightArcsProps) {
     const count = Math.min(flights.length, MAX_ARCS);
     for (let i = 0; i < count && v + ROUTE_STEPS * 2 <= MAX_VERTS; i++) {
       const f = flights[i]!;
-      const [r, g, b] = altitudeColor(f.geoAltitude);
+      const [r, g, b] = flightColor(f.geoAltitude, f.originCountry, colorMode);
 
       let arc: THREE.Vector3[];
       let fade = false;

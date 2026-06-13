@@ -3,7 +3,7 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls, Stars, Billboard, Line, Html } from "@react-three/drei";
 import * as THREE from "three";
 import { hasRoute, type Flight } from "../data/types.js";
-import { latLonToVector3 } from "../lib/geo.js";
+import { latLonToVector3, type ColorMode } from "../lib/geo.js";
 import { greatCircleArc } from "../lib/greatCircle.js";
 import { Globe, GLOBE_RADIUS, type LightingMode } from "./Globe.js";
 import { Aircraft } from "./Aircraft.js";
@@ -18,6 +18,7 @@ interface SceneProps {
   showArcs: boolean;
   showAirports: boolean;
   lighting: LightingMode;
+  colorMode: ColorMode;
   follow: boolean;
   filterFn?: (f: Flight) => boolean;
   selected: Flight | null;
@@ -69,9 +70,9 @@ interface Airport {
   count: number;
 }
 
-/** Traffic heat ramp: cool blue (quiet) → yellow → hot red/white (busy). */
+/** Traffic heat ramp: cool blue (quiet) → amber → hot red (busy). */
 function heatColor(t: number): THREE.Color {
-  return new THREE.Color().setHSL(0.62 - 0.62 * t, 0.9, 0.45 + 0.28 * t);
+  return new THREE.Color().setHSL(0.6 - 0.6 * t, 0.85, 0.42 + 0.13 * t);
 }
 
 /** Markers + labels for every airport that's an endpoint of a visible route. */
@@ -112,7 +113,7 @@ function Airports({
       {airports.map((a, i) => {
         const p = latLonToVector3(a.lat, a.lon, GLOBE_RADIUS * 1.013);
         const t = Math.min(1, a.count / maxCount);
-        const r = 0.008 + t * 0.03;
+        const r = 0.006 + t * 0.014;
         const col = heatColor(t);
         return (
           <group key={a.iata} position={[p.x, p.y, p.z]}>
@@ -120,13 +121,13 @@ function Airports({
               <sphereGeometry args={[r, 10, 10]} />
               <meshBasicMaterial color={col} toneMapped={false} />
             </mesh>
-            {t > 0.15 && (
-              <mesh scale={2.8}>
+            {t > 0.35 && (
+              <mesh scale={1.9}>
                 <sphereGeometry args={[r, 10, 10]} />
                 <meshBasicMaterial
                   color={col}
                   transparent
-                  opacity={0.18}
+                  opacity={0.1}
                   blending={THREE.AdditiveBlending}
                   depthWrite={false}
                   toneMapped={false}
@@ -220,7 +221,7 @@ function SelectionMarker({ flight }: { flight: Flight }) {
 export function Scene(props: SceneProps) {
   const {
     getFlights, advance, planeSize, speed, autoRotate, showArcs, showAirports, lighting,
-    follow, filterFn, selected, onSelect, onClearSelection,
+    colorMode, follow, filterFn, selected, onSelect, onClearSelection,
   } = props;
   const following = follow && selected != null;
 
@@ -238,13 +239,17 @@ export function Scene(props: SceneProps) {
       <Stars radius={120} depth={60} count={6000} factor={4} saturation={0} fade speed={0.6} />
 
       <Globe lighting={lighting} />
-      {showArcs && <FlightArcs getFlights={getFlights} filterFn={filterFn} />}
+      {/* Hide the whole route web while one flight is selected, to focus on it. */}
+      {showArcs && !selected && (
+        <FlightArcs getFlights={getFlights} colorMode={colorMode} filterFn={filterFn} />
+      )}
       {showAirports && <Airports getFlights={getFlights} filterFn={filterFn} />}
       <Aircraft
         getFlights={getFlights}
         advance={advance}
         size={planeSize}
         speed={speed}
+        colorMode={colorMode}
         filterFn={filterFn}
         onSelect={onSelect}
       />

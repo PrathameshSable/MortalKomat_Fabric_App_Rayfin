@@ -1,4 +1,5 @@
 import type { LightingMode } from "../three/Globe.js";
+import type { ColorMode } from "../lib/geo.js";
 
 export interface Settings {
   count: number;
@@ -8,12 +9,18 @@ export interface Settings {
   showArcs: boolean;
   showAirports: boolean;
   lighting: LightingMode;
+  colorBy: ColorMode;
 }
 
 const LIGHTING: { id: LightingMode; label: string }[] = [
   { id: "realtime", label: "Real-time" },
   { id: "day", label: "Day" },
   { id: "night", label: "Night" },
+];
+
+const COLOR_BY: { id: ColorMode; label: string }[] = [
+  { id: "country", label: "Country" },
+  { id: "altitude", label: "Altitude" },
 ];
 
 interface ControlsPanelProps {
@@ -58,6 +65,21 @@ export function ControlsPanel({ settings, onChange, isLive }: ControlsPanelProps
           onChange={(e) => set("planeSize", Number(e.target.value))}
         />
       </label>
+
+      <div className="ctl">
+        <span>Color by</span>
+        <div className="band-row">
+          {COLOR_BY.map((c) => (
+            <button
+              key={c.id}
+              className={`band${settings.colorBy === c.id ? " band--on" : ""}`}
+              onClick={() => set("colorBy", c.id)}
+            >
+              {c.label}
+            </button>
+          ))}
+        </div>
+      </div>
 
       <div className="ctl">
         <span>Lighting</span>

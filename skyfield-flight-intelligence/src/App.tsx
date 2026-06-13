@@ -19,12 +19,13 @@ export default function App() {
 
   const [settings, setSettings] = useState<Settings>({
     count: 1200,
-    planeSize: 0.05,
+    planeSize: 0.035,
     speed: 1.5,
     autoRotate: true,
     showArcs: true,
     showAirports: true,
     lighting: "realtime",
+    colorBy: "country",
   });
   const [filter, setFilter] = useState<FlightFilter>(DEFAULT_FILTER);
   const [selected, setSelected] = useState<Flight | null>(null);
@@ -74,6 +75,7 @@ export default function App() {
         showArcs={settings.showArcs}
         showAirports={settings.showAirports}
         lighting={settings.lighting}
+        colorMode={settings.colorBy}
         follow={follow}
         filterFn={stableFilterFn}
         selected={selected}

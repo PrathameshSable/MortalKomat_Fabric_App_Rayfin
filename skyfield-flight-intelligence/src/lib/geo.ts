@@ -25,3 +25,25 @@ export function altitudeColor(altMeters: number | null): [number, number, number
   c.setHSL(0.55 - 0.45 * t, 0.85, 0.55);
   return [c.r, c.g, c.b];
 }
+
+export type ColorMode = "altitude" | "country";
+
+/** Stable, well-spread color per country (hash → hue). */
+export function countryColor(country: string): [number, number, number] {
+  let h = 0;
+  for (let i = 0; i < country.length; i++) h = (h * 31 + country.charCodeAt(i)) >>> 0;
+  // Golden-ratio hop spreads adjacent hashes apart for distinct hues.
+  const hue = (((h % 360) / 360) * 0.61803398875 * 360) % 360;
+  const c = new THREE.Color();
+  c.setHSL(hue / 360, 0.72, 0.62);
+  return [c.r, c.g, c.b];
+}
+
+/** Color a flight by the chosen mode. */
+export function flightColor(
+  altMeters: number | null,
+  country: string,
+  mode: ColorMode,
+): [number, number, number] {
+  return mode === "country" ? countryColor(country) : altitudeColor(altMeters);
+}

@@ -2,7 +2,7 @@ import { useMemo, useRef } from "react";
 import { useFrame, type ThreeEvent } from "@react-three/fiber";
 import * as THREE from "three";
 import type { Flight } from "../data/types.js";
-import { altitudeColor, latLonToVector3 } from "../lib/geo.js";
+import { flightColor, latLonToVector3, type ColorMode } from "../lib/geo.js";
 import { GLOBE_RADIUS } from "./Globe.js";
 
 const MAX = 5000;
@@ -38,16 +38,17 @@ interface AircraftProps {
   advance: (dt: number) => void;
   size: number;
   speed: number;
+  colorMode: ColorMode;
   filterFn?: (f: Flight) => boolean;
   onSelect: (flight: Flight) => void;
 }
 
 /**
  * Aircraft as heading-oriented plane glyphs (instanced). Each plane lies tangent
- * to the globe, nose pointing along its true track, colored by altitude.
- * Clickable via instanceId. Far easier to read and hit than point dots.
+ * to the globe, nose pointing along its true track, colored by altitude or
+ * origin country. Clickable via instanceId.
  */
-export function Aircraft({ getFlights, advance, size, speed, filterFn, onSelect }: AircraftProps) {
+export function Aircraft({ getFlights, advance, size, speed, colorMode, filterFn, onSelect }: AircraftProps) {
   const meshRef = useRef<THREE.InstancedMesh>(null);
   const orderRef = useRef<Flight[]>([]);
   const geo = useMemo(planeGeometry, []);
@@ -93,11 +94,11 @@ export function Aircraft({ getFlights, advance, size, speed, filterFn, onSelect 
 
       t.obj.quaternion.setFromRotationMatrix(t.mat);
       t.obj.position.copy(t.pos);
-      t.obj.scale.setScalar(size * 1.8);
+      t.obj.scale.setScalar(size);
       t.obj.updateMatrix();
       mesh.setMatrixAt(i, t.obj.matrix);
 
-      const [r, g, b] = altitudeColor(f.geoAltitude);
+      const [r, g, b] = flightColor(f.geoAltitude, f.originCountry, colorMode);
       mesh.setColorAt(i, t.color.setRGB(r, g, b));
     }
     mesh.count = count;

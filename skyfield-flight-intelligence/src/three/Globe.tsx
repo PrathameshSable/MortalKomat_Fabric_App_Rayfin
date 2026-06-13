@@ -1,18 +1,84 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
+import { latLonToVector3 } from "../lib/geo.js";
 
 export const GLOBE_RADIUS = 2;
 
+const DAY_URL = "/textures/earth-day.jpg";
+const NIGHT_URL = "/textures/earth-night.jpg";
+
+/** Subsolar point (where the sun is overhead) for a given UTC time. */
+function subsolarPoint(date = new Date()): { lat: number; lon: number } {
+  const yearStart = Date.UTC(date.getUTCFullYear(), 0, 0);
+  const dayOfYear =
+    (Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()) - yearStart) / 86_400_000;
+  const declination = -23.44 * Math.cos((2 * Math.PI / 365) * (dayOfYear + 10));
+  const utcHours = date.getUTCHours() + date.getUTCMinutes() / 60;
+  const lon = -15 * (utcHours - 12);
+  return { lat: declination, lon };
+}
+
 /**
- * A stylized Earth: a dark oceanic sphere, a faint lat/lon graticule, and a
- * fresnel atmosphere glow. No external textures required (drop an equirect
- * texture into <Globe textureUrl=.../> later for photoreal). Looks good as-is.
+ * Photoreal Earth: a day texture (NASA Blue Marble) blended with a night
+ * texture (city lights) across a soft terminator driven by the real sun
+ * position, plus a fresnel atmosphere. Falls back to a stylized sphere if the
+ * textures don't load.
  */
-export function Globe({ textureUrl }: { textureUrl?: string }) {
-  const earthMap = useMemo(() => {
-    if (!textureUrl) return null;
-    return new THREE.TextureLoader().load(textureUrl);
-  }, [textureUrl]);
+export function Globe() {
+  const [maps, setMaps] = useState<{ day: THREE.Texture; night: THREE.Texture } | null>(null);
+  const sunDir = useMemo(() => new THREE.Vector3(1, 0, 0), []);
+
+  useEffect(() => {
+    const loader = new THREE.TextureLoader();
+    loader.setCrossOrigin("anonymous");
+    let cancelled = false;
+    Promise.all([loader.loadAsync(DAY_URL), loader.loadAsync(NIGHT_URL)])
+      .then(([day, night]) => {
+        if (cancelled) return;
+        day.colorSpace = THREE.SRGBColorSpace;
+        night.colorSpace = THREE.SRGBColorSpace;
+        setMaps({ day, night });
+      })
+      .catch(() => undefined); // keep the stylized fallback
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const earthMaterial = useMemo(() => {
+    if (!maps) return null;
+    return new THREE.ShaderMaterial({
+      uniforms: {
+        uDay: { value: maps.day },
+        uNight: { value: maps.night },
+        uSun: { value: sunDir },
+      },
+      vertexShader: /* glsl */ `
+        varying vec2 vUv;
+        varying vec3 vNormal;
+        void main() {
+          vUv = uv;
+          vNormal = normalize(mat3(modelMatrix) * normal);
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: /* glsl */ `
+        uniform sampler2D uDay;
+        uniform sampler2D uNight;
+        uniform vec3 uSun;
+        varying vec2 vUv;
+        varying vec3 vNormal;
+        void main() {
+          float d = dot(normalize(vNormal), normalize(uSun));
+          float mixv = smoothstep(-0.12, 0.12, d);
+          vec3 day = texture2D(uDay, vUv).rgb;
+          vec3 night = texture2D(uNight, vUv).rgb * 1.5;
+          gl_FragColor = vec4(mix(night, day, mixv), 1.0);
+        }
+      `,
+    });
+  }, [maps, sunDir]);
 
   const atmosphereMaterial = useMemo(
     () =>
@@ -40,13 +106,20 @@ export function Globe({ textureUrl }: { textureUrl?: string }) {
     [],
   );
 
+  // Move the terminator with real time.
+  useFrame(() => {
+    if (!earthMaterial) return;
+    const { lat, lon } = subsolarPoint();
+    const v = latLonToVector3(lat, lon, 1);
+    sunDir.set(v.x, v.y, v.z).normalize();
+  });
+
   return (
     <group>
-      {/* Earth */}
       <mesh>
         <sphereGeometry args={[GLOBE_RADIUS, 64, 64]} />
-        {earthMap ? (
-          <meshStandardMaterial map={earthMap} metalness={0.1} roughness={0.85} />
+        {earthMaterial ? (
+          <primitive object={earthMaterial} attach="material" />
         ) : (
           <meshStandardMaterial
             color="#0b2545"
@@ -56,12 +129,6 @@ export function Globe({ textureUrl }: { textureUrl?: string }) {
             roughness={0.7}
           />
         )}
-      </mesh>
-
-      {/* Graticule */}
-      <mesh scale={1.001}>
-        <sphereGeometry args={[GLOBE_RADIUS, 36, 18]} />
-        <meshBasicMaterial color="#1e5a8a" wireframe transparent opacity={0.25} />
       </mesh>
 
       {/* Atmosphere glow */}

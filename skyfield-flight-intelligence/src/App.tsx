@@ -28,6 +28,7 @@ export default function App() {
   });
   const [filter, setFilter] = useState<FlightFilter>(DEFAULT_FILTER);
   const [selected, setSelected] = useState<Flight | null>(null);
+  const [follow, setFollow] = useState(false);
   const [stats, setStats] = useState<FlightStats>(EMPTY_STATS);
   const [counts, setCounts] = useState({ shown: 0, total: 0 });
   const [countries, setCountries] = useState<string[]>([]);
@@ -73,10 +74,14 @@ export default function App() {
         showArcs={settings.showArcs}
         showAirports={settings.showAirports}
         lighting={settings.lighting}
+        follow={follow}
         filterFn={stableFilterFn}
         selected={selected}
         onSelect={setSelected}
-        onClearSelection={() => setSelected(null)}
+        onClearSelection={() => {
+          setSelected(null);
+          setFollow(false);
+        }}
       />
 
       <KpiStrip stats={stats} isLive={isLive} />
@@ -88,7 +93,11 @@ export default function App() {
         shown={counts.shown}
         total={counts.total}
       />
-      <FlightDetails flight={selected} />
+      <FlightDetails
+        flight={selected}
+        follow={follow}
+        onToggleFollow={() => setFollow((v) => !v)}
+      />
       <AltitudeChart stats={stats} />
       <ControlsPanel settings={settings} onChange={setSettings} isLive={isLive} />
 

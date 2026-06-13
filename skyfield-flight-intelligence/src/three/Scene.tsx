@@ -18,6 +18,7 @@ interface SceneProps {
   showArcs: boolean;
   showAirports: boolean;
   lighting: LightingMode;
+  follow: boolean;
   filterFn?: (f: Flight) => boolean;
   selected: Flight | null;
   onSelect: (flight: Flight) => void;
@@ -68,6 +69,11 @@ interface Airport {
   count: number;
 }
 
+/** Traffic heat ramp: cool blue (quiet) → yellow → hot red/white (busy). */
+function heatColor(t: number): THREE.Color {
+  return new THREE.Color().setHSL(0.62 - 0.62 * t, 0.9, 0.45 + 0.28 * t);
+}
+
 /** Markers + labels for every airport that's an endpoint of a visible route. */
 function Airports({
   getFlights,
@@ -100,16 +106,33 @@ function Airports({
     return () => clearInterval(id);
   }, [getFlights, filterFn]);
 
+  const maxCount = Math.max(6, airports[0]?.count ?? 1);
   return (
     <group>
       {airports.map((a, i) => {
         const p = latLonToVector3(a.lat, a.lon, GLOBE_RADIUS * 1.013);
+        const t = Math.min(1, a.count / maxCount);
+        const r = 0.008 + t * 0.03;
+        const col = heatColor(t);
         return (
           <group key={a.iata} position={[p.x, p.y, p.z]}>
             <mesh>
-              <sphereGeometry args={[0.011, 8, 8]} />
-              <meshBasicMaterial color="#9fd0ff" toneMapped={false} />
+              <sphereGeometry args={[r, 10, 10]} />
+              <meshBasicMaterial color={col} toneMapped={false} />
             </mesh>
+            {t > 0.15 && (
+              <mesh scale={2.8}>
+                <sphereGeometry args={[r, 10, 10]} />
+                <meshBasicMaterial
+                  color={col}
+                  transparent
+                  opacity={0.18}
+                  blending={THREE.AdditiveBlending}
+                  depthWrite={false}
+                  toneMapped={false}
+                />
+              </mesh>
+            )}
             {i < 22 && (
               <Html center distanceFactor={10} occlude>
                 <div className="airport-tag">{a.iata}</div>
@@ -120,6 +143,29 @@ function Airports({
       })}
     </group>
   );
+}
+
+/** Keeps the selected aircraft centered as it moves (re-finds it by icao24). */
+function FollowCamera({
+  getFlights,
+  icao24,
+}: {
+  getFlights: () => Flight[];
+  icao24: string;
+}) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const controls = useThree((s) => s.controls) as any;
+  const tmp = useMemo(() => new THREE.Vector3(), []);
+  useFrame(() => {
+    if (!controls) return;
+    const f = getFlights().find((x) => x.icao24 === icao24);
+    if (!f) return;
+    latLonToVector3(f.latitude, f.longitude, 1, tmp);
+    controls.setPolarAngle(Math.acos(THREE.MathUtils.clamp(tmp.y, -1, 1)));
+    controls.setAzimuthalAngle(Math.atan2(tmp.x, tmp.z));
+    controls.update();
+  });
+  return null;
 }
 
 /** On first data load, rotate the view to center on where the planes actually are. */
@@ -174,8 +220,9 @@ function SelectionMarker({ flight }: { flight: Flight }) {
 export function Scene(props: SceneProps) {
   const {
     getFlights, advance, planeSize, speed, autoRotate, showArcs, showAirports, lighting,
-    filterFn, selected, onSelect, onClearSelection,
+    follow, filterFn, selected, onSelect, onClearSelection,
   } = props;
+  const following = follow && selected != null;
 
   return (
     <Canvas
@@ -204,11 +251,12 @@ export function Scene(props: SceneProps) {
       {selected && <SelectionMarker flight={selected} />}
       {selected && <SelectedRoute flight={selected} />}
       <AutoFrame getFlights={getFlights} />
+      {following && <FollowCamera getFlights={getFlights} icao24={selected!.icao24} />}
 
       <OrbitControls
         makeDefault
         enablePan={false}
-        autoRotate={autoRotate}
+        autoRotate={autoRotate && !following}
         autoRotateSpeed={0.35}
         minDistance={3.2}
         maxDistance={12}

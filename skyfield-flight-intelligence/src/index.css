@@ -109,6 +109,14 @@ html, body {
   font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
   color: var(--muted); margin-bottom: 10px;
 }
+.panel__head { display: flex; align-items: center; justify-content: space-between; }
+.follow-btn {
+  font-family: var(--font); font-size: 10px; font-weight: 700; letter-spacing: 1px;
+  text-transform: uppercase; cursor: pointer; padding: 4px 10px; border-radius: 7px;
+  color: var(--accent); background: rgba(58, 160, 255, 0.12);
+  border: 1px solid var(--accent); margin-bottom: 10px;
+}
+.follow-btn--on { background: var(--gold); color: #02101f; border-color: var(--gold); }
 .panel--left { left: 22px; top: 96px; }
 .panel--right { right: 22px; top: 96px; max-width: 260px; }
 .panel--controls { right: 22px; bottom: 22px; width: 240px; }

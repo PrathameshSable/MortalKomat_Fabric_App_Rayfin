@@ -70,7 +70,13 @@ export function TopCountries({ stats }: { stats: FlightStats }) {
   );
 }
 
-export function FlightDetails({ flight }: { flight: Flight | null }) {
+interface FlightDetailsProps {
+  flight: Flight | null;
+  follow: boolean;
+  onToggleFollow: () => void;
+}
+
+export function FlightDetails({ flight, follow, onToggleFollow }: FlightDetailsProps) {
   if (!flight) {
     return (
       <div className="panel panel--right panel--muted">
@@ -87,7 +93,12 @@ export function FlightDetails({ flight }: { flight: Flight | null }) {
     flight.originIata && flight.destIata ? `${flight.originIata} → ${flight.destIata}` : null;
   return (
     <div className="panel panel--right">
-      <div className="panel__title">{flight.callsign ?? flight.icao24}</div>
+      <div className="panel__head">
+        <div className="panel__title">{flight.callsign ?? flight.icao24}</div>
+        <button className={`follow-btn${follow ? " follow-btn--on" : ""}`} onClick={onToggleFollow}>
+          {follow ? "● Following" : "Follow"}
+        </button>
+      </div>
       <div className="detail-grid">
         {route && <><span>Route</span><b className="route">{route}</b></>}
         <span>Origin</span><b>{flight.originCountry}</b>

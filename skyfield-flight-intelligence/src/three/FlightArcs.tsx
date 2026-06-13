@@ -1,16 +1,15 @@
 import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import type { Flight } from "../data/types.js";
+import { hasRoute, type Flight } from "../data/types.js";
 import { altitudeColor } from "../lib/geo.js";
-import { forwardArc } from "../lib/greatCircle.js";
+import { forwardArc, greatCircleArc } from "../lib/greatCircle.js";
 import { GLOBE_RADIUS } from "./Globe.js";
 
-const MAX_ARCS = 600;
-const STEPS = 14;
+const MAX_ARCS = 700;
+const ROUTE_STEPS = 26;
 const SURFACE = GLOBE_RADIUS * 1.012;
-// Each arc contributes STEPS segments → STEPS*2 vertices.
-const MAX_VERTS = MAX_ARCS * STEPS * 2;
+const MAX_VERTS = MAX_ARCS * ROUTE_STEPS * 2;
 
 interface FlightArcsProps {
   getFlights: () => Flight[];
@@ -18,9 +17,10 @@ interface FlightArcsProps {
 }
 
 /**
- * Glowing forward great-circle trajectories — a "comet tail" ahead of each
- * aircraft, colored by altitude and fading toward the tip. Rebuilt a few times
- * a second (not every frame) so it follows motion without tanking the GPU.
+ * Flight-path arcs. When a flight has a resolved route (origin + destination
+ * airports), draws the full great-circle arc between them — like an airline
+ * route map. Otherwise falls back to a short velocity-based heading trail.
+ * Altitude-colored, rebuilt a few times a second. Rebuilt off-frame for perf.
  */
 export function FlightArcs({ getFlights, filterFn }: FlightArcsProps) {
   const acc = useRef(0);
@@ -32,7 +32,7 @@ export function FlightArcs({ getFlights, filterFn }: FlightArcsProps) {
     const material = new THREE.LineBasicMaterial({
       vertexColors: true,
       transparent: true,
-      opacity: 0.45,
+      opacity: 0.5,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
     });
@@ -49,26 +49,29 @@ export function FlightArcs({ getFlights, filterFn }: FlightArcsProps) {
 
     let v = 0;
     const count = Math.min(flights.length, MAX_ARCS);
-    for (let i = 0; i < count; i++) {
+    for (let i = 0; i < count && v + ROUTE_STEPS * 2 <= MAX_VERTS; i++) {
       const f = flights[i]!;
-      if (f.onGround || f.heading == null) continue;
-      // Trail length = where this aircraft will be ~12 min ahead at its current
-      // speed, capped so it's a short realistic streak — not a globe-spanning ray.
-      const speed = f.velocity ?? 0;
-      if (speed < 20) continue; // skip near-stationary
-      const arcDeg = Math.max(0.5, Math.min(4, (speed * 720) / 111_320));
-      const arc = forwardArc(f.latitude, f.longitude, f.heading, SURFACE, {
-        steps: STEPS,
-        arcDeg,
-        lift: 0.02,
-      });
       const [r, g, b] = altitudeColor(f.geoAltitude);
+
+      let arc: THREE.Vector3[];
+      let fade = false;
+      if (hasRoute(f)) {
+        arc = greatCircleArc(f.originLat!, f.originLon!, f.destLat!, f.destLon!, SURFACE, {
+          steps: ROUTE_STEPS,
+        });
+      } else {
+        const speed = f.velocity ?? 0;
+        if (f.onGround || f.heading == null || speed < 20) continue;
+        const arcDeg = Math.max(0.5, Math.min(4, (speed * 720) / 111_320));
+        arc = forwardArc(f.latitude, f.longitude, f.heading, SURFACE, { steps: 12, arcDeg, lift: 0.02 });
+        fade = true;
+      }
+
       for (let s = 0; s < arc.length - 1; s++) {
         const a = arc[s]!;
         const b2 = arc[s + 1]!;
-        // Fade toward the tip for a comet look.
-        const f0 = 1 - s / arc.length;
-        const f1 = 1 - (s + 1) / arc.length;
+        const f0 = fade ? 1 - s / arc.length : 1;
+        const f1 = fade ? 1 - (s + 1) / arc.length : 1;
         posArr[v * 3] = a.x; posArr[v * 3 + 1] = a.y; posArr[v * 3 + 2] = a.z;
         colArr[v * 3] = r * f0; colArr[v * 3 + 1] = g * f0; colArr[v * 3 + 2] = b * f0;
         v++;

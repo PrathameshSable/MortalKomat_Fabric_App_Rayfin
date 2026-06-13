@@ -63,10 +63,13 @@ export function FlightDetails({ flight }: { flight: Flight | null }) {
   const spd = flight.velocity != null ? `${Math.round(flight.velocity * 3.6)} km/h` : "—";
   const vr = flight.verticalRate;
   const trend = vr == null ? "level" : vr > 0.5 ? "climbing" : vr < -0.5 ? "descending" : "cruising";
+  const route =
+    flight.originIata && flight.destIata ? `${flight.originIata} → ${flight.destIata}` : null;
   return (
     <div className="panel panel--right">
       <div className="panel__title">{flight.callsign ?? flight.icao24}</div>
       <div className="detail-grid">
+        {route && <><span>Route</span><b className="route">{route}</b></>}
         <span>Origin</span><b>{flight.originCountry}</b>
         <span>ICAO24</span><b>{flight.icao24}</b>
         <span>Position</span><b>{flight.latitude.toFixed(2)}°, {flight.longitude.toFixed(2)}°</b>

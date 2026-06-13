@@ -1,60 +1,79 @@
 import { getFabricClient } from "@/lib/fabric-client";
 import type { Flight, FlightProvider } from "../types.js";
-import { LIVE_FLIGHTS_DAX } from "./flightQueries.js";
+import { LIVE_FLIGHTS_DAX, LIVE_FLIGHTS_DAX_BASE } from "./flightQueries.js";
 
 const num = (v: unknown): number | null => (v == null ? null : Number(v));
+const str = (v: unknown): string | null => (v == null || v === "" ? null : String(v));
 
-/** row[] index → Flight, matching LIVE_FLIGHTS_DAX column order. */
-function rowToFlight(row: unknown[]): Flight {
-  return {
-    icao24: String(row[0] ?? ""),
-    callsign: row[1] == null ? null : String(row[1]),
-    originCountry: String(row[2] ?? "Unknown"),
-    longitude: Number(row[3] ?? 0),
-    latitude: Number(row[4] ?? 0),
-    geoAltitude: num(row[5]),
-    velocity: num(row[6]),
-    heading: num(row[7]),
-    verticalRate: num(row[8]),
-    onGround: Boolean(row[9]),
-  };
+/** Normalize a result column name ("Flights[icao24]" / "[icao24]") → "icao24". */
+function normalize(name: string): string {
+  return name.replace(/^.*\[/, "").replace(/\]$/, "").trim().toLowerCase();
 }
 
-/**
- * Rows come newest-first (ORDER BY ingestedAt DESC), so the first row seen for
- * each aircraft is its latest position — keep that, skip the older duplicates.
- */
-function rowsToLatestFlights(rows: unknown[][]): Flight[] {
+/** Map result rows to Flights by COLUMN NAME, so order/missing columns are safe. */
+function rowsToLatestFlights(
+  columns: { name: string }[],
+  rows: unknown[][],
+): Flight[] {
+  const idx = new Map<string, number>();
+  columns.forEach((c, i) => idx.set(normalize(c.name), i));
+  const g = (row: unknown[], name: string): unknown => {
+    const i = idx.get(name);
+    return i === undefined ? undefined : row[i];
+  };
+
   const seen = new Set<string>();
   const flights: Flight[] = [];
   for (const row of rows) {
-    const flight = rowToFlight(row);
-    if (!flight.icao24 || seen.has(flight.icao24)) continue;
-    seen.add(flight.icao24);
-    flights.push(flight);
+    const icao24 = String(g(row, "icao24") ?? "");
+    if (!icao24 || seen.has(icao24)) continue; // newest-first → first wins
+    seen.add(icao24);
+    flights.push({
+      icao24,
+      callsign: str(g(row, "callsign")),
+      originCountry: String(g(row, "origincountry") ?? "Unknown"),
+      longitude: Number(g(row, "longitude") ?? 0),
+      latitude: Number(g(row, "latitude") ?? 0),
+      geoAltitude: num(g(row, "geoaltitude")),
+      velocity: num(g(row, "velocity")),
+      heading: num(g(row, "heading")),
+      verticalRate: num(g(row, "verticalrate")),
+      onGround: Boolean(g(row, "onground")),
+      originLat: num(g(row, "originlat")),
+      originLon: num(g(row, "originlon")),
+      destLat: num(g(row, "destlat")),
+      destLon: num(g(row, "destlon")),
+      originIata: str(g(row, "originiata")),
+      destIata: str(g(row, "destiata")),
+    });
   }
   return flights;
 }
 
 /**
- * Live provider backed by the Fabric semantic model. Runs LIVE_FLIGHTS_DAX and
- * returns the latest known position per aircraft.
- *
- * `bypassCache: true` is essential — the SDK caches identical DAX queries, and
- * this query string never changes, so without it every poll would return the
- * same stale snapshot and the globe would appear frozen.
+ * Live provider backed by the Fabric semantic model. Tries the full query
+ * (with route columns) and falls back to the base query if the model doesn't
+ * have them yet. `bypassCache` is essential — the query string is constant, so
+ * without it the SDK would serve the same stale snapshot forever.
  */
 export function createFabricFlightProvider(connection = "flightsModel"): FlightProvider {
+  let useBase = false;
   return {
     name: "fabric",
     async getFlights(): Promise<Flight[]> {
-      const result = await getFabricClient()
-        .semanticModel(connection)
-        .query(LIVE_FLIGHTS_DAX, { bypassCache: true });
+      const model = getFabricClient().semanticModel(connection);
+      const dax = useBase ? LIVE_FLIGHTS_DAX_BASE : LIVE_FLIGHTS_DAX;
+      let result = await model.query(dax, { bypassCache: true });
+
+      // First time the route columns are missing, drop to the base query.
+      if (result.status === "error" && !useBase) {
+        useBase = true;
+        result = await model.query(LIVE_FLIGHTS_DAX_BASE, { bypassCache: true });
+      }
       if (result.status !== "success") {
         throw new Error(result.error.message);
       }
-      return rowsToLatestFlights(result.table.rows);
+      return rowsToLatestFlights(result.table.columns, result.table.rows);
     },
   };
 }

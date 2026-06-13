@@ -92,7 +92,58 @@ def to_flight(s):
         "onGround": s[8],
         "lastContact": datetime.fromtimestamp(s[4], tz=timezone.utc).isoformat(),
         "ingestedAt": now,
+        # Route — filled in by enrich_routes() from the callsign (null if unknown).
+        "originLat": None, "originLon": None, "originIata": None,
+        "destLat": None, "destLon": None, "destIata": None,
     }
+
+
+# ── Route enrichment (callsign → origin/destination airport) ──────────────────
+# adsbdb.com is free, no key. We cache each callsign (including "unknown") so we
+# only hit the API once per callsign, and cap new lookups per cycle to be polite.
+ROUTE_CACHE: dict = {}
+MAX_LOOKUPS_PER_CYCLE = 60
+
+
+def lookup_route(callsign):
+    if callsign in ROUTE_CACHE:
+        return ROUTE_CACHE[callsign]
+    route = None
+    try:
+        r = requests.get(f"https://api.adsbdb.com/v0/callsign/{callsign}", timeout=10)
+        if r.status_code == 200:
+            fr = (r.json().get("response") or {}).get("flightroute") if isinstance(r.json().get("response"), dict) else None
+            if fr:
+                o, d = fr.get("origin") or {}, fr.get("destination") or {}
+                if o.get("latitude") is not None and d.get("latitude") is not None:
+                    route = {
+                        "originLat": o.get("latitude"), "originLon": o.get("longitude"),
+                        "originIata": o.get("iata_code"),
+                        "destLat": d.get("latitude"), "destLon": d.get("longitude"),
+                        "destIata": d.get("iata_code"),
+                    }
+    except Exception:
+        route = None
+    ROUTE_CACHE[callsign] = route
+    return route
+
+
+def enrich_routes(flights):
+    new = 0
+    for f in flights:
+        cs = f.get("callsign")
+        if not cs:
+            continue
+        if cs in ROUTE_CACHE:
+            route = ROUTE_CACHE[cs]
+        elif new < MAX_LOOKUPS_PER_CYCLE:
+            route = lookup_route(cs)
+            new += 1
+            time.sleep(0.05)
+        else:
+            route = None  # resolve on a later cycle
+        if route:
+            f.update(route)
 
 
 def send(producer, flights):
@@ -119,8 +170,10 @@ try:
             states = fetch_states(token)
             flights = [f for f in (to_flight(s) for s in states) if f]
             if flights:
+                enrich_routes(flights)
+                routed = sum(1 for f in flights if f["originLat"] is not None)
                 send(producer, flights)
-                print(f"{datetime.now():%H:%M:%S}  sent {len(flights)} flights")
+                print(f"{datetime.now():%H:%M:%S}  sent {len(flights)} flights ({routed} with routes)")
         except requests.HTTPError as ex:
             if ex.response is not None and ex.response.status_code == 401:
                 token = get_token()  # token expired → refresh

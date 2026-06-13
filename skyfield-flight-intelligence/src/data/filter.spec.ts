@@ -13,6 +13,12 @@ const base: Flight = {
   heading: 90,
   verticalRate: 0,
   onGround: false,
+  originLat: 51.47,
+  originLon: -0.46,
+  destLat: 40.64,
+  destLon: -73.78,
+  originIata: "LHR",
+  destIata: "JFK",
 };
 
 describe("isFilterActive", () => {

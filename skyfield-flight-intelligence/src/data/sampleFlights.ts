@@ -13,6 +13,23 @@ const COUNTRIES = [
 
 const AIRLINE_PREFIXES = ["UAL", "DLH", "BAW", "AFR", "KLM", "AAL", "SWR", "UAE", "QFA", "ANA", "THY"];
 
+// Major airports [iata, lat, lon] for synthetic routes in demo mode.
+const AIRPORTS: [string, number, number][] = [
+  ["LHR", 51.47, -0.46], ["JFK", 40.64, -73.78], ["LAX", 33.94, -118.41],
+  ["CDG", 49.01, 2.55], ["FRA", 50.04, 8.56], ["DXB", 25.25, 55.36],
+  ["HND", 35.55, 139.78], ["SIN", 1.36, 103.99], ["SYD", -33.95, 151.18],
+  ["GRU", -23.43, -46.47], ["JNB", -26.13, 28.24], ["ORD", 41.97, -87.91],
+  ["AMS", 52.31, 4.76], ["IST", 41.26, 28.74], ["HKG", 22.31, 113.91],
+  ["DEL", 28.56, 77.10], ["MAD", 40.47, -3.56], ["YYZ", 43.68, -79.61],
+];
+
+function pickRoute(): { o: [string, number, number]; d: [string, number, number] } {
+  const o = AIRPORTS[Math.floor(Math.random() * AIRPORTS.length)]!;
+  let d = AIRPORTS[Math.floor(Math.random() * AIRPORTS.length)]!;
+  while (d === o) d = AIRPORTS[Math.floor(Math.random() * AIRPORTS.length)]!;
+  return { o, d };
+}
+
 function rand(min: number, max: number): number {
   return min + Math.random() * (max - min);
 }
@@ -36,6 +53,8 @@ function pickCountry(): string {
 function makeFlight(i: number): Flight {
   const onGround = Math.random() < 0.08;
   const prefix = AIRLINE_PREFIXES[i % AIRLINE_PREFIXES.length];
+  // ~75% of flights resolve a route (mirrors how many real callsigns adsbdb knows).
+  const route = !onGround && Math.random() < 0.75 ? pickRoute() : null;
   return {
     icao24: (0x400000 + i).toString(16),
     callsign: `${prefix}${100 + (i % 900)}`,
@@ -47,6 +66,12 @@ function makeFlight(i: number): Flight {
     heading: rand(0, 360),
     verticalRate: onGround ? 0 : rand(-6, 6),
     onGround,
+    originLat: route?.o[1] ?? null,
+    originLon: route?.o[2] ?? null,
+    destLat: route?.d[1] ?? null,
+    destLon: route?.d[2] ?? null,
+    originIata: route?.o[0] ?? null,
+    destIata: route?.d[0] ?? null,
   };
 }
 

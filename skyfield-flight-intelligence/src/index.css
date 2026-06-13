@@ -162,6 +162,7 @@ html, body {
 }
 .detail-grid span { color: var(--muted); }
 .detail-grid b { text-align: right; font-weight: 600; }
+.route { color: var(--gold); font-weight: 700; letter-spacing: 0.5px; }
 .state { text-transform: capitalize; }
 .state--climbing { color: #5ff0a0; }
 .state--descending { color: #ff8c6b; }

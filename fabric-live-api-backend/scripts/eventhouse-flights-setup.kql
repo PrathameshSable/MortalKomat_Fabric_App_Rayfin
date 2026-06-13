@@ -17,8 +17,18 @@
     verticalRate:  real,
     onGround:      bool,
     lastContact:   datetime,
-    ingestedAt:    datetime
+    ingestedAt:    datetime,
+    originLat:     real,
+    originLon:     real,
+    originIata:    string,
+    destLat:       real,
+    destLon:       real,
+    destIata:      string
 )
+
+// Already created the table without the route columns? Run this once to add them
+// (.create-merge above also adds missing columns, so re-running it works too):
+// .alter-merge table Flights (originLat:real, originLon:real, originIata:string, destLat:real, destLon:real, destIata:string)
 
 .create-or-alter table Flights ingestion json mapping "FlightsJson"
 ```
@@ -35,7 +45,13 @@
   { "column": "verticalRate",  "path": "$.verticalRate" },
   { "column": "onGround",      "path": "$.onGround" },
   { "column": "lastContact",   "path": "$.lastContact" },
-  { "column": "ingestedAt",    "path": "$.ingestedAt" }
+  { "column": "ingestedAt",    "path": "$.ingestedAt" },
+  { "column": "originLat",     "path": "$.originLat" },
+  { "column": "originLon",     "path": "$.originLon" },
+  { "column": "originIata",    "path": "$.originIata" },
+  { "column": "destLat",       "path": "$.destLat" },
+  { "column": "destLon",       "path": "$.destLon" },
+  { "column": "destIata",      "path": "$.destIata" }
 ]
 ```
 

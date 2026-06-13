@@ -14,6 +14,20 @@ export interface Flight {
   heading: number | null; // degrees (true track)
   verticalRate: number | null; // m/s
   onGround: boolean;
+  // Route (from callsign → adsbdb lookup; null when unknown).
+  originLat: number | null;
+  originLon: number | null;
+  destLat: number | null;
+  destLon: number | null;
+  originIata: string | null;
+  destIata: string | null;
+}
+
+/** True when a flight has a resolved origin→destination route. */
+export function hasRoute(f: Flight): boolean {
+  return (
+    f.originLat != null && f.originLon != null && f.destLat != null && f.destLon != null
+  );
 }
 
 /** A flight provider returns the current live set of aircraft. */

@@ -21,9 +21,24 @@ function rowToFlight(row: unknown[]): Flight {
 }
 
 /**
- * Live provider backed by the Fabric semantic model (Direct Lake over the
- * Eventhouse `Flights` table). Runs LIVE_FLIGHTS_DAX through the SDK and maps
- * the result rows to the Flight contract.
+ * Rows come newest-first (ORDER BY ingestedAt DESC), so the first row seen for
+ * each aircraft is its latest position — keep that, skip the older duplicates.
+ */
+function rowsToLatestFlights(rows: unknown[][]): Flight[] {
+  const seen = new Set<string>();
+  const flights: Flight[] = [];
+  for (const row of rows) {
+    const flight = rowToFlight(row);
+    if (!flight.icao24 || seen.has(flight.icao24)) continue;
+    seen.add(flight.icao24);
+    flights.push(flight);
+  }
+  return flights;
+}
+
+/**
+ * Live provider backed by the Fabric semantic model. Runs LIVE_FLIGHTS_DAX and
+ * returns the latest known position per aircraft.
  */
 export function createFabricFlightProvider(connection = "flightsModel"): FlightProvider {
   return {
@@ -33,7 +48,7 @@ export function createFabricFlightProvider(connection = "flightsModel"): FlightP
       if (result.status !== "success") {
         throw new Error(result.error.message);
       }
-      return result.table.rows.map(rowToFlight);
+      return rowsToLatestFlights(result.table.rows);
     },
   };
 }

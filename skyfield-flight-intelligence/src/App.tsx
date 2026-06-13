@@ -23,6 +23,7 @@ export default function App() {
     speed: 1.5,
     autoRotate: true,
     showArcs: true,
+    lighting: "realtime",
   });
   const [filter, setFilter] = useState<FlightFilter>(DEFAULT_FILTER);
   const [selected, setSelected] = useState<Flight | null>(null);
@@ -69,6 +70,7 @@ export default function App() {
         speed={settings.speed}
         autoRotate={settings.autoRotate}
         showArcs={settings.showArcs}
+        lighting={settings.lighting}
         filterFn={stableFilterFn}
         selected={selected}
         onSelect={setSelected}

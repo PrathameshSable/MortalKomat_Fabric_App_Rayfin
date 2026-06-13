@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
-import { useFrame } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { latLonToVector3 } from "../lib/geo.js";
 
 export const GLOBE_RADIUS = 2;
+
+export type LightingMode = "realtime" | "day" | "night";
 
 const DAY_URL = "/textures/earth-day.jpg";
 const NIGHT_URL = "/textures/earth-night.jpg";
@@ -25,9 +27,10 @@ function subsolarPoint(date = new Date()): { lat: number; lon: number } {
  * position, plus a fresnel atmosphere. Falls back to a stylized sphere if the
  * textures don't load.
  */
-export function Globe() {
+export function Globe({ lighting = "realtime" }: { lighting?: LightingMode }) {
   const [maps, setMaps] = useState<{ day: THREE.Texture; night: THREE.Texture } | null>(null);
   const sunDir = useMemo(() => new THREE.Vector3(1, 0, 0), []);
+  const camera = useThree((s) => s.camera);
 
   useEffect(() => {
     const loader = new THREE.TextureLoader();
@@ -106,12 +109,18 @@ export function Globe() {
     [],
   );
 
-  // Move the terminator with real time.
+  // Drive the sun: real-time terminator, or lock the lit/dark side to the camera.
   useFrame(() => {
     if (!earthMaterial) return;
-    const { lat, lon } = subsolarPoint();
-    const v = latLonToVector3(lat, lon, 1);
-    sunDir.set(v.x, v.y, v.z).normalize();
+    if (lighting === "realtime") {
+      const { lat, lon } = subsolarPoint();
+      const v = latLonToVector3(lat, lon, 1);
+      sunDir.set(v.x, v.y, v.z).normalize();
+    } else if (lighting === "day") {
+      sunDir.copy(camera.position).normalize();
+    } else {
+      sunDir.copy(camera.position).normalize().multiplyScalar(-1);
+    }
   });
 
   return (

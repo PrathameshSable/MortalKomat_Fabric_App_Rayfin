@@ -1,10 +1,19 @@
+import type { LightingMode } from "../three/Globe.js";
+
 export interface Settings {
   count: number;
   planeSize: number;
   speed: number;
   autoRotate: boolean;
   showArcs: boolean;
+  lighting: LightingMode;
 }
+
+const LIGHTING: { id: LightingMode; label: string }[] = [
+  { id: "realtime", label: "Real-time" },
+  { id: "day", label: "Day" },
+  { id: "night", label: "Night" },
+];
 
 interface ControlsPanelProps {
   settings: Settings;
@@ -48,6 +57,21 @@ export function ControlsPanel({ settings, onChange, isLive }: ControlsPanelProps
           onChange={(e) => set("planeSize", Number(e.target.value))}
         />
       </label>
+
+      <div className="ctl">
+        <span>Lighting</span>
+        <div className="band-row">
+          {LIGHTING.map((l) => (
+            <button
+              key={l.id}
+              className={`band${settings.lighting === l.id ? " band--on" : ""}`}
+              onClick={() => set("lighting", l.id)}
+            >
+              {l.label}
+            </button>
+          ))}
+        </div>
+      </div>
 
       <label className="ctl ctl--row">
         <span>Flight paths</span>

@@ -39,12 +39,18 @@ function rowsToLatestFlights(rows: unknown[][]): Flight[] {
 /**
  * Live provider backed by the Fabric semantic model. Runs LIVE_FLIGHTS_DAX and
  * returns the latest known position per aircraft.
+ *
+ * `bypassCache: true` is essential — the SDK caches identical DAX queries, and
+ * this query string never changes, so without it every poll would return the
+ * same stale snapshot and the globe would appear frozen.
  */
 export function createFabricFlightProvider(connection = "flightsModel"): FlightProvider {
   return {
     name: "fabric",
     async getFlights(): Promise<Flight[]> {
-      const result = await getFabricClient().semanticModel(connection).query(LIVE_FLIGHTS_DAX);
+      const result = await getFabricClient()
+        .semanticModel(connection)
+        .query(LIVE_FLIGHTS_DAX, { bypassCache: true });
       if (result.status !== "success") {
         throw new Error(result.error.message);
       }

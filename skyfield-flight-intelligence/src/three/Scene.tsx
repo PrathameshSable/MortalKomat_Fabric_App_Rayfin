@@ -1,4 +1,4 @@
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls, Stars, Billboard, Line, Html } from "@react-three/drei";
 import * as THREE from "three";
@@ -16,6 +16,7 @@ interface SceneProps {
   speed: number;
   autoRotate: boolean;
   showArcs: boolean;
+  showAirports: boolean;
   lighting: LightingMode;
   filterFn?: (f: Flight) => boolean;
   selected: Flight | null;
@@ -56,6 +57,67 @@ function SelectedRoute({ flight }: { flight: Flight }) {
           <div className="airport-label dest">{flight.destIata}</div>
         </Html>
       )}
+    </group>
+  );
+}
+
+interface Airport {
+  iata: string;
+  lat: number;
+  lon: number;
+  count: number;
+}
+
+/** Markers + labels for every airport that's an endpoint of a visible route. */
+function Airports({
+  getFlights,
+  filterFn,
+}: {
+  getFlights: () => Flight[];
+  filterFn?: (f: Flight) => boolean;
+}) {
+  const [airports, setAirports] = useState<Airport[]>([]);
+
+  useEffect(() => {
+    const compute = () => {
+      const all = getFlights();
+      const flights = filterFn ? all.filter(filterFn) : all;
+      const map = new Map<string, Airport>();
+      const add = (iata: string | null, lat: number | null, lon: number | null) => {
+        if (!iata || lat == null || lon == null) return;
+        const e = map.get(iata) ?? { iata, lat, lon, count: 0 };
+        e.count++;
+        map.set(iata, e);
+      };
+      for (const f of flights) {
+        add(f.originIata, f.originLat, f.originLon);
+        add(f.destIata, f.destLat, f.destLon);
+      }
+      setAirports([...map.values()].sort((a, b) => b.count - a.count).slice(0, 80));
+    };
+    compute();
+    const id = setInterval(compute, 1500);
+    return () => clearInterval(id);
+  }, [getFlights, filterFn]);
+
+  return (
+    <group>
+      {airports.map((a, i) => {
+        const p = latLonToVector3(a.lat, a.lon, GLOBE_RADIUS * 1.013);
+        return (
+          <group key={a.iata} position={[p.x, p.y, p.z]}>
+            <mesh>
+              <sphereGeometry args={[0.011, 8, 8]} />
+              <meshBasicMaterial color="#9fd0ff" toneMapped={false} />
+            </mesh>
+            {i < 22 && (
+              <Html center distanceFactor={10} occlude>
+                <div className="airport-tag">{a.iata}</div>
+              </Html>
+            )}
+          </group>
+        );
+      })}
     </group>
   );
 }
@@ -111,8 +173,8 @@ function SelectionMarker({ flight }: { flight: Flight }) {
 
 export function Scene(props: SceneProps) {
   const {
-    getFlights, advance, planeSize, speed, autoRotate, showArcs, lighting, filterFn,
-    selected, onSelect, onClearSelection,
+    getFlights, advance, planeSize, speed, autoRotate, showArcs, showAirports, lighting,
+    filterFn, selected, onSelect, onClearSelection,
   } = props;
 
   return (
@@ -130,6 +192,7 @@ export function Scene(props: SceneProps) {
 
       <Globe lighting={lighting} />
       {showArcs && <FlightArcs getFlights={getFlights} filterFn={filterFn} />}
+      {showAirports && <Airports getFlights={getFlights} filterFn={filterFn} />}
       <Aircraft
         getFlights={getFlights}
         advance={advance}

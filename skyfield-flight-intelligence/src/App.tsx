@@ -3,13 +3,13 @@ import { resolveFlightSource } from "./data/flightSource.js";
 import { computeStats, type Flight, type FlightStats } from "./data/types.js";
 import { DEFAULT_FILTER, makeFilterFn, type FlightFilter } from "./data/filter.js";
 import { Scene } from "./three/Scene.js";
-import { KpiStrip, TopCountries, FlightDetails } from "./components/Hud.js";
+import { KpiStrip, TopCountries, FlightDetails, AltitudeChart } from "./components/Hud.js";
 import { ControlsPanel, type Settings } from "./components/ControlsPanel.js";
 import { SearchPanel } from "./components/SearchPanel.js";
 
 const EMPTY_STATS: FlightStats = {
   total: 0, airborne: 0, grounded: 0, countries: 0,
-  avgAltitudeFt: 0, avgSpeedKmh: 0, topCountries: [],
+  avgAltitudeFt: 0, avgSpeedKmh: 0, topCountries: [], altitudeBins: [],
 };
 
 export default function App() {
@@ -23,6 +23,7 @@ export default function App() {
     speed: 1.5,
     autoRotate: true,
     showArcs: true,
+    showAirports: true,
     lighting: "realtime",
   });
   const [filter, setFilter] = useState<FlightFilter>(DEFAULT_FILTER);
@@ -70,6 +71,7 @@ export default function App() {
         speed={settings.speed}
         autoRotate={settings.autoRotate}
         showArcs={settings.showArcs}
+        showAirports={settings.showAirports}
         lighting={settings.lighting}
         filterFn={stableFilterFn}
         selected={selected}
@@ -87,6 +89,7 @@ export default function App() {
         total={counts.total}
       />
       <FlightDetails flight={selected} />
+      <AltitudeChart stats={stats} />
       <ControlsPanel settings={settings} onChange={setSettings} isLive={isLive} />
 
       <div className="legend">

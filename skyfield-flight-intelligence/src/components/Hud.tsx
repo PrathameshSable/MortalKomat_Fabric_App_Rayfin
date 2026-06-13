@@ -30,6 +30,26 @@ export function KpiStrip({ stats, isLive }: { stats: FlightStats; isLive: boolea
   );
 }
 
+export function AltitudeChart({ stats }: { stats: FlightStats }) {
+  const max = Math.max(1, ...stats.altitudeBins.map((b) => b.count));
+  return (
+    <div className="panel panel--alt">
+      <div className="panel__title">Altitude profile</div>
+      <div className="altbars">
+        {stats.altitudeBins.map((b) => (
+          <div className="altbar" key={b.label}>
+            <span className="altbar__col">
+              <span className="altbar__fill" style={{ height: `${(b.count / max) * 100}%` }} />
+            </span>
+            <span className="altbar__n">{b.count}</span>
+            <span className="altbar__label">{b.label}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function TopCountries({ stats }: { stats: FlightStats }) {
   const max = stats.topCountries[0]?.count ?? 1;
   return (

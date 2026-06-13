@@ -6,6 +6,7 @@ export interface Settings {
   speed: number;
   autoRotate: boolean;
   showArcs: boolean;
+  showAirports: boolean;
   lighting: LightingMode;
 }
 
@@ -79,6 +80,15 @@ export function ControlsPanel({ settings, onChange, isLive }: ControlsPanelProps
           type="checkbox"
           checked={settings.showArcs}
           onChange={(e) => set("showArcs", e.target.checked)}
+        />
+      </label>
+
+      <label className="ctl ctl--row">
+        <span>Airports</span>
+        <input
+          type="checkbox"
+          checked={settings.showAirports}
+          onChange={(e) => set("showAirports", e.target.checked)}
         />
       </label>
 

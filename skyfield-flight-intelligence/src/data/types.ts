@@ -46,7 +46,16 @@ export interface FlightStats {
   avgAltitudeFt: number;
   avgSpeedKmh: number;
   topCountries: { country: string; count: number }[];
+  altitudeBins: { label: string; count: number }[];
 }
+
+const ALT_BANDS: { label: string; min: number; max: number }[] = [
+  { label: "0–10k", min: 0, max: 10_000 },
+  { label: "10–20k", min: 10_000, max: 20_000 },
+  { label: "20–30k", min: 20_000, max: 30_000 },
+  { label: "30–40k", min: 30_000, max: 40_000 },
+  { label: "40k+", min: 40_000, max: Infinity },
+];
 
 export function computeStats(flights: Flight[]): FlightStats {
   let airborne = 0;
@@ -55,12 +64,18 @@ export function computeStats(flights: Flight[]): FlightStats {
   let spdSum = 0;
   let spdCount = 0;
   const byCountry = new Map<string, number>();
+  const bins = ALT_BANDS.map((b) => ({ label: b.label, count: 0 }));
 
   for (const f of flights) {
     if (!f.onGround) airborne++;
     if (f.geoAltitude != null) {
       altSum += f.geoAltitude;
       altCount++;
+      if (!f.onGround) {
+        const ft = f.geoAltitude * 3.28084;
+        const bandIdx = ALT_BANDS.findIndex((b) => ft >= b.min && ft < b.max);
+        if (bandIdx >= 0) bins[bandIdx]!.count++;
+      }
     }
     if (f.velocity != null) {
       spdSum += f.velocity;
@@ -82,5 +97,6 @@ export function computeStats(flights: Flight[]): FlightStats {
     avgAltitudeFt: altCount ? (altSum / altCount) * 3.28084 : 0,
     avgSpeedKmh: spdCount ? (spdSum / spdCount) * 3.6 : 0,
     topCountries,
+    altitudeBins: bins,
   };
 }

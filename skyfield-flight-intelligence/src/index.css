@@ -73,6 +73,8 @@ html, body {
   box-shadow: 0 0 12px var(--accent);
 }
 .brand__dot--live { background: #3df08a; box-shadow: 0 0 12px #3df08a; animation: pulse 1.6s ease-in-out infinite; }
+.stage canvas { cursor: grab; }
+.stage canvas:active { cursor: grabbing; }
 .live-badge {
   margin-left: 12px; font-size: 11px; font-weight: 800; letter-spacing: 2px;
   color: #3df08a; animation: pulse 1.6s ease-in-out infinite;
@@ -163,6 +165,16 @@ html, body {
 .detail-grid span { color: var(--muted); }
 .detail-grid b { text-align: right; font-weight: 600; }
 .route { color: var(--gold); font-weight: 700; letter-spacing: 0.5px; }
+
+/* ── Airport labels on the selected route ───────────────────────────────────*/
+.airport-label {
+  font-family: var(--font); font-size: 11px; font-weight: 700; letter-spacing: 1px;
+  padding: 2px 6px; border-radius: 6px; white-space: nowrap; pointer-events: none;
+  transform: translateY(-14px); border: 1px solid var(--glass-line);
+  background: rgba(3, 8, 18, 0.8);
+}
+.airport-label.origin { color: #5ff0a0; }
+.airport-label.dest { color: #ff8c6b; }
 .state { text-transform: capitalize; }
 .state--climbing { color: #5ff0a0; }
 .state--descending { color: #ff8c6b; }

@@ -1,6 +1,6 @@
 import { useMemo, useRef } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
-import { OrbitControls, Stars, Billboard, Line } from "@react-three/drei";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { OrbitControls, Stars, Billboard, Line, Html } from "@react-three/drei";
 import * as THREE from "three";
 import { hasRoute, type Flight } from "../data/types.js";
 import { latLonToVector3 } from "../lib/geo.js";
@@ -46,8 +46,47 @@ function SelectedRoute({ flight }: { flight: Flight }) {
         <sphereGeometry args={[0.022, 12, 12]} />
         <meshBasicMaterial color="#ff8c6b" />
       </mesh>
+      {flight.originIata && (
+        <Html position={[o.x, o.y, o.z]} center>
+          <div className="airport-label origin">{flight.originIata}</div>
+        </Html>
+      )}
+      {flight.destIata && (
+        <Html position={[d.x, d.y, d.z]} center>
+          <div className="airport-label dest">{flight.destIata}</div>
+        </Html>
+      )}
     </group>
   );
+}
+
+/** On first data load, rotate the view to center on where the planes actually are. */
+function AutoFrame({ getFlights }: { getFlights: () => Flight[] }) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const controls = useThree((s) => s.controls) as any;
+  const done = useRef(false);
+  const tmp = useMemo(() => new THREE.Vector3(), []);
+  useFrame(() => {
+    if (done.current || !controls) return;
+    const flights = getFlights();
+    if (flights.length < 3) return;
+    const c = new THREE.Vector3();
+    let n = 0;
+    for (const f of flights) {
+      c.add(latLonToVector3(f.latitude, f.longitude, 1, tmp));
+      if (++n > 800) break;
+    }
+    if (c.lengthSq() < 1e-6) {
+      done.current = true;
+      return;
+    }
+    c.normalize();
+    controls.setPolarAngle(Math.acos(THREE.MathUtils.clamp(c.y, -1, 1)));
+    controls.setAzimuthalAngle(Math.atan2(c.x, c.z));
+    controls.update();
+    done.current = true;
+  });
+  return null;
 }
 
 /** A pulsing ring that marks the currently selected aircraft. */
@@ -101,8 +140,10 @@ export function Scene(props: SceneProps) {
       />
       {selected && <SelectionMarker flight={selected} />}
       {selected && <SelectedRoute flight={selected} />}
+      <AutoFrame getFlights={getFlights} />
 
       <OrbitControls
+        makeDefault
         enablePan={false}
         autoRotate={autoRotate}
         autoRotateSpeed={0.35}

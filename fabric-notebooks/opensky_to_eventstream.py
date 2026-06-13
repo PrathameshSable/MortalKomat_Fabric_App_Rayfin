@@ -31,11 +31,13 @@ OPENSKY_CLIENT_SECRET = "<paste your OpenSky secret (Reset Credential)>"
 # Eventstream custom-endpoint connection string (source node → Keys tab).
 # Must contain EntityPath=...
 EVENTSTREAM_CONNECTION_STRING = "<paste from the custom endpoint Keys tab>"
-# Bounding box: south, west, north, east (degrees). Keep area < 25 sq° = 1 credit.
-OPENSKY_BBOX = (48, 2, 52, 8)
+# Bounding box: south, west, north, east (degrees).
+#   Global  (-60, -180, 75, 180)  → ~4 credits/call  → use POLL_SECONDS >= 90
+#   Region  (48, 2, 52, 8) ~24 sq°→  1 credit/call   → POLL_SECONDS 25 is fine
+OPENSKY_BBOX = (-60, -180, 75, 180)   # whole world for the reference look
 
-POLL_SECONDS = 25      # 25s ≈ 3,456 calls/day, inside the 4000-credit/day budget
-RUN_MINUTES = 30       # how long this notebook run keeps ingesting
+POLL_SECONDS = 90      # global ≈ 960 calls/day × 4 credits = 3,840 (under 4,000/day)
+RUN_MINUTES = 120      # how long this notebook run keeps ingesting
 
 # ── OpenSky endpoints ────────────────────────────────────────────────────────
 TOKEN_URL = (

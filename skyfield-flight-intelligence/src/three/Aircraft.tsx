@@ -5,24 +5,32 @@ import type { Flight } from "../data/types.js";
 import { altitudeColor, latLonToVector3 } from "../lib/geo.js";
 import { GLOBE_RADIUS } from "./Globe.js";
 
-const MAX_POINTS = 8000;
-const SURFACE = GLOBE_RADIUS * 1.012;
+const MAX = 5000;
+const SURFACE = GLOBE_RADIUS * 1.02;
 
-/** Round, soft sprite so each aircraft reads as a glowing dot. */
-function makeSprite(): THREE.Texture {
-  const size = 64;
-  const canvas = document.createElement("canvas");
-  canvas.width = canvas.height = size;
-  const ctx = canvas.getContext("2d")!;
-  const g = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
-  g.addColorStop(0, "rgba(255,255,255,1)");
-  g.addColorStop(0.4, "rgba(255,255,255,0.8)");
-  g.addColorStop(1, "rgba(255,255,255,0)");
-  ctx.fillStyle = g;
-  ctx.fillRect(0, 0, size, size);
-  const tex = new THREE.Texture(canvas);
-  tex.needsUpdate = true;
-  return tex;
+/** Top-view airplane silhouette, nose at +Y, lying in the local XY plane. */
+function planeGeometry(): THREE.BufferGeometry {
+  const s = new THREE.Shape();
+  s.moveTo(0, 0.62);
+  s.lineTo(0.09, 0.18);
+  s.lineTo(0.55, -0.02);
+  s.lineTo(0.55, -0.14);
+  s.lineTo(0.09, -0.04);
+  s.lineTo(0.07, -0.4);
+  s.lineTo(0.24, -0.52);
+  s.lineTo(0.24, -0.62);
+  s.lineTo(0, -0.48);
+  s.lineTo(-0.24, -0.62);
+  s.lineTo(-0.24, -0.52);
+  s.lineTo(-0.07, -0.4);
+  s.lineTo(-0.09, -0.04);
+  s.lineTo(-0.55, -0.14);
+  s.lineTo(-0.55, -0.02);
+  s.lineTo(-0.09, 0.18);
+  s.closePath();
+  const g = new THREE.ShapeGeometry(s);
+  g.center();
+  return g;
 }
 
 interface AircraftProps {
@@ -34,62 +42,85 @@ interface AircraftProps {
   onSelect: (flight: Flight) => void;
 }
 
+/**
+ * Aircraft as heading-oriented plane glyphs (instanced). Each plane lies tangent
+ * to the globe, nose pointing along its true track, colored by altitude.
+ * Clickable via instanceId. Far easier to read and hit than point dots.
+ */
 export function Aircraft({ getFlights, advance, size, speed, filterFn, onSelect }: AircraftProps) {
+  const meshRef = useRef<THREE.InstancedMesh>(null);
   const orderRef = useRef<Flight[]>([]);
-  const tmp = useMemo(() => new THREE.Vector3(), []);
+  const geo = useMemo(planeGeometry, []);
 
-  const points = useMemo(() => {
-    const geometry = new THREE.BufferGeometry();
-    geometry.setAttribute("position", new THREE.BufferAttribute(new Float32Array(MAX_POINTS * 3), 3));
-    geometry.setAttribute("color", new THREE.BufferAttribute(new Float32Array(MAX_POINTS * 3), 3));
-    const material = new THREE.PointsMaterial({
-      size,
-      map: makeSprite(),
-      vertexColors: true,
-      transparent: true,
-      depthWrite: false,
-      sizeAttenuation: true,
-      blending: THREE.AdditiveBlending,
-    });
-    return new THREE.Points(geometry, material);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  const t = useMemo(
+    () => ({
+      pos: new THREE.Vector3(),
+      up: new THREE.Vector3(),
+      north: new THREE.Vector3(),
+      east: new THREE.Vector3(),
+      fwd: new THREE.Vector3(),
+      right: new THREE.Vector3(),
+      mat: new THREE.Matrix4(),
+      obj: new THREE.Object3D(),
+      color: new THREE.Color(),
+    }),
+    [],
+  );
 
   useFrame((_, delta) => {
     advance(Math.min(delta, 0.1) * speed);
+    const mesh = meshRef.current;
+    if (!mesh) return;
     const all = getFlights();
     const flights = filterFn ? all.filter(filterFn) : all;
     orderRef.current = flights;
+    const count = Math.min(flights.length, MAX);
 
-    const pos = points.geometry.attributes.position as THREE.BufferAttribute;
-    const col = points.geometry.attributes.color as THREE.BufferAttribute;
-    const posArr = pos.array as Float32Array;
-    const colArr = col.array as Float32Array;
-
-    const count = Math.min(flights.length, MAX_POINTS);
     for (let i = 0; i < count; i++) {
       const f = flights[i]!;
-      latLonToVector3(f.latitude, f.longitude, SURFACE, tmp);
-      posArr[i * 3] = tmp.x;
-      posArr[i * 3 + 1] = tmp.y;
-      posArr[i * 3 + 2] = tmp.z;
+      latLonToVector3(f.latitude, f.longitude, SURFACE, t.pos);
+      t.up.copy(t.pos).normalize();
+      // Local north / east tangents via finite difference.
+      latLonToVector3(f.latitude + 0.5, f.longitude, SURFACE, t.north).sub(t.pos);
+      latLonToVector3(f.latitude, f.longitude + 0.5, SURFACE, t.east).sub(t.pos);
+      const h = ((f.heading ?? 0) * Math.PI) / 180;
+      t.fwd
+        .copy(t.north).multiplyScalar(Math.cos(h))
+        .addScaledVector(t.east, Math.sin(h));
+      t.fwd.addScaledVector(t.up, -t.fwd.dot(t.up)).normalize(); // project onto tangent plane
+      t.right.crossVectors(t.fwd, t.up).normalize();
+      t.mat.makeBasis(t.right, t.fwd, t.up);
+
+      t.obj.quaternion.setFromRotationMatrix(t.mat);
+      t.obj.position.copy(t.pos);
+      t.obj.scale.setScalar(size * 1.8);
+      t.obj.updateMatrix();
+      mesh.setMatrixAt(i, t.obj.matrix);
+
       const [r, g, b] = altitudeColor(f.geoAltitude);
-      colArr[i * 3] = r;
-      colArr[i * 3 + 1] = g;
-      colArr[i * 3 + 2] = b;
+      mesh.setColorAt(i, t.color.setRGB(r, g, b));
     }
-    pos.needsUpdate = true;
-    col.needsUpdate = true;
-    points.geometry.setDrawRange(0, count);
-    (points.material as THREE.PointsMaterial).size = size;
+    mesh.count = count;
+    mesh.instanceMatrix.needsUpdate = true;
+    if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
   });
 
   const handleClick = (e: ThreeEvent<MouseEvent>) => {
     e.stopPropagation();
-    if (e.index != null) {
-      const flight = orderRef.current[e.index];
+    if (e.instanceId != null) {
+      const flight = orderRef.current[e.instanceId];
       if (flight) onSelect(flight);
     }
   };
 
-  return <primitive object={points} onClick={handleClick} />;
+  return (
+    <instancedMesh
+      ref={meshRef}
+      args={[geo, undefined, MAX]}
+      onClick={handleClick}
+      frustumCulled={false}
+    >
+      <meshBasicMaterial side={THREE.DoubleSide} toneMapped={false} />
+    </instancedMesh>
+  );
 }

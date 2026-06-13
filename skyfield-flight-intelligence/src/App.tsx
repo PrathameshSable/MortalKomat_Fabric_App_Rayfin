@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { resolveFlightSource } from "./data/flightSource.js";
 import { computeStats, type Flight, type FlightStats } from "./data/types.js";
-import { EMPTY_FILTER, makeFilterFn, type FlightFilter } from "./data/filter.js";
+import { DEFAULT_FILTER, makeFilterFn, type FlightFilter } from "./data/filter.js";
 import { Scene } from "./three/Scene.js";
 import { KpiStrip, TopCountries, FlightDetails } from "./components/Hud.js";
 import { ControlsPanel, type Settings } from "./components/ControlsPanel.js";
@@ -24,10 +24,11 @@ export default function App() {
     autoRotate: true,
     showArcs: true,
   });
-  const [filter, setFilter] = useState<FlightFilter>(EMPTY_FILTER);
+  const [filter, setFilter] = useState<FlightFilter>(DEFAULT_FILTER);
   const [selected, setSelected] = useState<Flight | null>(null);
   const [stats, setStats] = useState<FlightStats>(EMPTY_STATS);
   const [counts, setCounts] = useState({ shown: 0, total: 0 });
+  const [countries, setCountries] = useState<string[]>([]);
 
   const filterFn = useMemo(() => makeFilterFn(filter), [filter]);
   // Keep a ref so the render loop always sees the latest predicate.
@@ -49,6 +50,7 @@ export default function App() {
       const visible = all.filter(filterFn);
       setStats(computeStats(visible));
       setCounts({ shown: visible.length, total: all.length });
+      setCountries([...new Set(all.map((f) => f.originCountry))].sort());
     };
     update();
     const id = setInterval(update, 700);
@@ -73,9 +75,15 @@ export default function App() {
         onClearSelection={() => setSelected(null)}
       />
 
-      <KpiStrip stats={stats} />
+      <KpiStrip stats={stats} isLive={isLive} />
       <TopCountries stats={stats} />
-      <SearchPanel filter={filter} onChange={setFilter} shown={counts.shown} total={counts.total} />
+      <SearchPanel
+        filter={filter}
+        onChange={setFilter}
+        countries={countries}
+        shown={counts.shown}
+        total={counts.total}
+      />
       <FlightDetails flight={selected} />
       <ControlsPanel settings={settings} onChange={setSettings} isLive={isLive} />
 

@@ -9,12 +9,14 @@ function Kpi({ label, value, accent }: { label: string; value: string; accent?: 
   );
 }
 
-export function KpiStrip({ stats }: { stats: FlightStats }) {
+export function KpiStrip({ stats, isLive }: { stats: FlightStats; isLive: boolean }) {
   return (
     <div className="hud hud--top">
       <div className="brand">
-        <span className="brand__dot" />
-        SKYFIELD<span className="brand__sub">live flight intelligence</span>
+        <span className={`brand__dot${isLive ? " brand__dot--live" : ""}`} />
+        SKYFIELD
+        <span className="brand__sub">{isLive ? "live · fabric" : "demo · sample"}</span>
+        {isLive && <span className="live-badge">● LIVE</span>}
       </div>
       <div className="kpi-row">
         <Kpi label="Aircraft tracked" value={stats.total.toLocaleString()} accent />

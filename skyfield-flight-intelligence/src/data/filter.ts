@@ -6,18 +6,29 @@ export interface FlightFilter {
   text: string;
   band: AltitudeBand;
   airborneOnly: boolean;
+  /** Empty = all countries. */
+  country: string;
 }
 
-export const EMPTY_FILTER: FlightFilter = { text: "", band: "all", airborneOnly: false };
+export const EMPTY_FILTER: FlightFilter = {
+  text: "",
+  band: "all",
+  airborneOnly: false,
+  country: "",
+};
+
+/** Default view: only aircraft in active flight. */
+export const DEFAULT_FILTER: FlightFilter = { ...EMPTY_FILTER, airborneOnly: true };
 
 export function isFilterActive(f: FlightFilter): boolean {
-  return f.text.trim() !== "" || f.band !== "all" || f.airborneOnly;
+  return f.text.trim() !== "" || f.band !== "all" || f.airborneOnly || f.country !== "";
 }
 
 const FT = 3.28084;
 
 export function matchesFilter(flight: Flight, filter: FlightFilter): boolean {
   if (filter.airborneOnly && flight.onGround) return false;
+  if (filter.country && flight.originCountry !== filter.country) return false;
 
   if (filter.band !== "all") {
     const ft = (flight.geoAltitude ?? 0) * FT;

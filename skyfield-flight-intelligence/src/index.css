@@ -72,6 +72,12 @@ html, body {
   background: var(--accent);
   box-shadow: 0 0 12px var(--accent);
 }
+.brand__dot--live { background: #3df08a; box-shadow: 0 0 12px #3df08a; animation: pulse 1.6s ease-in-out infinite; }
+.live-badge {
+  margin-left: 12px; font-size: 11px; font-weight: 800; letter-spacing: 2px;
+  color: #3df08a; animation: pulse 1.6s ease-in-out infinite;
+}
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
 .brand__sub {
   font-size: 10px; letter-spacing: 2px; color: var(--muted);
   font-weight: 600; margin-left: 8px; text-transform: uppercase;
@@ -118,6 +124,8 @@ html, body {
 }
 .search-input::placeholder { color: var(--muted); }
 .search-input:focus { border-color: var(--accent); }
+.search-select { margin-top: 8px; cursor: pointer; appearance: none; }
+.search-select option { background: #0a1626; color: var(--ink); }
 .band-row { display: flex; gap: 6px; margin: 10px 0; }
 .band {
   flex: 1; padding: 5px 0; border-radius: 7px; cursor: pointer;

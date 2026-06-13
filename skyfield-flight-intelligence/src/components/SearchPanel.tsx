@@ -3,6 +3,7 @@ import type { AltitudeBand, FlightFilter } from "../data/filter.js";
 interface SearchPanelProps {
   filter: FlightFilter;
   onChange: (next: FlightFilter) => void;
+  countries: string[];
   shown: number;
   total: number;
 }
@@ -14,7 +15,7 @@ const BANDS: { id: AltitudeBand; label: string }[] = [
   { id: "high", label: "High" },
 ];
 
-export function SearchPanel({ filter, onChange, shown, total }: SearchPanelProps) {
+export function SearchPanel({ filter, onChange, countries, shown, total }: SearchPanelProps) {
   return (
     <div className="panel panel--search">
       <div className="panel__title">Search &amp; filter</div>
@@ -26,6 +27,19 @@ export function SearchPanel({ filter, onChange, shown, total }: SearchPanelProps
         value={filter.text}
         onChange={(e) => onChange({ ...filter, text: e.target.value })}
       />
+
+      <select
+        className="search-input search-select"
+        value={filter.country}
+        onChange={(e) => onChange({ ...filter, country: e.target.value })}
+      >
+        <option value="">All countries</option>
+        {countries.map((c) => (
+          <option key={c} value={c}>
+            {c}
+          </option>
+        ))}
+      </select>
 
       <div className="band-row">
         {BANDS.map((b) => (

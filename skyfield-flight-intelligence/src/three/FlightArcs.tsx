@@ -32,7 +32,7 @@ export function FlightArcs({ getFlights, filterFn }: FlightArcsProps) {
     const material = new THREE.LineBasicMaterial({
       vertexColors: true,
       transparent: true,
-      opacity: 0.7,
+      opacity: 0.45,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
     });
@@ -52,7 +52,16 @@ export function FlightArcs({ getFlights, filterFn }: FlightArcsProps) {
     for (let i = 0; i < count; i++) {
       const f = flights[i]!;
       if (f.onGround || f.heading == null) continue;
-      const arc = forwardArc(f.latitude, f.longitude, f.heading, SURFACE, { steps: STEPS });
+      // Trail length = where this aircraft will be ~12 min ahead at its current
+      // speed, capped so it's a short realistic streak — not a globe-spanning ray.
+      const speed = f.velocity ?? 0;
+      if (speed < 20) continue; // skip near-stationary
+      const arcDeg = Math.max(0.5, Math.min(4, (speed * 720) / 111_320));
+      const arc = forwardArc(f.latitude, f.longitude, f.heading, SURFACE, {
+        steps: STEPS,
+        arcDeg,
+        lift: 0.02,
+      });
       const [r, g, b] = altitudeColor(f.geoAltitude);
       for (let s = 0; s < arc.length - 1; s++) {
         const a = arc[s]!;

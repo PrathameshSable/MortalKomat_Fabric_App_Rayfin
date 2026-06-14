@@ -19,6 +19,7 @@
 # %pip install azure-eventhub requests      # <-- run this in its own first cell
 
 import json
+import re
 import time
 from datetime import datetime, timezone
 
@@ -133,9 +134,20 @@ def lookup_route(callsign):
     return route
 
 
+# Airline callsigns look like "AAL2412" (3-letter ICAO airline + flight number)
+# and almost always resolve a route. Registrations like "N535KT" are general
+# aviation and rarely do — so we spend the lookup budget on airline flights first.
+_AIRLINE = re.compile(r"^[A-Z]{3}\d")
+
+
 def enrich_routes(flights):
     new = 0
-    for f in flights:
+    # Airline-format callsigns first; GA/odd ones only if budget remains.
+    ordered = sorted(
+        flights,
+        key=lambda f: 0 if f.get("callsign") and _AIRLINE.match(f["callsign"]) else 1,
+    )
+    for f in ordered:
         cs = f.get("callsign")
         if not cs:
             continue

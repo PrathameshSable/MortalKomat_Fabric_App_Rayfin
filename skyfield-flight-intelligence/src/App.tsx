@@ -77,6 +77,7 @@ export default function App() {
         lighting={settings.lighting}
         colorMode={settings.colorBy}
         follow={follow}
+        frameKey={filter.country}
         filterFn={stableFilterFn}
         selected={selected}
         onSelect={setSelected}

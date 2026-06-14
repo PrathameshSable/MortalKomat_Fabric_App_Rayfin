@@ -20,6 +20,8 @@ interface SceneProps {
   lighting: LightingMode;
   colorMode: ColorMode;
   follow: boolean;
+  /** Re-frames the camera when this changes (e.g. the selected country). */
+  frameKey: string;
   filterFn?: (f: Flight) => boolean;
   selected: Flight | null;
   onSelect: (flight: Flight) => void;
@@ -169,16 +171,29 @@ function FollowCamera({
   return null;
 }
 
-/** On first data load, rotate the view to center on where the planes actually are. */
-function AutoFrame({ getFlights }: { getFlights: () => Flight[] }) {
+/**
+ * Frames the view on the centroid of the visible flights. Re-frames whenever
+ * `frameKey` changes (e.g. you pick a country), so the globe jumps to that
+ * region instead of leaving you staring at the wrong hemisphere.
+ */
+function AutoFrame({
+  getFlights,
+  filterFn,
+  frameKey,
+}: {
+  getFlights: () => Flight[];
+  filterFn?: (f: Flight) => boolean;
+  frameKey: string;
+}) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const controls = useThree((s) => s.controls) as any;
-  const done = useRef(false);
+  const doneKey = useRef<string | null>(null);
   const tmp = useMemo(() => new THREE.Vector3(), []);
   useFrame(() => {
-    if (done.current || !controls) return;
-    const flights = getFlights();
-    if (flights.length < 3) return;
+    if (!controls || doneKey.current === frameKey) return;
+    const all = getFlights();
+    const flights = filterFn ? all.filter(filterFn) : all;
+    if (flights.length < 1) return;
     const c = new THREE.Vector3();
     let n = 0;
     for (const f of flights) {
@@ -186,14 +201,14 @@ function AutoFrame({ getFlights }: { getFlights: () => Flight[] }) {
       if (++n > 800) break;
     }
     if (c.lengthSq() < 1e-6) {
-      done.current = true;
+      doneKey.current = frameKey;
       return;
     }
     c.normalize();
     controls.setPolarAngle(Math.acos(THREE.MathUtils.clamp(c.y, -1, 1)));
     controls.setAzimuthalAngle(Math.atan2(c.x, c.z));
     controls.update();
-    done.current = true;
+    doneKey.current = frameKey;
   });
   return null;
 }
@@ -221,9 +236,11 @@ function SelectionMarker({ flight }: { flight: Flight }) {
 export function Scene(props: SceneProps) {
   const {
     getFlights, advance, planeSize, speed, autoRotate, showArcs, showAirports, lighting,
-    colorMode, follow, filterFn, selected, onSelect, onClearSelection,
+    colorMode, follow, frameKey, filterFn, selected, onSelect, onClearSelection,
   } = props;
   const following = follow && selected != null;
+  // Stop spinning while you're inspecting a specific country or following a plane.
+  const spin = autoRotate && !following && frameKey === "";
 
   return (
     <Canvas
@@ -255,13 +272,13 @@ export function Scene(props: SceneProps) {
       />
       {selected && <SelectionMarker flight={selected} />}
       {selected && <SelectedRoute flight={selected} />}
-      <AutoFrame getFlights={getFlights} />
+      <AutoFrame getFlights={getFlights} filterFn={filterFn} frameKey={frameKey} />
       {following && <FollowCamera getFlights={getFlights} icao24={selected!.icao24} />}
 
       <OrbitControls
         makeDefault
         enablePan={false}
-        autoRotate={autoRotate && !following}
+        autoRotate={spin}
         autoRotateSpeed={0.35}
         minDistance={3.2}
         maxDistance={12}

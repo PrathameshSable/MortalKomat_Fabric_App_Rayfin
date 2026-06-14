@@ -19,6 +19,7 @@
 # %pip install azure-eventhub requests      # <-- run this in its own first cell
 
 import json
+import os
 import re
 import time
 from datetime import datetime, timezone
@@ -124,6 +125,37 @@ ROUTE_CACHE: dict = {}
 AIRCRAFT_CACHE: dict = {}
 MAX_LOOKUPS_PER_CYCLE = 200
 
+# ── Persistent cache ──────────────────────────────────────────────────────────
+# In-memory caches reset every time you re-run the cell, which restarts the ~45min
+# warm-up (that's why routes keep saying "pending"). Persisting them to a Lakehouse
+# file means a restart RESUMES with full coverage. Attach a Lakehouse to this
+# notebook (Explorer → Add → Lakehouse) so /lakehouse/default/Files exists.
+# If no Lakehouse is attached, it silently falls back to in-memory.
+CACHE_PATH = "/lakehouse/default/Files/skyfield_cache.json"
+
+
+def load_cache():
+    global ROUTE_CACHE, AIRCRAFT_CACHE
+    try:
+        with open(CACHE_PATH) as f:
+            data = json.load(f)
+        ROUTE_CACHE = data.get("routes", {})
+        AIRCRAFT_CACHE = data.get("aircraft", {})
+        print(f"loaded cache: {len(ROUTE_CACHE)} callsigns, {len(AIRCRAFT_CACHE)} airframes")
+    except Exception as ex:
+        print(f"no persisted cache ({ex.__class__.__name__}); starting fresh "
+              f"(attach a Lakehouse to keep it across restarts)")
+
+
+def save_cache():
+    try:
+        tmp = CACHE_PATH + ".tmp"
+        with open(tmp, "w") as f:
+            json.dump({"routes": ROUTE_CACHE, "aircraft": AIRCRAFT_CACHE}, f)
+        os.replace(tmp, CACHE_PATH)
+    except Exception:
+        pass  # no Lakehouse / write failure → just keep the in-memory cache
+
 
 def lookup_route(callsign):
     """callsign → {origin/destination airport + airline}. Cached, None if unknown."""
@@ -225,10 +257,12 @@ def send(producer, flights):
 
 
 producer = EventHubProducerClient.from_connection_string(EVENTSTREAM_CONNECTION_STRING)
+load_cache()  # resume route/airframe coverage from a previous run (if a Lakehouse is attached)
 token = get_token()
 deadline = time.time() + RUN_MINUTES * 60
 print(f"Ingesting OpenSky → Eventstream for {RUN_MINUTES} min (bbox={OPENSKY_BBOX})")
 
+cycle = 0
 try:
     while time.time() < deadline:
         try:
@@ -241,8 +275,11 @@ try:
                 send(producer, flights)
                 print(
                     f"{datetime.now():%H:%M:%S}  sent {len(flights)} flights "
-                    f"({routed} routed, {typed} typed)"
+                    f"({routed} routed, {typed} typed) | cache {len(ROUTE_CACHE)}cs/{len(AIRCRAFT_CACHE)}ac"
                 )
+            cycle += 1
+            if cycle % 5 == 0:
+                save_cache()  # persist coverage every ~5 cycles
         except requests.HTTPError as ex:
             if ex.response is not None and ex.response.status_code == 401:
                 token = get_token()  # token expired → refresh
@@ -253,5 +290,6 @@ try:
             print(f"network error ({ex.__class__.__name__}); retrying next cycle")
         time.sleep(POLL_SECONDS)
 finally:
+    save_cache()
     producer.close()
     print("done — producer closed")

@@ -1,4 +1,5 @@
 import type { Flight, FlightStats } from "../data/types.js";
+import type { AltitudeBand } from "../data/filter.js";
 
 function Kpi({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
   return (
@@ -30,21 +31,109 @@ export function KpiStrip({ stats, isLive }: { stats: FlightStats; isLive: boolea
   );
 }
 
-export function AltitudeChart({ stats }: { stats: FlightStats }) {
-  const max = Math.max(1, ...stats.altitudeBins.map((b) => b.count));
+// The 5 altitude bins map onto the 3 filter bands.
+const BIN_BAND: AltitudeBand[] = ["low", "mid", "mid", "high", "high"];
+
+interface InsightsProps {
+  stats: FlightStats;
+  activeBand: AltitudeBand;
+  onBand: (b: AltitudeBand) => void;
+  activeMaker: string;
+  onMaker: (m: string) => void;
+}
+
+export function InsightsPanel({ stats, activeBand, onBand, activeMaker, onMaker }: InsightsProps) {
+  const altMax = Math.max(1, ...stats.altitudeBins.map((b) => b.count));
+  const mkMax = Math.max(1, ...stats.manufacturers.map((m) => m.count));
   return (
-    <div className="panel panel--alt">
-      <div className="panel__title">Altitude profile</div>
-      <div className="altbars">
-        {stats.altitudeBins.map((b) => (
-          <div className="altbar" key={b.label}>
-            <span className="altbar__col">
-              <span className="altbar__fill" style={{ height: `${(b.count / max) * 100}%` }} />
-            </span>
-            <span className="altbar__n">{b.count}</span>
-            <span className="altbar__label">{b.label}</span>
-          </div>
-        ))}
+    <div className="panel panel--insights">
+      <div className="insights-col">
+        <div className="panel__title">Altitude · click to filter</div>
+        <div className="altbars">
+          {stats.altitudeBins.map((b, i) => {
+            const band = BIN_BAND[i]!;
+            return (
+              <button
+                key={b.label}
+                className={`altbar${activeBand === band ? " altbar--on" : ""}`}
+                onClick={() => onBand(band)}
+              >
+                <span className="altbar__col">
+                  <span className="altbar__fill" style={{ height: `${(b.count / altMax) * 100}%` }} />
+                </span>
+                <span className="altbar__n">{b.count}</span>
+                <span className="altbar__label">{b.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="insights-div" />
+
+      <div className="insights-col">
+        <div className="panel__title">Aircraft makers · click to filter</div>
+        <ul className="mk-bars">
+          {stats.manufacturers.length === 0 && <li className="hint">no data yet</li>}
+          {stats.manufacturers.map((m) => (
+            <li key={m.name}>
+              <button
+                className={`mk-row${activeMaker === m.name ? " mk-row--on" : ""}`}
+                onClick={() => onMaker(m.name)}
+              >
+                <span className="mk-name">{m.name}</span>
+                <span className="mk-track">
+                  <span className="mk-fill" style={{ width: `${(m.count / mkMax) * 100}%` }} />
+                </span>
+                <span className="mk-count">{m.count}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
+}
+
+const HELP_ITEMS: [string, string][] = [
+  ["The globe", "Real Earth with a live day/night terminator. Each glyph is a live aircraft, nose pointed along its heading, colored by country (or altitude)."],
+  ["Flight paths", "Glowing great-circle arcs from origin → destination airport. Select a flight and only its route stays."],
+  ["Airports", "Dots at every route endpoint; size + heat colour = how busy. Labels on the busiest. Toggle in Controls."],
+  ["KPI strip (top)", "Live totals — aircraft tracked, airborne, on-ground, countries, average altitude and speed."],
+  ["Busiest airspace / Flights table", "Top countries by traffic. Pick a country → its flights with origin→destination; click a row to focus that flight."],
+  ["Search & filter", "Find by callsign / country / ICAO24, or slice by country, airline, aircraft maker, altitude, airborne-only and airlines-only."],
+  ["Altitude profile (bottom)", "Aircraft by altitude band. Click a bar to filter the whole view to that band."],
+  ["Aircraft makers (bottom)", "Boeing vs Airbus vs … split. Click a maker to filter to its fleet."],
+  ["Controls", "Animation speed, marker size, colour-by (country/altitude), lighting (real-time/day/night), and toggles for flight paths, airports and auto-orbit."],
+  ["Aircraft detail", "Click any plane: route, airline, aircraft type, position, altitude, speed, heading, climb/descent — and Follow to track it."],
+];
+
+export function HelpButton({ onClick }: { onClick: () => void }) {
+  return (
+    <button className="help-btn" onClick={onClick} title="What am I looking at?">
+      ?
+    </button>
+  );
+}
+
+export function HelpOverlay({ onClose }: { onClose: () => void }) {
+  return (
+    <div className="help-overlay" onClick={onClose}>
+      <div className="help-card" onClick={(e) => e.stopPropagation()}>
+        <div className="help-head">
+          <span>What am I looking at?</span>
+          <button className="help-close" onClick={onClose}>
+            ✕
+          </button>
+        </div>
+        <div className="help-grid">
+          {HELP_ITEMS.map(([t, d]) => (
+            <div className="help-item" key={t}>
+              <b>{t}</b>
+              <p>{d}</p>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

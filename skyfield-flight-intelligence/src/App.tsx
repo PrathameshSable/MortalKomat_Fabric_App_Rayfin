@@ -3,13 +3,15 @@ import { resolveFlightSource } from "./data/flightSource.js";
 import { computeStats, type Flight, type FlightStats } from "./data/types.js";
 import { DEFAULT_FILTER, makeFilterFn, type FlightFilter } from "./data/filter.js";
 import { Scene } from "./three/Scene.js";
-import { KpiStrip, TopCountries, FlightsTable, FlightDetails, AltitudeChart } from "./components/Hud.js";
+import {
+  KpiStrip, TopCountries, FlightsTable, FlightDetails, InsightsPanel, HelpButton, HelpOverlay,
+} from "./components/Hud.js";
 import { ControlsPanel, type Settings } from "./components/ControlsPanel.js";
 import { SearchPanel } from "./components/SearchPanel.js";
 
 const EMPTY_STATS: FlightStats = {
   total: 0, airborne: 0, grounded: 0, countries: 0,
-  avgAltitudeFt: 0, avgSpeedKmh: 0, topCountries: [], altitudeBins: [],
+  avgAltitudeFt: 0, avgSpeedKmh: 0, topCountries: [], altitudeBins: [], manufacturers: [],
 };
 
 export default function App() {
@@ -30,6 +32,7 @@ export default function App() {
   const [filter, setFilter] = useState<FlightFilter>(DEFAULT_FILTER);
   const [selected, setSelected] = useState<Flight | null>(null);
   const [follow, setFollow] = useState(false);
+  const [helpOpen, setHelpOpen] = useState(false);
   const [stats, setStats] = useState<FlightStats>(EMPTY_STATS);
   const [counts, setCounts] = useState({ shown: 0, total: 0 });
   const [countries, setCountries] = useState<string[]>([]);
@@ -128,8 +131,16 @@ export default function App() {
         follow={follow}
         onToggleFollow={() => setFollow((v) => !v)}
       />
-      <AltitudeChart stats={stats} />
+      <InsightsPanel
+        stats={stats}
+        activeBand={filter.band}
+        onBand={(b) => setFilter({ ...filter, band: filter.band === b ? "all" : b })}
+        activeMaker={filter.manufacturer}
+        onMaker={(m) => setFilter({ ...filter, manufacturer: filter.manufacturer === m ? "" : m })}
+      />
       <ControlsPanel settings={settings} onChange={setSettings} isLive={isLive} />
+      <HelpButton onClick={() => setHelpOpen(true)} />
+      {helpOpen && <HelpOverlay onClose={() => setHelpOpen(false)} />}
 
       <div className="legend">
         <span className="legend__title">Altitude</span>

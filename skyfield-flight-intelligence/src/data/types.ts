@@ -51,6 +51,7 @@ export interface FlightStats {
   avgSpeedKmh: number;
   topCountries: { country: string; count: number }[];
   altitudeBins: { label: string; count: number }[];
+  manufacturers: { name: string; count: number }[];
 }
 
 const ALT_BANDS: { label: string; min: number; max: number }[] = [
@@ -68,10 +69,12 @@ export function computeStats(flights: Flight[]): FlightStats {
   let spdSum = 0;
   let spdCount = 0;
   const byCountry = new Map<string, number>();
+  const byMaker = new Map<string, number>();
   const bins = ALT_BANDS.map((b) => ({ label: b.label, count: 0 }));
 
   for (const f of flights) {
     if (!f.onGround) airborne++;
+    if (f.manufacturer) byMaker.set(f.manufacturer, (byMaker.get(f.manufacturer) ?? 0) + 1);
     if (f.geoAltitude != null) {
       altSum += f.geoAltitude;
       altCount++;
@@ -102,5 +105,9 @@ export function computeStats(flights: Flight[]): FlightStats {
     avgSpeedKmh: spdCount ? (spdSum / spdCount) * 3.6 : 0,
     topCountries,
     altitudeBins: bins,
+    manufacturers: [...byMaker.entries()]
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 6),
   };
 }

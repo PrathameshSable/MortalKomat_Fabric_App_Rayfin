@@ -1,6 +1,6 @@
 import { getFabricClient } from "@/lib/fabric-client";
 import type { Flight, FlightProvider } from "../types.js";
-import { LIVE_FLIGHTS_DAX, LIVE_FLIGHTS_DAX_BASE } from "./flightQueries.js";
+import { LIVE_FLIGHTS_DAX } from "./flightQueries.js";
 
 const num = (v: unknown): number | null => (v == null ? null : Number(v));
 const str = (v: unknown): string | null => (v == null || v === "" ? null : String(v));
@@ -10,11 +10,8 @@ function normalize(name: string): string {
   return name.replace(/^.*\[/, "").replace(/\]$/, "").trim().toLowerCase();
 }
 
-/** Map result rows to Flights by COLUMN NAME, so order/missing columns are safe. */
-function rowsToLatestFlights(
-  columns: { name: string }[],
-  rows: unknown[][],
-): Flight[] {
+/** Map result rows → latest Flight per aircraft, BY COLUMN NAME (schema-safe). */
+function rowsToLatestFlights(columns: { name: string }[], rows: unknown[][]): Flight[] {
   const idx = new Map<string, number>();
   columns.forEach((c, i) => idx.set(normalize(c.name), i));
   const g = (row: unknown[], name: string): unknown => {
@@ -45,31 +42,26 @@ function rowsToLatestFlights(
       destLon: num(g(row, "destlon")),
       originIata: str(g(row, "originiata")),
       destIata: str(g(row, "destiata")),
+      airline: str(g(row, "airline")),
+      manufacturer: str(g(row, "manufacturer")),
+      aircraftType: str(g(row, "aircrafttype")),
     });
   }
   return flights;
 }
 
 /**
- * Live provider backed by the Fabric semantic model. Tries the full query
- * (with route columns) and falls back to the base query if the model doesn't
- * have them yet. `bypassCache` is essential — the query string is constant, so
- * without it the SDK would serve the same stale snapshot forever.
+ * Live provider backed by the Fabric semantic model. `bypassCache` is essential:
+ * the query string is constant, so without it the SDK would serve the same stale
+ * snapshot forever and the globe would freeze.
  */
 export function createFabricFlightProvider(connection = "flightsModel"): FlightProvider {
-  let useBase = false;
   return {
     name: "fabric",
     async getFlights(): Promise<Flight[]> {
-      const model = getFabricClient().semanticModel(connection);
-      const dax = useBase ? LIVE_FLIGHTS_DAX_BASE : LIVE_FLIGHTS_DAX;
-      let result = await model.query(dax, { bypassCache: true });
-
-      // First time the route columns are missing, drop to the base query.
-      if (result.status === "error" && !useBase) {
-        useBase = true;
-        result = await model.query(LIVE_FLIGHTS_DAX_BASE, { bypassCache: true });
-      }
+      const result = await getFabricClient()
+        .semanticModel(connection)
+        .query(LIVE_FLIGHTS_DAX, { bypassCache: true });
       if (result.status !== "success") {
         throw new Error(result.error.message);
       }

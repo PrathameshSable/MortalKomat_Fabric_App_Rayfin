@@ -5,6 +5,8 @@ interface SearchPanelProps {
   onChange: (next: FlightFilter) => void;
   onClear: () => void;
   countries: string[];
+  airlines: string[];
+  manufacturers: string[];
   shown: number;
   total: number;
 }
@@ -16,7 +18,9 @@ const BANDS: { id: AltitudeBand; label: string }[] = [
   { id: "high", label: "High" },
 ];
 
-export function SearchPanel({ filter, onChange, onClear, countries, shown, total }: SearchPanelProps) {
+export function SearchPanel({
+  filter, onChange, onClear, countries, airlines, manufacturers, shown, total,
+}: SearchPanelProps) {
   return (
     <div className="panel panel--search">
       <div className="panel__title">Search &amp; filter</div>
@@ -38,6 +42,32 @@ export function SearchPanel({ filter, onChange, onClear, countries, shown, total
         {countries.map((c) => (
           <option key={c} value={c}>
             {c}
+          </option>
+        ))}
+      </select>
+
+      <select
+        className="search-input search-select"
+        value={filter.airline}
+        onChange={(e) => onChange({ ...filter, airline: e.target.value })}
+      >
+        <option value="">All airlines</option>
+        {airlines.map((a) => (
+          <option key={a} value={a}>
+            {a}
+          </option>
+        ))}
+      </select>
+
+      <select
+        className="search-input search-select"
+        value={filter.manufacturer}
+        onChange={(e) => onChange({ ...filter, manufacturer: e.target.value })}
+      >
+        <option value="">All aircraft makers</option>
+        {manufacturers.map((m) => (
+          <option key={m} value={m}>
+            {m}
           </option>
         ))}
       </select>

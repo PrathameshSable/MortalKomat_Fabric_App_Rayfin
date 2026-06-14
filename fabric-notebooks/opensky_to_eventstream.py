@@ -95,9 +95,12 @@ def to_flight(s):
         "onGround": s[8],
         "lastContact": datetime.fromtimestamp(s[4], tz=timezone.utc).isoformat(),
         "ingestedAt": now,
-        # Route — filled in by enrich_routes() from the callsign (null if unknown).
+        # Enriched by enrich() (null until adsbdb resolves them).
         "originLat": None, "originLon": None, "originIata": None,
         "destLat": None, "destLon": None, "destIata": None,
+        "airline": None,            # operator, from the route lookup
+        "manufacturer": None,       # Boeing / Airbus / … from the aircraft lookup
+        "aircraftType": None,       # e.g. "Boeing 737-800"
     }
 
 
@@ -108,17 +111,20 @@ def to_flight(s):
 # forever. Higher cap = routes fill in faster after a global switch (adsbdb is
 # generous, but keep it reasonable).
 ROUTE_CACHE: dict = {}
+AIRCRAFT_CACHE: dict = {}
 MAX_LOOKUPS_PER_CYCLE = 200
 
 
 def lookup_route(callsign):
+    """callsign → {origin/destination airport + airline}. Cached, None if unknown."""
     if callsign in ROUTE_CACHE:
         return ROUTE_CACHE[callsign]
     route = None
     try:
         r = requests.get(f"https://api.adsbdb.com/v0/callsign/{callsign}", timeout=10)
         if r.status_code == 200:
-            fr = (r.json().get("response") or {}).get("flightroute") if isinstance(r.json().get("response"), dict) else None
+            resp = r.json().get("response")
+            fr = resp.get("flightroute") if isinstance(resp, dict) else None
             if fr:
                 o, d = fr.get("origin") or {}, fr.get("destination") or {}
                 if o.get("latitude") is not None and d.get("latitude") is not None:
@@ -127,11 +133,30 @@ def lookup_route(callsign):
                         "originIata": o.get("iata_code"),
                         "destLat": d.get("latitude"), "destLon": d.get("longitude"),
                         "destIata": d.get("iata_code"),
+                        "airline": (fr.get("airline") or {}).get("name"),
                     }
     except Exception:
         route = None
     ROUTE_CACHE[callsign] = route
     return route
+
+
+def lookup_aircraft(icao24):
+    """icao24 → {manufacturer, aircraftType}. Static per airframe, cached."""
+    if icao24 in AIRCRAFT_CACHE:
+        return AIRCRAFT_CACHE[icao24]
+    ac = None
+    try:
+        r = requests.get(f"https://api.adsbdb.com/v0/aircraft/{icao24}", timeout=10)
+        if r.status_code == 200:
+            resp = r.json().get("response")
+            a = resp.get("aircraft") if isinstance(resp, dict) else None
+            if a and (a.get("manufacturer") or a.get("type")):
+                ac = {"manufacturer": a.get("manufacturer"), "aircraftType": a.get("type")}
+    except Exception:
+        ac = None
+    AIRCRAFT_CACHE[icao24] = ac
+    return ac
 
 
 # Airline callsigns look like "AAL2412" (3-letter ICAO airline + flight number)
@@ -140,8 +165,9 @@ def lookup_route(callsign):
 _AIRLINE = re.compile(r"^[A-Z]{3}\d")
 
 
-def enrich_routes(flights):
-    new = 0
+def enrich(flights):
+    """Add route+airline (by callsign) and manufacturer+type (by icao24)."""
+    new_r = new_a = 0
     # Airline-format callsigns first; GA/odd ones only if budget remains.
     ordered = sorted(
         flights,
@@ -149,18 +175,30 @@ def enrich_routes(flights):
     )
     for f in ordered:
         cs = f.get("callsign")
-        if not cs:
-            continue
-        if cs in ROUTE_CACHE:
-            route = ROUTE_CACHE[cs]
-        elif new < MAX_LOOKUPS_PER_CYCLE:
-            route = lookup_route(cs)
-            new += 1
-            time.sleep(0.03)
-        else:
-            route = None  # resolve on a later cycle
-        if route:
-            f.update(route)
+        if cs:
+            if cs in ROUTE_CACHE:
+                route = ROUTE_CACHE[cs]
+            elif new_r < MAX_LOOKUPS_PER_CYCLE:
+                route = lookup_route(cs)
+                new_r += 1
+                time.sleep(0.03)
+            else:
+                route = None
+            if route:
+                f.update(route)
+
+        icao = f.get("icao24")
+        if icao:
+            if icao in AIRCRAFT_CACHE:
+                ac = AIRCRAFT_CACHE[icao]
+            elif new_a < MAX_LOOKUPS_PER_CYCLE:
+                ac = lookup_aircraft(icao)
+                new_a += 1
+                time.sleep(0.03)
+            else:
+                ac = None
+            if ac:
+                f.update(ac)
 
 
 def send(producer, flights):
@@ -187,10 +225,14 @@ try:
             states = fetch_states(token)
             flights = [f for f in (to_flight(s) for s in states) if f]
             if flights:
-                enrich_routes(flights)
+                enrich(flights)
                 routed = sum(1 for f in flights if f["originLat"] is not None)
+                typed = sum(1 for f in flights if f["manufacturer"] is not None)
                 send(producer, flights)
-                print(f"{datetime.now():%H:%M:%S}  sent {len(flights)} flights ({routed} with routes)")
+                print(
+                    f"{datetime.now():%H:%M:%S}  sent {len(flights)} flights "
+                    f"({routed} routed, {typed} typed)"
+                )
         except requests.HTTPError as ex:
             if ex.response is not None and ex.response.status_code == 401:
                 token = get_token()  # token expired → refresh

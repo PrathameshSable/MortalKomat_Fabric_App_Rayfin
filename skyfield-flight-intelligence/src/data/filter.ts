@@ -10,6 +10,10 @@ export interface FlightFilter {
   airlinesOnly: boolean;
   /** Empty = all countries. */
   country: string;
+  /** Empty = all airlines. */
+  airline: string;
+  /** Empty = all manufacturers (Boeing / Airbus / …). */
+  manufacturer: string;
 }
 
 export const EMPTY_FILTER: FlightFilter = {
@@ -18,6 +22,8 @@ export const EMPTY_FILTER: FlightFilter = {
   airborneOnly: false,
   airlinesOnly: false,
   country: "",
+  airline: "",
+  manufacturer: "",
 };
 
 /** Default view: airborne commercial flights only (hide GA / military / private). */
@@ -36,7 +42,9 @@ export function isFilterActive(f: FlightFilter): boolean {
     f.band !== "all" ||
     f.airborneOnly ||
     f.airlinesOnly ||
-    f.country !== ""
+    f.country !== "" ||
+    f.airline !== "" ||
+    f.manufacturer !== ""
   );
 }
 
@@ -48,6 +56,8 @@ export function matchesFilter(flight: Flight, filter: FlightFilter): boolean {
     return false;
   }
   if (filter.country && flight.originCountry !== filter.country) return false;
+  if (filter.airline && flight.airline !== filter.airline) return false;
+  if (filter.manufacturer && flight.manufacturer !== filter.manufacturer) return false;
 
   if (filter.band !== "all") {
     const ft = (flight.geoAltitude ?? 0) * FT;

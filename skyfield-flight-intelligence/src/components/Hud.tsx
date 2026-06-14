@@ -144,6 +144,8 @@ export function FlightDetails({ flight, follow, onToggleFollow }: FlightDetailsP
       </div>
       <div className="detail-grid">
         {route && <><span>Route</span><b className="route">{route}</b></>}
+        {flight.airline && <><span>Airline</span><b>{flight.airline}</b></>}
+        {flight.aircraftType && <><span>Aircraft</span><b>{flight.aircraftType}</b></>}
         <span>Origin</span><b>{flight.originCountry}</b>
         <span>ICAO24</span><b>{flight.icao24}</b>
         <span>Position</span><b>{flight.latitude.toFixed(2)}°, {flight.longitude.toFixed(2)}°</b>

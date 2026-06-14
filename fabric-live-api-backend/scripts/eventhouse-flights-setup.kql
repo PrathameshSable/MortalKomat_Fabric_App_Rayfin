@@ -23,12 +23,15 @@
     originIata:    string,
     destLat:       real,
     destLon:       real,
-    destIata:      string
+    destIata:      string,
+    airline:       string,
+    manufacturer:  string,
+    aircraftType:  string
 )
 
-// Already created the table without the route columns? Run this once to add them
+// Already created the table without the new columns? Run this once to add them
 // (.create-merge above also adds missing columns, so re-running it works too):
-// .alter-merge table Flights (originLat:real, originLon:real, originIata:string, destLat:real, destLon:real, destIata:string)
+// .alter-merge table Flights (originLat:real, originLon:real, originIata:string, destLat:real, destLon:real, destIata:string, airline:string, manufacturer:string, aircraftType:string)
 
 .create-or-alter table Flights ingestion json mapping "FlightsJson"
 ```
@@ -51,7 +54,10 @@
   { "column": "originIata",    "path": "$.originIata" },
   { "column": "destLat",       "path": "$.destLat" },
   { "column": "destLon",       "path": "$.destLon" },
-  { "column": "destIata",      "path": "$.destIata" }
+  { "column": "destIata",      "path": "$.destIata" },
+  { "column": "airline",       "path": "$.airline" },
+  { "column": "manufacturer",  "path": "$.manufacturer" },
+  { "column": "aircraftType",  "path": "$.aircraftType" }
 ]
 ```
 

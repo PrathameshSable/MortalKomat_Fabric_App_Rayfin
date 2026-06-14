@@ -30,6 +30,16 @@ function pickRoute(): { o: [string, number, number]; d: [string, number, number]
   return { o, d };
 }
 
+const AIRLINES = [
+  "United Airlines", "Lufthansa", "British Airways", "Air France", "KLM",
+  "American Airlines", "Swiss", "Emirates", "Qantas", "ANA", "Turkish Airlines",
+];
+const AIRFRAMES: [string, string][] = [
+  ["Boeing", "Boeing 737-800"], ["Boeing", "Boeing 777-300ER"], ["Boeing", "Boeing 787-9"],
+  ["Airbus", "Airbus A320neo"], ["Airbus", "Airbus A321"], ["Airbus", "Airbus A350-900"],
+  ["Airbus", "Airbus A330-300"], ["Embraer", "Embraer E190"], ["Boeing", "Boeing 737 MAX 8"],
+];
+
 function rand(min: number, max: number): number {
   return min + Math.random() * (max - min);
 }
@@ -72,6 +82,9 @@ function makeFlight(i: number): Flight {
     destLon: route?.d[2] ?? null,
     originIata: route?.o[0] ?? null,
     destIata: route?.d[0] ?? null,
+    airline: route ? AIRLINES[i % AIRLINES.length]! : null,
+    manufacturer: route ? AIRFRAMES[i % AIRFRAMES.length]![0] : null,
+    aircraftType: route ? AIRFRAMES[i % AIRFRAMES.length]![1] : null,
   };
 }
 

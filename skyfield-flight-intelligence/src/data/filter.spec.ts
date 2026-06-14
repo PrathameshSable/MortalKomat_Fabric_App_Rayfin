@@ -19,6 +19,9 @@ const base: Flight = {
   destLon: -73.78,
   originIata: "LHR",
   destIata: "JFK",
+  airline: "British Airways",
+  manufacturer: "Airbus",
+  aircraftType: "Airbus A320neo",
 };
 
 describe("isFilterActive", () => {

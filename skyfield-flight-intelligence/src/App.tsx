@@ -33,6 +33,8 @@ export default function App() {
   const [stats, setStats] = useState<FlightStats>(EMPTY_STATS);
   const [counts, setCounts] = useState({ shown: 0, total: 0 });
   const [countries, setCountries] = useState<string[]>([]);
+  const [airlines, setAirlines] = useState<string[]>([]);
+  const [manufacturers, setManufacturers] = useState<string[]>([]);
   const [visibleFlights, setVisibleFlights] = useState<Flight[]>([]);
 
   const filterFn = useMemo(() => makeFilterFn(filter), [filter]);
@@ -56,6 +58,10 @@ export default function App() {
       setStats(computeStats(visible));
       setCounts({ shown: visible.length, total: all.length });
       setCountries([...new Set(all.map((f) => f.originCountry))].sort());
+      setAirlines([...new Set(all.map((f) => f.airline).filter(Boolean) as string[])].sort());
+      setManufacturers(
+        [...new Set(all.map((f) => f.manufacturer).filter(Boolean) as string[])].sort(),
+      );
       // Only build the table list when a country is picked (keeps it small).
       setVisibleFlights(filter.country ? visible.slice(0, 300) : []);
     };
@@ -112,6 +118,8 @@ export default function App() {
         onChange={setFilter}
         onClear={clearFilters}
         countries={countries}
+        airlines={airlines}
+        manufacturers={manufacturers}
         shown={counts.shown}
         total={counts.total}
       />

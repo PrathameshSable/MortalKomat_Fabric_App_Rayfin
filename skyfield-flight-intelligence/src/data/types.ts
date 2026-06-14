@@ -21,6 +21,10 @@ export interface Flight {
   destLon: number | null;
   originIata: string | null;
   destIata: string | null;
+  // Operator + airframe (from adsbdb; null when unknown).
+  airline: string | null;
+  manufacturer: string | null;
+  aircraftType: string | null;
 }
 
 /** True when a flight has a resolved origin→destination route. */

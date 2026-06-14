@@ -49,17 +49,27 @@ STATES_URL = "https://opensky-network.org/api/states/all"
 
 
 def get_token() -> str:
-    r = requests.post(
-        TOKEN_URL,
-        data={
-            "grant_type": "client_credentials",
-            "client_id": OPENSKY_CLIENT_ID,
-            "client_secret": OPENSKY_CLIENT_SECRET,
-        },
-        timeout=30,
-    )
-    r.raise_for_status()
-    return r.json()["access_token"]
+    # Retry on transient network errors (OpenSky auth can time out briefly).
+    last = None
+    for attempt in range(6):
+        try:
+            r = requests.post(
+                TOKEN_URL,
+                data={
+                    "grant_type": "client_credentials",
+                    "client_id": OPENSKY_CLIENT_ID,
+                    "client_secret": OPENSKY_CLIENT_SECRET,
+                },
+                timeout=30,
+            )
+            r.raise_for_status()
+            return r.json()["access_token"]
+        except requests.RequestException as ex:
+            last = ex
+            wait = min(30, 2 ** attempt)
+            print(f"token attempt {attempt + 1}/6 failed ({ex.__class__.__name__}); retry in {wait}s")
+            time.sleep(wait)
+    raise last
 
 
 def fetch_states(token: str):
@@ -238,6 +248,9 @@ try:
                 token = get_token()  # token expired → refresh
             else:
                 print("HTTP error:", ex)
+        except requests.RequestException as ex:
+            # Timeout / connection error → don't crash the run; retry next cycle.
+            print(f"network error ({ex.__class__.__name__}); retrying next cycle")
         time.sleep(POLL_SECONDS)
 finally:
     producer.close()

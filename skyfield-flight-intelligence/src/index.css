@@ -155,21 +155,22 @@ html, body {
 }
 
 /* ── Flights table (per-country) ────────────────────────────────────────────*/
-.panel--table { left: 22px; top: 96px; width: 286px; }
-.flights-list { max-height: 230px; overflow-y: auto; display: grid; gap: 1px; }
+.panel--table { left: 22px; top: 96px; width: 300px; }
+.flights-list { max-height: 150px; overflow-y: auto; display: grid; gap: 0; }
 .flights-list::-webkit-scrollbar { width: 6px; }
 .flights-list::-webkit-scrollbar-thumb { background: var(--glass-line); border-radius: 3px; }
 .flight-row {
-  display: grid; grid-template-columns: 1fr auto; grid-template-rows: auto auto; gap: 1px 8px;
-  align-items: center; text-align: left; cursor: pointer; padding: 6px 6px;
+  display: grid; grid-template-columns: 62px 1fr auto; gap: 8px;
+  align-items: center; text-align: left; cursor: pointer; padding: 4px 5px;
   background: transparent; border: none; border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   font-family: var(--font); color: var(--ink);
 }
 .flight-row:hover { background: rgba(255, 255, 255, 0.06); }
 .flight-row--on { background: rgba(255, 209, 102, 0.16); }
-.fr-cs { font-size: 12px; font-weight: 700; }
-.fr-alt { font-size: 10px; color: var(--muted); text-align: right; }
-.fr-route { font-size: 11px; color: var(--gold); grid-column: 1 / 3; }
+.fr-cs { font-size: 11px; font-weight: 700; white-space: nowrap; }
+.fr-route { font-size: 11px; color: var(--gold); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fr-route--none { color: var(--muted); }
+.fr-alt { font-size: 10px; color: var(--muted); text-align: right; white-space: nowrap; }
 
 /* ── Error surface ──────────────────────────────────────────────────────────*/
 .error-stage { display: grid; place-items: center; }

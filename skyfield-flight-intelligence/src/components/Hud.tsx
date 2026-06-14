@@ -58,24 +58,32 @@ interface FlightsTableProps {
 }
 
 export function FlightsTable({ country, flights, onSelect, selectedIcao }: FlightsTableProps) {
+  // Show flights that have a known route first.
+  const sorted = [...flights].sort(
+    (a, b) => Number(Boolean(b.originIata)) - Number(Boolean(a.originIata)),
+  );
+  const withRoute = flights.filter((f) => f.originIata).length;
   return (
     <div className="panel panel--table">
       <div className="panel__title">
-        {country} · {flights.length} flights
+        {country} · {flights.length} flights · {withRoute} routed
       </div>
       <div className="flights-list">
-        {flights.length === 0 && <p className="hint">No matching flights right now.</p>}
-        {flights.map((f) => {
-          const route = f.originIata && f.destIata ? `${f.originIata} → ${f.destIata}` : "—";
-          const alt = f.geoAltitude != null ? `${Math.round((f.geoAltitude * 3.28084) / 1000)}k ft` : "—";
+        {sorted.length === 0 && <p className="hint">No matching flights right now.</p>}
+        {sorted.map((f) => {
+          const hasR = f.originIata && f.destIata;
+          const alt = f.geoAltitude != null ? `${Math.round((f.geoAltitude * 3.28084) / 1000)}k` : "—";
           return (
             <button
               key={f.icao24}
               className={`flight-row${selectedIcao === f.icao24 ? " flight-row--on" : ""}`}
               onClick={() => onSelect(f)}
+              title={hasR ? `${f.originIata} → ${f.destIata}` : "route pending"}
             >
               <span className="fr-cs">{f.callsign ?? f.icao24}</span>
-              <span className="fr-route">{route}</span>
+              <span className={`fr-route${hasR ? "" : " fr-route--none"}`}>
+                {hasR ? `${f.originIata} → ${f.destIata}` : "route pending…"}
+              </span>
               <span className="fr-alt">{alt}</span>
             </button>
           );

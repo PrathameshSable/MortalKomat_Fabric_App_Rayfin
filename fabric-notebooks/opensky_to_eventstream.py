@@ -103,8 +103,11 @@ def to_flight(s):
 # ── Route enrichment (callsign → origin/destination airport) ──────────────────
 # adsbdb.com is free, no key. We cache each callsign (including "unknown") so we
 # only hit the API once per callsign, and cap new lookups per cycle to be polite.
+# Cache persists for the notebook session; once a callsign is resolved it's free
+# forever. Higher cap = routes fill in faster after a global switch (adsbdb is
+# generous, but keep it reasonable).
 ROUTE_CACHE: dict = {}
-MAX_LOOKUPS_PER_CYCLE = 60
+MAX_LOOKUPS_PER_CYCLE = 200
 
 
 def lookup_route(callsign):
@@ -141,7 +144,7 @@ def enrich_routes(flights):
         elif new < MAX_LOOKUPS_PER_CYCLE:
             route = lookup_route(cs)
             new += 1
-            time.sleep(0.05)
+            time.sleep(0.03)
         else:
             route = None  # resolve on a later cycle
         if route:

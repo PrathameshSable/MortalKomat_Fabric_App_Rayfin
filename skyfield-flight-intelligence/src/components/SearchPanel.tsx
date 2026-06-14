@@ -1,8 +1,9 @@
-import type { AltitudeBand, FlightFilter } from "../data/filter.js";
+import { isFilterActive, type AltitudeBand, type FlightFilter } from "../data/filter.js";
 
 interface SearchPanelProps {
   filter: FlightFilter;
   onChange: (next: FlightFilter) => void;
+  onClear: () => void;
   countries: string[];
   shown: number;
   total: number;
@@ -15,7 +16,7 @@ const BANDS: { id: AltitudeBand; label: string }[] = [
   { id: "high", label: "High" },
 ];
 
-export function SearchPanel({ filter, onChange, countries, shown, total }: SearchPanelProps) {
+export function SearchPanel({ filter, onChange, onClear, countries, shown, total }: SearchPanelProps) {
   return (
     <div className="panel panel--search">
       <div className="panel__title">Search &amp; filter</div>
@@ -62,8 +63,15 @@ export function SearchPanel({ filter, onChange, countries, shown, total }: Searc
         />
       </label>
 
-      <div className="shown-tag">
-        Showing <b>{shown.toLocaleString()}</b> of {total.toLocaleString()}
+      <div className="search-foot">
+        <span className="shown-tag">
+          Showing <b>{shown.toLocaleString()}</b> of {total.toLocaleString()}
+        </span>
+        {isFilterActive(filter) && (
+          <button className="clear-btn" onClick={onClear}>
+            ✕ Clear
+          </button>
+        )}
       </div>
     </div>
   );

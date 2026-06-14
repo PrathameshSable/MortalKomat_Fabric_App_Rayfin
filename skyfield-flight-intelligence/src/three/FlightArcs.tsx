@@ -33,7 +33,7 @@ export function FlightArcs({ getFlights, colorMode, filterFn }: FlightArcsProps)
     const material = new THREE.LineBasicMaterial({
       vertexColors: true,
       transparent: true,
-      opacity: 0.5,
+      opacity: 0.6,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
     });

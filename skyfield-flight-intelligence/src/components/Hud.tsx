@@ -50,6 +50,41 @@ export function AltitudeChart({ stats }: { stats: FlightStats }) {
   );
 }
 
+interface FlightsTableProps {
+  country: string;
+  flights: Flight[];
+  onSelect: (f: Flight) => void;
+  selectedIcao?: string;
+}
+
+export function FlightsTable({ country, flights, onSelect, selectedIcao }: FlightsTableProps) {
+  return (
+    <div className="panel panel--table">
+      <div className="panel__title">
+        {country} · {flights.length} flights
+      </div>
+      <div className="flights-list">
+        {flights.length === 0 && <p className="hint">No matching flights right now.</p>}
+        {flights.map((f) => {
+          const route = f.originIata && f.destIata ? `${f.originIata} → ${f.destIata}` : "—";
+          const alt = f.geoAltitude != null ? `${Math.round((f.geoAltitude * 3.28084) / 1000)}k ft` : "—";
+          return (
+            <button
+              key={f.icao24}
+              className={`flight-row${selectedIcao === f.icao24 ? " flight-row--on" : ""}`}
+              onClick={() => onSelect(f)}
+            >
+              <span className="fr-cs">{f.callsign ?? f.icao24}</span>
+              <span className="fr-route">{route}</span>
+              <span className="fr-alt">{alt}</span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 export function TopCountries({ stats }: { stats: FlightStats }) {
   const max = stats.topCountries[0]?.count ?? 1;
   return (

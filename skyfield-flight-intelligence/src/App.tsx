@@ -3,7 +3,7 @@ import { resolveFlightSource } from "./data/flightSource.js";
 import { computeStats, type Flight, type FlightStats } from "./data/types.js";
 import { DEFAULT_FILTER, makeFilterFn, type FlightFilter } from "./data/filter.js";
 import { Scene } from "./three/Scene.js";
-import { KpiStrip, TopCountries, FlightDetails, AltitudeChart } from "./components/Hud.js";
+import { KpiStrip, TopCountries, FlightsTable, FlightDetails, AltitudeChart } from "./components/Hud.js";
 import { ControlsPanel, type Settings } from "./components/ControlsPanel.js";
 import { SearchPanel } from "./components/SearchPanel.js";
 
@@ -33,6 +33,7 @@ export default function App() {
   const [stats, setStats] = useState<FlightStats>(EMPTY_STATS);
   const [counts, setCounts] = useState({ shown: 0, total: 0 });
   const [countries, setCountries] = useState<string[]>([]);
+  const [visibleFlights, setVisibleFlights] = useState<Flight[]>([]);
 
   const filterFn = useMemo(() => makeFilterFn(filter), [filter]);
   // Keep a ref so the render loop always sees the latest predicate.
@@ -55,11 +56,19 @@ export default function App() {
       setStats(computeStats(visible));
       setCounts({ shown: visible.length, total: all.length });
       setCountries([...new Set(all.map((f) => f.originCountry))].sort());
+      // Only build the table list when a country is picked (keeps it small).
+      setVisibleFlights(filter.country ? visible.slice(0, 300) : []);
     };
     update();
     const id = setInterval(update, 700);
     return () => clearInterval(id);
-  }, [source, filterFn]);
+  }, [source, filterFn, filter.country]);
+
+  const clearFilters = useCallback(() => {
+    setFilter(DEFAULT_FILTER);
+    setSelected(null);
+    setFollow(false);
+  }, []);
 
   const getFlights = useCallback(() => source.current(), [source]);
   const advance = useCallback((dt: number) => source.advance(dt), [source]);
@@ -88,10 +97,20 @@ export default function App() {
       />
 
       <KpiStrip stats={stats} isLive={isLive} />
-      <TopCountries stats={stats} />
+      {filter.country ? (
+        <FlightsTable
+          country={filter.country}
+          flights={visibleFlights}
+          onSelect={setSelected}
+          selectedIcao={selected?.icao24}
+        />
+      ) : (
+        <TopCountries stats={stats} />
+      )}
       <SearchPanel
         filter={filter}
         onChange={setFilter}
+        onClear={clearFilters}
         countries={countries}
         shown={counts.shown}
         total={counts.total}

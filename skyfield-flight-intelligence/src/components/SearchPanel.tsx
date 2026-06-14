@@ -63,6 +63,15 @@ export function SearchPanel({ filter, onChange, onClear, countries, shown, total
         />
       </label>
 
+      <label className="ctl ctl--row">
+        <span>Airlines only</span>
+        <input
+          type="checkbox"
+          checked={filter.airlinesOnly}
+          onChange={(e) => onChange({ ...filter, airlinesOnly: e.target.checked })}
+        />
+      </label>
+
       <div className="search-foot">
         <span className="shown-tag">
           Showing <b>{shown.toLocaleString()}</b> of {total.toLocaleString()}

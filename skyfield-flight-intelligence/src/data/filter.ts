@@ -6,6 +6,8 @@ export interface FlightFilter {
   text: string;
   band: AltitudeBand;
   airborneOnly: boolean;
+  /** Only scheduled/commercial flights (airline-format callsigns). */
+  airlinesOnly: boolean;
   /** Empty = all countries. */
   country: string;
 }
@@ -14,20 +16,37 @@ export const EMPTY_FILTER: FlightFilter = {
   text: "",
   band: "all",
   airborneOnly: false,
+  airlinesOnly: false,
   country: "",
 };
 
-/** Default view: only aircraft in active flight. */
-export const DEFAULT_FILTER: FlightFilter = { ...EMPTY_FILTER, airborneOnly: true };
+/** Default view: airborne commercial flights only (hide GA / military / private). */
+export const DEFAULT_FILTER: FlightFilter = {
+  ...EMPTY_FILTER,
+  airborneOnly: true,
+  airlinesOnly: true,
+};
+
+/** Airline-format callsign: 3-letter ICAO airline code + flight number, e.g. AAL2412. */
+const AIRLINE_CALLSIGN = /^[A-Z]{3}\d/;
 
 export function isFilterActive(f: FlightFilter): boolean {
-  return f.text.trim() !== "" || f.band !== "all" || f.airborneOnly || f.country !== "";
+  return (
+    f.text.trim() !== "" ||
+    f.band !== "all" ||
+    f.airborneOnly ||
+    f.airlinesOnly ||
+    f.country !== ""
+  );
 }
 
 const FT = 3.28084;
 
 export function matchesFilter(flight: Flight, filter: FlightFilter): boolean {
   if (filter.airborneOnly && flight.onGround) return false;
+  if (filter.airlinesOnly && !(flight.callsign && AIRLINE_CALLSIGN.test(flight.callsign))) {
+    return false;
+  }
   if (filter.country && flight.originCountry !== filter.country) return false;
 
   if (filter.band !== "all") {

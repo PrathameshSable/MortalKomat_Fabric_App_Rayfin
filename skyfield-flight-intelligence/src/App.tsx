@@ -4,7 +4,7 @@ import { computeStats, type Flight, type FlightStats } from "./data/types.js";
 import { DEFAULT_FILTER, makeFilterFn, type FlightFilter } from "./data/filter.js";
 import { Scene } from "./three/Scene.js";
 import {
-  KpiStrip, TopCountries, FlightsTable, FlightDetails, InsightsPanel, HelpButton, HelpOverlay,
+  KpiStrip, TopCountries, FlightsTable, FlightDetails, InsightsPanel, HelpOverlay,
 } from "./components/Hud.js";
 import { ControlsPanel, type Settings } from "./components/ControlsPanel.js";
 import { SearchPanel } from "./components/SearchPanel.js";
@@ -61,9 +61,18 @@ export default function App() {
       setStats(computeStats(visible));
       setCounts({ shown: visible.length, total: all.length });
       setCountries([...new Set(all.map((f) => f.originCountry))].sort());
-      setAirlines([...new Set(all.map((f) => f.airline).filter(Boolean) as string[])].sort());
+      // Airline + maker dropdowns are scoped to the selected country (+ base
+      // toggles), ignoring the airline/maker filters themselves — so picking a
+      // country narrows them to that country's fleet.
+      const scope = all.filter(
+        (f) =>
+          (!filter.country || f.originCountry === filter.country) &&
+          (!filter.airborneOnly || !f.onGround) &&
+          (!filter.airlinesOnly || (f.callsign != null && /^[A-Z]{3}\d/.test(f.callsign))),
+      );
+      setAirlines([...new Set(scope.map((f) => f.airline).filter(Boolean) as string[])].sort());
       setManufacturers(
-        [...new Set(all.map((f) => f.manufacturer).filter(Boolean) as string[])].sort(),
+        [...new Set(scope.map((f) => f.manufacturer).filter(Boolean) as string[])].sort(),
       );
       // Only build the table list when a country is picked (keeps it small).
       setVisibleFlights(filter.country ? visible.slice(0, 300) : []);
@@ -71,7 +80,7 @@ export default function App() {
     update();
     const id = setInterval(update, 700);
     return () => clearInterval(id);
-  }, [source, filterFn, filter.country]);
+  }, [source, filterFn, filter.country, filter.airborneOnly, filter.airlinesOnly]);
 
   const clearFilters = useCallback(() => {
     setFilter(DEFAULT_FILTER);
@@ -105,7 +114,7 @@ export default function App() {
         }}
       />
 
-      <KpiStrip stats={stats} isLive={isLive} />
+      <KpiStrip stats={stats} isLive={isLive} onHelp={() => setHelpOpen(true)} />
       {filter.country ? (
         <FlightsTable
           country={filter.country}
@@ -139,7 +148,6 @@ export default function App() {
         onMaker={(m) => setFilter({ ...filter, manufacturer: filter.manufacturer === m ? "" : m })}
       />
       <ControlsPanel settings={settings} onChange={setSettings} isLive={isLive} />
-      <HelpButton onClick={() => setHelpOpen(true)} />
       {helpOpen && <HelpOverlay onClose={() => setHelpOpen(false)} />}
 
       <div className="legend">

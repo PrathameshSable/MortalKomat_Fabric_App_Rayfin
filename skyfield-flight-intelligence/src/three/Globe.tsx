@@ -76,7 +76,7 @@ export function Globe({ lighting = "realtime" }: { lighting?: LightingMode }) {
           float d = dot(normalize(vNormal), normalize(uSun));
           float mixv = smoothstep(-0.12, 0.12, d);
           vec3 day = texture2D(uDay, vUv).rgb;
-          vec3 night = texture2D(uNight, vUv).rgb * 1.5;
+          vec3 night = texture2D(uNight, vUv).rgb * 2.2;
           gl_FragColor = vec4(mix(night, day, mixv), 1.0);
         }
       `,

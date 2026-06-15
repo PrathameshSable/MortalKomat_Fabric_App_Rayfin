@@ -10,7 +10,13 @@ function Kpi({ label, value, accent }: { label: string; value: string; accent?: 
   );
 }
 
-export function KpiStrip({ stats, isLive }: { stats: FlightStats; isLive: boolean }) {
+export function KpiStrip({
+  stats, isLive, onHelp,
+}: {
+  stats: FlightStats;
+  isLive: boolean;
+  onHelp: () => void;
+}) {
   return (
     <div className="hud hud--top">
       <div className="brand">
@@ -18,6 +24,9 @@ export function KpiStrip({ stats, isLive }: { stats: FlightStats; isLive: boolea
         SKYFIELD
         <span className="brand__sub">{isLive ? "live · fabric" : "demo · sample"}</span>
         {isLive && <span className="live-badge">● LIVE</span>}
+        <button className="brand-help" onClick={onHelp} title="What am I looking at?">
+          ?
+        </button>
       </div>
       <div className="kpi-row">
         <Kpi label="Aircraft tracked" value={stats.total.toLocaleString()} accent />
@@ -107,14 +116,6 @@ const HELP_ITEMS: [string, string][] = [
   ["Controls", "Animation speed, marker size, colour-by (country/altitude), lighting (real-time/day/night), and toggles for flight paths, airports and auto-orbit."],
   ["Aircraft detail", "Click any plane: route, airline, aircraft type, position, altitude, speed, heading, climb/descent — and Follow to track it."],
 ];
-
-export function HelpButton({ onClick }: { onClick: () => void }) {
-  return (
-    <button className="help-btn" onClick={onClick} title="What am I looking at?">
-      ?
-    </button>
-  );
-}
 
 export function HelpOverlay({ onClose }: { onClose: () => void }) {
   return (

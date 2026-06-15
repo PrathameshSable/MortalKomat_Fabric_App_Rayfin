@@ -13,7 +13,7 @@ export interface Settings {
 }
 
 const LIGHTING: { id: LightingMode; label: string }[] = [
-  { id: "realtime", label: "Real-time" },
+  { id: "realtime", label: "Auto" },
   { id: "day", label: "Day" },
   { id: "night", label: "Night" },
 ];

@@ -49,10 +49,14 @@ TOKEN_URL = (
 STATES_URL = "https://opensky-network.org/api/states/all"
 
 
-def get_token() -> str:
-    # Retry on transient network errors (OpenSky auth can time out briefly).
+def get_token(max_wait_s: int = 600) -> str:
+    # Keep retrying through OpenSky auth outages (up to ~10 min) so the notebook
+    # starts on its own once OpenSky is reachable again, instead of crashing.
     last = None
-    for attempt in range(6):
+    waited = 0
+    attempt = 0
+    while waited < max_wait_s:
+        attempt += 1
         try:
             r = requests.post(
                 TOKEN_URL,
@@ -67,9 +71,10 @@ def get_token() -> str:
             return r.json()["access_token"]
         except requests.RequestException as ex:
             last = ex
-            wait = min(30, 2 ** attempt)
-            print(f"token attempt {attempt + 1}/6 failed ({ex.__class__.__name__}); retry in {wait}s")
+            wait = min(30, 2 ** min(attempt, 5))
+            print(f"token attempt {attempt} failed ({ex.__class__.__name__}); waited {waited}s; retry in {wait}s")
             time.sleep(wait)
+            waited += wait
     raise last
 
 

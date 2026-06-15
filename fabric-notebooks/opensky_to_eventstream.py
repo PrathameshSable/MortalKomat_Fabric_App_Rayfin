@@ -78,11 +78,14 @@ def get_token(max_wait_s: int = 600) -> str:
     raise last
 
 
-def fetch_states(token: str):
+def fetch_states(token):
     lamin, lomin, lamax, lomax = OPENSKY_BBOX
+    # token=None → anonymous request (works when OpenSky's auth server is down,
+    # just with lower rate limits → use a smaller bbox + slower poll).
+    headers = {"Authorization": f"Bearer {token}"} if token else {}
     r = requests.get(
         STATES_URL,
-        headers={"Authorization": f"Bearer {token}"},
+        headers=headers,
         params={"lamin": lamin, "lomin": lomin, "lamax": lamax, "lomax": lomax},
         timeout=30,
     )
@@ -263,9 +266,18 @@ def send(producer, flights):
 
 producer = EventHubProducerClient.from_connection_string(EVENTSTREAM_CONNECTION_STRING)
 load_cache()  # resume route/airframe coverage from a previous run (if a Lakehouse is attached)
-token = get_token()
+
+# Try to authenticate; if OpenSky's auth server is down, fall back to anonymous.
+try:
+    token = get_token(max_wait_s=45)
+except requests.RequestException:
+    token = None
+    print("⚠ OpenSky auth server unreachable — running ANONYMOUS (lower limits; "
+          "prefer a small bbox + POLL_SECONDS≥30). Switch back to authed when it recovers.")
+
 deadline = time.time() + RUN_MINUTES * 60
-print(f"Ingesting OpenSky → Eventstream for {RUN_MINUTES} min (bbox={OPENSKY_BBOX})")
+mode = "authenticated" if token else "ANONYMOUS"
+print(f"Ingesting OpenSky → Eventstream for {RUN_MINUTES} min ({mode}, bbox={OPENSKY_BBOX})")
 
 cycle = 0
 try:
@@ -286,8 +298,15 @@ try:
             if cycle % 5 == 0:
                 save_cache()  # persist coverage every ~5 cycles
         except requests.HTTPError as ex:
-            if ex.response is not None and ex.response.status_code == 401:
-                token = get_token()  # token expired → refresh
+            code = ex.response.status_code if ex.response is not None else None
+            if code == 401 and token is not None:
+                try:
+                    token = get_token(max_wait_s=45)  # expired → refresh
+                except requests.RequestException:
+                    token = None  # auth still down → keep going anonymously
+            elif code == 429:
+                print("rate limited (429); backing off 30s")
+                time.sleep(30)
             else:
                 print("HTTP error:", ex)
         except requests.RequestException as ex:

@@ -134,8 +134,17 @@ html, body {
 }
 .search-input::placeholder { color: var(--muted); }
 .search-input:focus { border-color: var(--accent); }
-.search-select { margin-top: 8px; cursor: pointer; appearance: none; }
+.search-select { cursor: pointer; appearance: none; }
 .search-select option { background: #0a1626; color: var(--ink); }
+.slicer { position: relative; margin-top: 8px; }
+.slicer .search-select { margin-top: 0; padding-right: 28px; width: 100%; box-sizing: border-box; }
+.slicer-x {
+  position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+  width: 18px; height: 18px; border-radius: 50%; cursor: pointer; line-height: 1;
+  background: rgba(255, 140, 107, 0.15); border: 1px solid #ff8c6b; color: #ff8c6b;
+  font-size: 10px; font-family: var(--font); display: grid; place-items: center;
+}
+.slicer-x:hover { background: #ff8c6b; color: #02101f; }
 .band-row { display: flex; gap: 6px; margin: 10px 0; }
 .band {
   flex: 1; padding: 5px 2px; border-radius: 7px; cursor: pointer;
@@ -183,9 +192,15 @@ html, body {
 .error-card__msg { color: var(--muted); font-size: 13px; line-height: 1.6; margin: 0 0 16px; }
 
 /* ── Top-countries bars ─────────────────────────────────────────────────────*/
-.bars { list-style: none; margin: 0; padding: 0; display: grid; gap: 9px; }
-.bars li { display: grid; grid-template-columns: 96px 1fr 28px; align-items: center; gap: 8px; }
-.bars__label { font-size: 11px; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bars { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.bars li { display: block; }
+.bars__row {
+  display: grid; grid-template-columns: 96px 1fr 28px; align-items: center; gap: 8px;
+  width: 100%; background: transparent; border: none; cursor: pointer; padding: 3px 4px;
+  border-radius: 6px; font-family: var(--font);
+}
+.bars__row:hover { background: rgba(255, 255, 255, 0.06); }
+.bars__label { font-size: 11px; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: left; }
 .bars__track { height: 6px; background: rgba(255, 255, 255, 0.08); border-radius: 4px; overflow: hidden; }
 .bars__fill { display: block; height: 100%; background: linear-gradient(90deg, var(--accent), var(--gold)); border-radius: 4px; }
 .bars__count { font-size: 11px; color: var(--muted); text-align: right; }

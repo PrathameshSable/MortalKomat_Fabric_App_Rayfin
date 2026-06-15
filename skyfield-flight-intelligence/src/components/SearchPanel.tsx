@@ -33,44 +33,65 @@ export function SearchPanel({
         onChange={(e) => onChange({ ...filter, text: e.target.value })}
       />
 
-      <select
-        className="search-input search-select"
-        value={filter.country}
-        onChange={(e) => onChange({ ...filter, country: e.target.value })}
-      >
-        <option value="">All countries</option>
-        {countries.map((c) => (
-          <option key={c} value={c}>
-            {c}
-          </option>
-        ))}
-      </select>
+      <div className="slicer">
+        <select
+          className="search-input search-select"
+          value={filter.country}
+          onChange={(e) => onChange({ ...filter, country: e.target.value })}
+        >
+          <option value="">All countries</option>
+          {countries.map((c) => (
+            <option key={c} value={c}>
+              {c}
+            </option>
+          ))}
+        </select>
+        {filter.country && (
+          <button className="slicer-x" title="Clear country" onClick={() => onChange({ ...filter, country: "" })}>
+            ✕
+          </button>
+        )}
+      </div>
 
-      <select
-        className="search-input search-select"
-        value={filter.airline}
-        onChange={(e) => onChange({ ...filter, airline: e.target.value })}
-      >
-        <option value="">All airlines</option>
-        {airlines.map((a) => (
-          <option key={a} value={a}>
-            {a}
-          </option>
-        ))}
-      </select>
+      <div className="slicer">
+        <select
+          className="search-input search-select"
+          value={filter.airline}
+          onChange={(e) => onChange({ ...filter, airline: e.target.value })}
+        >
+          <option value="">All airlines</option>
+          {airlines.map((a) => (
+            <option key={a} value={a}>
+              {a}
+            </option>
+          ))}
+        </select>
+        {filter.airline && (
+          <button className="slicer-x" title="Clear airline" onClick={() => onChange({ ...filter, airline: "" })}>
+            ✕
+          </button>
+        )}
+      </div>
 
-      <select
-        className="search-input search-select"
-        value={filter.manufacturer}
-        onChange={(e) => onChange({ ...filter, manufacturer: e.target.value })}
-      >
-        <option value="">All aircraft makers</option>
-        {manufacturers.map((m) => (
-          <option key={m} value={m}>
-            {m}
-          </option>
-        ))}
-      </select>
+      <div className="slicer">
+        <select
+          className="search-input search-select"
+          value={filter.manufacturer}
+          onChange={(e) => onChange({ ...filter, manufacturer: e.target.value })}
+        >
+          <option value="">All aircraft makers</option>
+          {manufacturers.map((m) => (
+            <option key={m} value={m}>
+              {m}
+            </option>
+          ))}
+        </select>
+        {filter.manufacturer && (
+          <button className="slicer-x" title="Clear maker" onClick={() => onChange({ ...filter, manufacturer: "" })}>
+            ✕
+          </button>
+        )}
+      </div>
 
       <div className="band-row">
         {BANDS.map((b) => (

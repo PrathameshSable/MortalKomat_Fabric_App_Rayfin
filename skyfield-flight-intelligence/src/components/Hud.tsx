@@ -183,19 +183,27 @@ export function FlightsTable({ country, flights, onSelect, selectedIcao }: Fligh
   );
 }
 
-export function TopCountries({ stats }: { stats: FlightStats }) {
+export function TopCountries({
+  stats,
+  onPick,
+}: {
+  stats: FlightStats;
+  onPick: (country: string) => void;
+}) {
   const max = stats.topCountries[0]?.count ?? 1;
   return (
     <div className="panel panel--left">
-      <div className="panel__title">Busiest airspace</div>
+      <div className="panel__title">Busiest airspace · click to filter</div>
       <ul className="bars">
         {stats.topCountries.map((c) => (
           <li key={c.country}>
-            <span className="bars__label">{c.country}</span>
-            <span className="bars__track">
-              <span className="bars__fill" style={{ width: `${(c.count / max) * 100}%` }} />
-            </span>
-            <span className="bars__count">{c.count}</span>
+            <button className="bars__row" onClick={() => onPick(c.country)}>
+              <span className="bars__label">{c.country}</span>
+              <span className="bars__track">
+                <span className="bars__fill" style={{ width: `${(c.count / max) * 100}%` }} />
+              </span>
+              <span className="bars__count">{c.count}</span>
+            </button>
           </li>
         ))}
       </ul>

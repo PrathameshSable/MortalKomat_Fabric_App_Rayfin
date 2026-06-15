@@ -123,7 +123,7 @@ export default function App() {
           selectedIcao={selected?.icao24}
         />
       ) : (
-        <TopCountries stats={stats} />
+        <TopCountries stats={stats} onPick={(c) => setFilter({ ...filter, country: c })} />
       )}
       <SearchPanel
         filter={filter}

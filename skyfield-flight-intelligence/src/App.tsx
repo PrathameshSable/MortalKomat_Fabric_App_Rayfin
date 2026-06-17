@@ -135,11 +135,14 @@ export default function App() {
         shown={counts.shown}
         total={counts.total}
       />
-      <FlightDetails
-        flight={selected}
-        follow={follow}
-        onToggleFollow={() => setFollow((v) => !v)}
-      />
+      <div className="rail rail--right">
+        <FlightDetails
+          flight={selected}
+          follow={follow}
+          onToggleFollow={() => setFollow((v) => !v)}
+        />
+        <ControlsPanel settings={settings} onChange={setSettings} isLive={isLive} />
+      </div>
       <InsightsPanel
         stats={stats}
         activeBand={filter.band}
@@ -147,7 +150,6 @@ export default function App() {
         activeMaker={filter.manufacturer}
         onMaker={(m) => setFilter({ ...filter, manufacturer: filter.manufacturer === m ? "" : m })}
       />
-      <ControlsPanel settings={settings} onChange={setSettings} isLive={isLive} />
       {helpOpen && <HelpOverlay onClose={() => setHelpOpen(false)} />}
 
       <div className="legend">

@@ -36,3 +36,6 @@ mortal-kombat-arena-intelligence/public/assets/**/*.mp4
 .playwright/
 *.backup_*
 *.log
+
+# generated verification artifacts
+skyfield-flight-intelligence/scripts/*.png

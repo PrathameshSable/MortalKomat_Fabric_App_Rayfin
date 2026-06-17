@@ -33,22 +33,10 @@ OPENSKY_CLIENT_SECRET = "<paste your OpenSky secret (Reset Credential)>"
 # Eventstream custom-endpoint connection string (source node → Keys tab).
 # Must contain EntityPath=...
 EVENTSTREAM_CONNECTION_STRING = "<paste from the custom endpoint Keys tab>"
-# Bounding box: south, west, north, east  (lamin, lomin, lamax, lomax).
+# Bounding box: south, west, north, east (degrees).
 #   Global  (-60, -180, 75, 180)  → ~4 credits/call  → use POLL_SECONDS >= 90
 #   Region  (48, 2, 52, 8) ~24 sq°→  1 credit/call   → POLL_SECONDS 25 is fine
 OPENSKY_BBOX = (-60, -180, 75, 180)   # whole world for the reference look
-
-# Optional: rotate through several regions, one per poll cycle. This warms
-# routes across every region into the persistent cache without editing the
-# bbox by hand — cycle 0 polls USA, cycle 1 Europe, cycle 2 UK, … then repeats.
-# Set ROTATE_REGIONS = True to use OPENSKY_REGIONS instead of OPENSKY_BBOX above.
-ROTATE_REGIONS = False
-OPENSKY_REGIONS = [
-    ("USA",    (24, -125, 50, -66)),   # 🇺🇸 continental US
-    ("Europe", (35,  -15, 60,  30)),   # 🇪🇺 Lisbon→Moscow, Sicily→Oslo
-    ("UK",     (49,   -8, 61,   2)),   # 🇬🇧 Lizard Point→Shetland
-    ("India",  (6,    68, 36,  98)),   # 🇮🇳 Kanyakumari→Kashmir
-]
 
 POLL_SECONDS = 90      # global ≈ 960 calls/day × 4 credits = 3,840 (under 4,000/day)
 RUN_MINUTES = 120      # how long this notebook run keeps ingesting
@@ -90,8 +78,8 @@ def get_token(max_wait_s: int = 600) -> str:
     raise last
 
 
-def fetch_states(token, bbox):
-    lamin, lomin, lamax, lomax = bbox
+def fetch_states(token):
+    lamin, lomin, lamax, lomax = OPENSKY_BBOX
     # token=None → anonymous request (works when OpenSky's auth server is down,
     # just with lower rate limits → use a smaller bbox + slower poll).
     headers = {"Authorization": f"Bearer {token}"} if token else {}
@@ -289,22 +277,13 @@ except requests.RequestException:
 
 deadline = time.time() + RUN_MINUTES * 60
 mode = "authenticated" if token else "ANONYMOUS"
-if ROTATE_REGIONS:
-    scope = "rotating " + " → ".join(label for label, _ in OPENSKY_REGIONS)
-else:
-    scope = f"bbox={OPENSKY_BBOX}"
-print(f"Ingesting OpenSky → Eventstream for {RUN_MINUTES} min ({mode}, {scope})")
+print(f"Ingesting OpenSky → Eventstream for {RUN_MINUTES} min ({mode}, bbox={OPENSKY_BBOX})")
 
 cycle = 0
 try:
     while time.time() < deadline:
-        # Pick this cycle's box: rotate through regions, or use the single bbox.
-        if ROTATE_REGIONS:
-            label, bbox = OPENSKY_REGIONS[cycle % len(OPENSKY_REGIONS)]
-        else:
-            label, bbox = "world", OPENSKY_BBOX
         try:
-            states = fetch_states(token, bbox)
+            states = fetch_states(token)
             flights = [f for f in (to_flight(s) for s in states) if f]
             if flights:
                 enrich(flights)
@@ -312,7 +291,7 @@ try:
                 typed = sum(1 for f in flights if f["manufacturer"] is not None)
                 send(producer, flights)
                 print(
-                    f"{datetime.now():%H:%M:%S}  [{label}] sent {len(flights)} flights "
+                    f"{datetime.now():%H:%M:%S}  sent {len(flights)} flights "
                     f"({routed} routed, {typed} typed) | cache {len(ROUTE_CACHE)}cs/{len(AIRCRAFT_CACHE)}ac"
                 )
             cycle += 1

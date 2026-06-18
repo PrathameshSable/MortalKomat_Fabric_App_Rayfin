@@ -8,6 +8,7 @@ import {
 } from "./components/Hud.js";
 import { ControlsPanel, type Settings } from "./components/ControlsPanel.js";
 import { SearchPanel } from "./components/SearchPanel.js";
+import { ChatOverlay } from "./components/ChatOverlay.js";
 
 const EMPTY_STATS: FlightStats = {
   total: 0, airborne: 0, grounded: 0, countries: 0,
@@ -151,6 +152,7 @@ export default function App() {
         onMaker={(m) => setFilter({ ...filter, manufacturer: filter.manufacturer === m ? "" : m })}
       />
       {helpOpen && <HelpOverlay onClose={() => setHelpOpen(false)} />}
+      <ChatOverlay />
 
       <div className="legend">
         <span className="legend__title">Altitude</span>

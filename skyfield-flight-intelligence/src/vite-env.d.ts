@@ -9,6 +9,8 @@ interface ImportMetaEnv {
   readonly VITE_FABRIC_ITEM_ID?: string;
   /** Fabric portal base URL (e.g. https://app.fabric.microsoft.com/). */
   readonly VITE_FABRIC_PORTAL_URL?: string;
+  /** Copilot Studio agent Direct Line token endpoint (enables the chat overlay). */
+  readonly VITE_COPILOT_TOKEN_ENDPOINT?: string;
 }
 
 interface ImportMeta {

@@ -1,0 +1,14 @@
+// Top merchant categories by fraud value — risk leaderboard.
+EVALUATE
+TOPN (
+    10,
+    SUMMARIZECOLUMNS (
+        dim_merchant[Category],
+        "Transactions", [Total Transactions],
+        "Fraud Transactions", [Fraud Transactions],
+        "Fraud Value", [Fraud Value],
+        "Fraud Rate", [Fraud Rate]
+    ),
+    [Fraud Value], DESC
+)
+ORDER BY [Fraud Value] DESC

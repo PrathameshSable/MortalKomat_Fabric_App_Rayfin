@@ -1,0 +1,9 @@
+ChannelKey,ChannelName,ChannelType,IsCardPresent,IsOnline,RiskWeight
+1,In-Store POS,POS,1,0,0.6
+2,ATM Withdrawal,ATM,1,0,0.8
+3,E-Commerce,Online,0,1,1.4
+4,Mobile App,Mobile,0,1,1.0
+5,Online Banking,Web,0,1,0.9
+6,Wire Transfer,Wire,0,1,1.6
+7,ACH Direct Debit,ACH,0,1,0.7
+8,Contactless Tap,POS,1,0,0.5

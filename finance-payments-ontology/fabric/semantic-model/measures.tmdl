@@ -1,0 +1,147 @@
+// Contoso Bank — Payments & Fraud Intelligence : measures (TMDL)
+// Place these on a dedicated `_Measures` table in the semantic model.
+// Format strings + display folders make the model AI-ready (clear metadata
+// helps the Data Agent's DAX generation pick the right measure).
+
+createOrReplace
+
+    ref table _Measures
+
+        measure 'Total Transactions' = COUNTROWS ( fact_transaction )
+            formatString: "#,##0"
+            displayFolder: "01 Volume & Value"
+
+        measure 'Total Transaction Value' = SUM ( fact_transaction[AmountUsd] )
+            formatString: "\$#,##0"
+            displayFolder: "01 Volume & Value"
+
+        measure 'Average Transaction Value' = AVERAGE ( fact_transaction[AmountUsd] )
+            formatString: "\$#,##0.00"
+            displayFolder: "01 Volume & Value"
+
+        measure 'Approved Transactions' = CALCULATE ( [Total Transactions], fact_transaction[Status] = "Approved" )
+            formatString: "#,##0"
+            displayFolder: "01 Volume & Value"
+
+        measure 'Declined Transactions' = CALCULATE ( [Total Transactions], fact_transaction[Status] = "Declined" )
+            formatString: "#,##0"
+            displayFolder: "01 Volume & Value"
+
+        measure 'Approval Rate' = DIVIDE ( [Approved Transactions], [Total Transactions] )
+            formatString: "0.0%;-0.0%;0.0%"
+            displayFolder: "01 Volume & Value"
+
+        measure 'High Value Transactions' = CALCULATE ( [Total Transactions], fact_transaction[AmountUsd] > 3000 )
+            formatString: "#,##0"
+            displayFolder: "01 Volume & Value"
+
+        measure 'Fraud Transactions' = CALCULATE ( [Total Transactions], fact_transaction[IsFraud] = 1 )
+            formatString: "#,##0"
+            displayFolder: "02 Fraud"
+
+        measure 'Fraud Rate' = DIVIDE ( [Fraud Transactions], [Total Transactions] )
+            formatString: "0.00%;-0.00%;0.00%"
+            displayFolder: "02 Fraud"
+
+        measure 'Fraud Value' = CALCULATE ( [Total Transaction Value], fact_transaction[IsFraud] = 1 )
+            formatString: "\$#,##0"
+            displayFolder: "02 Fraud"
+
+        measure 'Fraud Value Rate' = DIVIDE ( [Fraud Value], [Total Transaction Value] )
+            formatString: "0.00%;-0.00%;0.00%"
+            displayFolder: "02 Fraud"
+
+        measure 'High Risk Transactions' = CALCULATE ( [Total Transactions], fact_transaction[FraudScore] >= 0.75 )
+            formatString: "#,##0"
+            displayFolder: "02 Fraud"
+
+        measure 'Average Fraud Score' = AVERAGE ( fact_transaction[FraudScore] )
+            formatString: "0.000"
+            displayFolder: "02 Fraud"
+
+        measure 'International Transactions' = CALCULATE ( [Total Transactions], fact_transaction[IsInternational] = 1 )
+            formatString: "#,##0"
+            displayFolder: "02 Fraud"
+
+        measure 'International Share' = DIVIDE ( [International Transactions], [Total Transactions] )
+            formatString: "0.0%;-0.0%;0.0%"
+            displayFolder: "02 Fraud"
+
+        measure 'Total Alerts' = COUNTROWS ( fact_fraud_alert )
+            formatString: "#,##0"
+            displayFolder: "03 Alerts"
+
+        measure 'Open Alerts' = CALCULATE ( [Total Alerts], fact_fraud_alert[Status] = "Open" )
+            formatString: "#,##0"
+            displayFolder: "03 Alerts"
+
+        measure 'Critical Open Alerts' = CALCULATE ( [Total Alerts], fact_fraud_alert[Status] = "Open", fact_fraud_alert[Severity] = "Critical" )
+            formatString: "#,##0"
+            displayFolder: "03 Alerts"
+
+        measure 'Confirmed Fraud Alerts' = CALCULATE ( [Total Alerts], fact_fraud_alert[Disposition] = "Confirmed Fraud" )
+            formatString: "#,##0"
+            displayFolder: "03 Alerts"
+
+        measure 'Alert Precision' = DIVIDE ( [Confirmed Fraud Alerts], [Total Alerts] )
+            formatString: "0.0%;-0.0%;0.0%"
+            displayFolder: "03 Alerts"
+
+        measure 'False Positive Rate' = DIVIDE ( CALCULATE ( [Total Alerts], fact_fraud_alert[Disposition] = "False Positive" ), [Total Alerts] )
+            formatString: "0.0%;-0.0%;0.0%"
+            displayFolder: "03 Alerts"
+
+        measure 'Total Customers' = DISTINCTCOUNT ( dim_customer[CustomerKey] )
+            formatString: "#,##0"
+            displayFolder: "04 Customers"
+
+        measure 'High Risk Customers' = CALCULATE ( [Total Customers], dim_customer[RiskBand] = "High" )
+            formatString: "#,##0"
+            displayFolder: "04 Customers"
+
+        measure 'PEP Customers' = CALCULATE ( [Total Customers], dim_customer[IsPoliticallyExposed] = 1 )
+            formatString: "#,##0"
+            displayFolder: "04 Customers"
+
+        measure 'Average Churn Score' = AVERAGE ( dim_customer[ChurnScore] )
+            formatString: "0.000"
+            displayFolder: "04 Customers"
+
+        measure 'Active Customers (30d)' =
+            CALCULATE (
+                DISTINCTCOUNT ( fact_transaction[CustomerKey] ),
+                fact_transaction[Status] = "Approved",
+                DATESINPERIOD ( dim_date[Date], MAX ( dim_date[Date] ), -30, DAY )
+            )
+            formatString: "#,##0"
+            displayFolder: "04 Customers"
+
+        measure 'Total Accounts' = DISTINCTCOUNT ( dim_account[AccountKey] )
+            formatString: "#,##0"
+            displayFolder: "04 Customers"
+
+        measure 'Total Cards' = DISTINCTCOUNT ( dim_card[CardKey] )
+            formatString: "#,##0"
+            displayFolder: "04 Customers"
+
+        measure 'Latest Total Balance' =
+            VAR LastSnap = MAX ( fact_account_balance_daily[DateKey] )
+            RETURN CALCULATE ( SUM ( fact_account_balance_daily[Balance] ), fact_account_balance_daily[DateKey] = LastSnap )
+            formatString: "\$#,##0"
+            displayFolder: "05 Balances"
+
+        measure 'Average Credit Utilization' = AVERAGE ( fact_account_balance_daily[CreditUtilization] )
+            formatString: "0.0%;-0.0%;0.0%"
+            displayFolder: "05 Balances"
+
+        measure 'Branch Transaction Volume' = SUM ( fact_branch_daily_snapshot[TransactionVolume] )
+            formatString: "#,##0"
+            displayFolder: "06 Branch Ops"
+
+        measure 'New Accounts Opened' = SUM ( fact_branch_daily_snapshot[NewAccountsOpened] )
+            formatString: "#,##0"
+            displayFolder: "06 Branch Ops"
+
+        measure 'Fraud Cases Caught' = SUM ( fact_branch_daily_snapshot[FraudCasesCaught] )
+            formatString: "#,##0"
+            displayFolder: "06 Branch Ops"

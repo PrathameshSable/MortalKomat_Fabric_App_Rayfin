@@ -1,0 +1,17 @@
+// Open fraud alerts queue for the analyst table (highest score first).
+EVALUATE
+TOPN (
+    100,
+    SELECTCOLUMNS (
+        FILTER ( fact_fraud_alert, fact_fraud_alert[Status] = "Open" ),
+        "AlertId", fact_fraud_alert[AlertId],
+        "AlertTs", fact_fraud_alert[AlertTs],
+        "RuleName", fact_fraud_alert[RuleName],
+        "Severity", fact_fraud_alert[Severity],
+        "FraudScore", fact_fraud_alert[FraudScore],
+        "AmountUsd", fact_fraud_alert[AmountUsd],
+        "Disposition", fact_fraud_alert[Disposition]
+    ),
+    fact_fraud_alert[FraudScore], DESC
+)
+ORDER BY fact_fraud_alert[FraudScore] DESC

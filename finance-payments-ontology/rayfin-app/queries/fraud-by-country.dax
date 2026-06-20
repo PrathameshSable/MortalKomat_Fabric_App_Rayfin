@@ -1,0 +1,10 @@
+// Fraud exposure aggregated by merchant country — feeds the choropleth/bubbles.
+EVALUATE
+SUMMARIZECOLUMNS (
+    fact_transaction[MerchantCountry],
+    "Transactions", [Total Transactions],
+    "Fraud Transactions", [Fraud Transactions],
+    "Fraud Rate", [Fraud Rate],
+    "Fraud Value", [Fraud Value]
+)
+ORDER BY [Fraud Value] DESC

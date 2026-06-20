@@ -1,0 +1,17 @@
+// High-risk / politically-exposed customers for the compliance watchlist.
+EVALUATE
+TOPN (
+    50,
+    SUMMARIZECOLUMNS (
+        dim_customer[CustomerName],
+        dim_customer[Segment],
+        dim_customer[Country],
+        dim_customer[RiskBand],
+        dim_customer[IsPoliticallyExposed],
+        "Transactions", [Total Transactions],
+        "Fraud Value", [Fraud Value],
+        "Churn Score", [Average Churn Score]
+    ),
+    [Fraud Value], DESC
+)
+ORDER BY [Fraud Value] DESC

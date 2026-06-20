@@ -1,0 +1,20 @@
+BranchKey,BranchName,BranchType,City,Country,Region,Latitude,Longitude
+1,Contoso NYC Flagship,Branch,New York,USA,North America,40.7549,-73.984
+2,Contoso SF Financial District,Branch,San Francisco,USA,North America,37.7946,-122.3999
+3,Contoso Chicago Loop,Branch,Chicago,USA,North America,41.8819,-87.6278
+4,Contoso Dallas Uptown,Branch,Dallas,USA,North America,32.798,-96.806
+5,Contoso Miami Brickell,Branch,Miami,USA,North America,25.7617,-80.1918
+6,Contoso Toronto King St,Branch,Toronto,Canada,North America,43.6489,-79.3817
+7,Contoso London Canary Wharf,Branch,London,UK,Europe,51.5054,-0.0235
+8,Contoso Frankfurt Banken,Branch,Frankfurt,Germany,Europe,50.1109,8.6821
+9,Contoso Paris La Defense,Branch,Paris,France,Europe,48.8924,2.236
+10,Contoso Dubai DIFC,Branch,Dubai,UAE,Middle East,25.211,55.2796
+11,Contoso Singapore Marina,Branch,Singapore,Singapore,APAC,1.2806,103.8505
+12,Contoso Mumbai BKC,Branch,Mumbai,India,APAC,19.067,72.869
+13,Contoso Bengaluru MG Road,Branch,Bengaluru,India,APAC,12.975,77.606
+14,Contoso Tokyo Marunouchi,Branch,Tokyo,Japan,APAC,35.6812,139.7671
+15,Contoso LAX Terminal ATM,ATM,Los Angeles,USA,North America,33.9416,-118.4085
+16,Contoso Times Square ATM,ATM,New York,USA,North America,40.758,-73.9855
+17,Contoso Heathrow T5 ATM,ATM,London,UK,Europe,51.47,-0.4543
+18,Contoso Changi ATM,ATM,Singapore,Singapore,APAC,1.3644,103.9915
+19,Contoso Online (Digital),Digital,—,Global,Global,0.0,0.0

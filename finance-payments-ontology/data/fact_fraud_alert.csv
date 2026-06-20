@@ -1,0 +1,111 @@
+AlertKey,AlertId,TransactionKey,AlertTs,DateKey,CustomerKey,AccountKey,RuleCode,RuleName,Severity,FraudScore,AmountUsd,Status,Disposition,Analyst
+1,ALERT0000001,331,2026-06-19T09:46:15Z,20260619,220,431,R03,Amount exceeds 6x customer average,High,0.99,27491.91,Closed,Confirmed Fraud,Ken Watanabe
+2,ALERT0000002,373,2025-03-02T07:48:29Z,20250302,8,19,R03,Amount exceeds 6x customer average,High,0.806,447.63,Closed,False Positive,auto-cleared
+3,ALERT0000003,415,2025-03-09T18:25:55Z,20250309,49,99,R01,High-risk merchant category,High,0.776,5.37,Open,Under Review,unassigned
+4,ALERT0000004,584,2025-07-15T02:08:50Z,20250715,82,161,R01,High-risk merchant category,High,0.726,4139.11,Closed,False Positive,Maya Iyer
+5,ALERT0000005,600,2025-10-13T19:09:44Z,20251013,169,329,R07,Dormant account suddenly active,Critical,0.877,24788.22,Closed,Confirmed Fraud,auto-cleared
+6,ALERT0000006,621,2025-06-16T19:13:52Z,20250616,130,249,R01,High-risk merchant category,High,0.803,65156.83,Closed,Confirmed Fraud,Ken Watanabe
+7,ALERT0000007,637,2026-01-18T16:10:42Z,20260118,168,326,R05,Rapid-fire authorizations,High,0.99,51121.46,Closed,Confirmed Fraud,Ken Watanabe
+8,ALERT0000008,799,2025-05-27T23:06:44Z,20250527,53,105,R06,First transaction in new country,Medium,0.876,33556.86,Open,Under Review,unassigned
+9,ALERT0000009,864,2026-06-20T02:34:32Z,20260620,146,279,R01,High-risk merchant category,High,0.789,56734.18,Closed,False Positive,Ken Watanabe
+10,ALERT0000010,957,2025-12-09T16:49:00Z,20251209,201,391,R04,Card-not-present + international,Medium,0.803,19000.6,Closed,Confirmed Fraud,Tom Becker
+11,ALERT0000011,966,2025-07-16T21:10:04Z,20250716,15,38,R03,Amount exceeds 6x customer average,High,0.834,37351.74,Open,Under Review,unassigned
+12,ALERT0000012,975,2025-02-12T23:31:47Z,20250212,169,330,R03,Amount exceeds 6x customer average,High,0.796,484.55,Closed,False Positive,Tom Becker
+13,ALERT0000013,1105,2025-11-09T08:46:51Z,20251109,210,407,R03,Amount exceeds 6x customer average,High,0.98,10657.34,Closed,Confirmed Fraud,auto-cleared
+14,ALERT0000014,1130,2026-06-19T19:41:44Z,20260619,165,319,R01,High-risk merchant category,High,0.99,13734.03,Closed,Confirmed Fraud,auto-cleared
+15,ALERT0000015,1200,2025-09-25T13:22:55Z,20250925,91,176,R07,Dormant account suddenly active,Critical,0.746,412.1,Open,Under Review,unassigned
+16,ALERT0000016,1251,2025-10-20T03:20:52Z,20251020,88,171,R07,Dormant account suddenly active,Critical,0.721,23309.79,Open,Under Review,unassigned
+17,ALERT0000017,1322,2026-06-19T20:22:25Z,20260619,218,425,R01,High-risk merchant category,High,0.99,52900.0,Closed,Confirmed Fraud,Sara Lopez
+18,ALERT0000018,1393,2026-01-01T04:35:18Z,20260101,177,346,R03,Amount exceeds 6x customer average,High,0.711,422.15,Open,Under Review,unassigned
+19,ALERT0000019,1573,2026-06-18T17:12:15Z,20260618,76,153,R07,Dormant account suddenly active,Critical,0.767,128.48,Closed,Confirmed Fraud,Ken Watanabe
+20,ALERT0000020,1697,2026-03-27T22:37:10Z,20260327,146,280,R04,Card-not-present + international,Medium,0.88,61180.42,Closed,Confirmed Fraud,auto-cleared
+21,ALERT0000021,1795,2025-08-06T00:40:17Z,20250806,49,99,R02,Impossible travel velocity,Critical,0.736,550.78,Closed,False Positive,Tom Becker
+22,ALERT0000022,1798,2026-06-12T00:05:23Z,20260612,104,201,R01,High-risk merchant category,High,0.744,44.9,Closed,False Positive,Maya Iyer
+23,ALERT0000023,2015,2026-06-20T08:03:03Z,20260620,220,429,R05,Rapid-fire authorizations,High,0.798,372.06,Closed,False Positive,Sara Lopez
+24,ALERT0000024,2111,2026-06-02T19:51:44Z,20260602,202,394,R01,High-risk merchant category,High,0.706,33349.43,Open,Under Review,unassigned
+25,ALERT0000025,2150,2026-05-08T00:01:27Z,20260508,217,421,R07,Dormant account suddenly active,Critical,0.925,7484.31,Open,Under Review,unassigned
+26,ALERT0000026,2218,2025-01-13T03:39:06Z,20250113,168,325,R04,Card-not-present + international,Medium,0.963,4.81,Closed,Confirmed Fraud,auto-cleared
+27,ALERT0000027,2327,2026-06-18T16:25:44Z,20260618,66,131,R02,Impossible travel velocity,Critical,0.915,620.22,Closed,Confirmed Fraud,Maya Iyer
+28,ALERT0000028,2403,2025-08-17T18:24:14Z,20250817,120,230,R01,High-risk merchant category,High,0.72,5.08,Closed,Confirmed Fraud,Maya Iyer
+29,ALERT0000029,2404,2026-03-06T07:40:31Z,20260306,215,418,R04,Card-not-present + international,Medium,0.918,34043.18,Closed,Confirmed Fraud,Maya Iyer
+30,ALERT0000030,2470,2025-12-21T02:04:13Z,20251221,1,1,R07,Dormant account suddenly active,Critical,0.964,542.17,Open,Under Review,unassigned
+31,ALERT0000031,2581,2026-02-09T14:33:51Z,20260209,15,38,R06,First transaction in new country,Medium,0.845,10655.8,Open,Under Review,unassigned
+32,ALERT0000032,2645,2026-04-07T09:40:21Z,20260407,168,325,R02,Impossible travel velocity,Critical,0.973,641.95,Closed,Confirmed Fraud,Tom Becker
+33,ALERT0000033,2651,2026-06-18T21:48:00Z,20260618,217,421,R03,Amount exceeds 6x customer average,High,0.74,66.29,Open,Under Review,unassigned
+34,ALERT0000034,2762,2025-05-11T13:45:00Z,20250511,91,176,R01,High-risk merchant category,High,0.879,254.27,Closed,Confirmed Fraud,Ken Watanabe
+35,ALERT0000035,2784,2025-03-11T09:44:56Z,20250311,109,209,R01,High-risk merchant category,High,0.712,341.88,Closed,Confirmed Fraud,Maya Iyer
+36,ALERT0000036,2823,2025-11-18T12:53:37Z,20251118,172,335,R07,Dormant account suddenly active,Critical,0.972,41408.0,Closed,Confirmed Fraud,Sara Lopez
+37,ALERT0000037,2919,2025-09-26T15:07:52Z,20250926,181,352,R06,First transaction in new country,Medium,0.769,394.83,Open,Under Review,unassigned
+38,ALERT0000038,2945,2025-11-15T10:09:16Z,20251115,176,344,R04,Card-not-present + international,Medium,0.968,10646.05,Closed,Confirmed Fraud,auto-cleared
+39,ALERT0000039,2963,2025-03-11T13:51:06Z,20250311,203,397,R06,First transaction in new country,Medium,0.919,50033.77,Closed,Confirmed Fraud,Ken Watanabe
+40,ALERT0000040,3031,2025-11-20T03:42:06Z,20251120,54,108,R06,First transaction in new country,Medium,0.99,28936.27,Open,Under Review,unassigned
+41,ALERT0000041,3051,2026-06-19T13:41:47Z,20260619,160,308,R02,Impossible travel velocity,Critical,0.724,33968.57,Closed,False Positive,Ken Watanabe
+42,ALERT0000042,3258,2025-11-11T21:33:46Z,20251111,185,361,R04,Card-not-present + international,Medium,0.99,76131.25,Closed,Confirmed Fraud,Maya Iyer
+43,ALERT0000043,3273,2026-03-25T04:57:47Z,20260325,178,347,R01,High-risk merchant category,High,0.99,25859.41,Open,Under Review,unassigned
+44,ALERT0000044,3319,2025-12-03T21:31:05Z,20251203,168,326,R02,Impossible travel velocity,Critical,0.99,5464.19,Open,Under Review,unassigned
+45,ALERT0000045,3337,2025-12-27T00:39:07Z,20251227,70,141,R01,High-risk merchant category,High,0.99,5494.85,Closed,Confirmed Fraud,Sara Lopez
+46,ALERT0000046,3459,2025-11-30T21:01:55Z,20251130,133,254,R05,Rapid-fire authorizations,High,0.817,7.23,Closed,False Positive,auto-cleared
+47,ALERT0000047,3549,2026-06-20T08:59:00Z,20260620,220,431,R02,Impossible travel velocity,Critical,0.838,19100.84,Open,Under Review,unassigned
+48,ALERT0000048,3888,2026-04-07T04:03:15Z,20260407,220,429,R05,Rapid-fire authorizations,High,0.729,4259.86,Closed,Confirmed Fraud,Maya Iyer
+49,ALERT0000049,3904,2026-06-19T17:08:18Z,20260619,217,424,R05,Rapid-fire authorizations,High,0.819,32107.3,Closed,Confirmed Fraud,Maya Iyer
+50,ALERT0000050,3998,2026-05-04T13:21:02Z,20260504,198,387,R02,Impossible travel velocity,Critical,0.868,459.49,Open,Under Review,unassigned
+51,ALERT0000051,4112,2025-08-22T21:10:04Z,20250822,6,15,R06,First transaction in new country,Medium,0.952,164.95,Closed,False Positive,auto-cleared
+52,ALERT0000052,4117,2026-06-19T21:56:43Z,20260619,5,12,R04,Card-not-present + international,Medium,0.956,8649.6,Closed,Confirmed Fraud,Sara Lopez
+53,ALERT0000053,4141,2026-06-19T07:04:12Z,20260619,220,429,R01,High-risk merchant category,High,0.872,3575.94,Closed,Confirmed Fraud,Maya Iyer
+54,ALERT0000054,4144,2026-06-20T02:45:37Z,20260620,129,246,R06,First transaction in new country,Medium,0.758,4.66,Closed,Confirmed Fraud,Tom Becker
+55,ALERT0000055,4258,2026-03-05T20:01:59Z,20260305,66,133,R02,Impossible travel velocity,Critical,0.762,256.8,Closed,False Positive,Maya Iyer
+56,ALERT0000056,4283,2025-12-06T04:23:29Z,20251206,220,431,R05,Rapid-fire authorizations,High,0.854,381.9,Closed,Confirmed Fraud,Tom Becker
+57,ALERT0000057,4381,2026-06-19T02:34:48Z,20260619,45,91,R06,First transaction in new country,Medium,0.99,472.8,Closed,Confirmed Fraud,Ken Watanabe
+58,ALERT0000058,4536,2025-06-17T10:29:20Z,20250617,165,319,R07,Dormant account suddenly active,Critical,0.99,9152.12,Closed,False Positive,auto-cleared
+59,ALERT0000059,4552,2026-06-20T11:12:57Z,20260620,43,88,R03,Amount exceeds 6x customer average,High,0.933,2576.91,Open,Under Review,unassigned
+60,ALERT0000060,4589,2026-05-24T16:41:34Z,20260524,220,429,R01,High-risk merchant category,High,0.723,635.0,Closed,Confirmed Fraud,Tom Becker
+61,ALERT0000061,4653,2025-05-07T14:37:25Z,20250507,160,307,R07,Dormant account suddenly active,Critical,0.99,17066.17,Closed,Confirmed Fraud,auto-cleared
+62,ALERT0000062,4677,2026-06-19T12:25:56Z,20260619,176,344,R07,Dormant account suddenly active,Critical,0.99,8515.72,Open,Under Review,unassigned
+63,ALERT0000063,4781,2026-05-17T04:39:55Z,20260517,135,257,R07,Dormant account suddenly active,Critical,0.99,50343.56,Closed,Confirmed Fraud,Tom Becker
+64,ALERT0000064,4865,2026-05-03T09:12:39Z,20260503,183,355,R02,Impossible travel velocity,Critical,0.903,6427.43,Open,Under Review,unassigned
+65,ALERT0000065,4907,2025-12-18T11:17:10Z,20251218,220,431,R01,High-risk merchant category,High,0.99,52521.45,Closed,Confirmed Fraud,Tom Becker
+66,ALERT0000066,4928,2026-06-20T01:45:48Z,20260620,178,347,R02,Impossible travel velocity,Critical,0.704,24847.89,Closed,Confirmed Fraud,Maya Iyer
+67,ALERT0000067,5068,2025-10-20T12:30:36Z,20251020,120,229,R03,Amount exceeds 6x customer average,High,0.873,400.83,Open,Under Review,unassigned
+68,ALERT0000068,5082,2026-06-20T02:43:24Z,20260620,52,104,R01,High-risk merchant category,High,0.769,4859.76,Closed,Confirmed Fraud,Sara Lopez
+69,ALERT0000069,5266,2025-11-21T16:41:51Z,20251121,215,418,R06,First transaction in new country,Medium,0.723,747.24,Closed,False Positive,auto-cleared
+70,ALERT0000070,5550,2026-06-20T07:10:12Z,20260620,130,248,R04,Card-not-present + international,Medium,0.783,23.94,Closed,False Positive,Ken Watanabe
+71,ALERT0000071,5572,2026-05-29T13:15:56Z,20260529,52,104,R07,Dormant account suddenly active,Critical,0.78,141.0,Closed,False Positive,Sara Lopez
+72,ALERT0000072,5641,2026-06-19T16:59:32Z,20260619,56,114,R01,High-risk merchant category,High,0.934,39898.04,Closed,False Positive,Maya Iyer
+73,ALERT0000073,5731,2026-05-21T16:45:54Z,20260521,178,347,R05,Rapid-fire authorizations,High,0.99,39335.33,Closed,Confirmed Fraud,Maya Iyer
+74,ALERT0000074,5837,2026-05-21T21:32:51Z,20260521,158,303,R01,High-risk merchant category,High,0.99,44413.32,Open,Under Review,unassigned
+75,ALERT0000075,5940,2025-10-21T01:00:48Z,20251021,168,326,R01,High-risk merchant category,High,0.99,3349.63,Closed,False Positive,Maya Iyer
+76,ALERT0000076,5955,2026-06-19T08:29:27Z,20260619,217,423,R03,Amount exceeds 6x customer average,High,0.735,705.62,Closed,Confirmed Fraud,Maya Iyer
+77,ALERT0000077,6068,2025-05-10T16:51:27Z,20250510,168,327,R02,Impossible travel velocity,Critical,0.99,5052.99,Closed,Confirmed Fraud,auto-cleared
+78,ALERT0000078,6113,2026-06-13T18:28:10Z,20260613,88,171,R05,Rapid-fire authorizations,High,0.731,414.65,Open,Under Review,unassigned
+79,ALERT0000079,6145,2026-06-19T03:39:53Z,20260619,168,325,R05,Rapid-fire authorizations,High,0.99,499.0,Closed,Confirmed Fraud,Sara Lopez
+80,ALERT0000080,6222,2026-06-19T23:00:15Z,20260619,220,429,R05,Rapid-fire authorizations,High,0.99,5711.05,Open,Under Review,unassigned
+81,ALERT0000081,6283,2025-10-20T11:59:32Z,20251020,42,86,R01,High-risk merchant category,High,0.717,11619.02,Closed,False Positive,Maya Iyer
+82,ALERT0000082,6349,2025-11-14T18:10:02Z,20251114,185,361,R03,Amount exceeds 6x customer average,High,0.99,23521.17,Closed,Confirmed Fraud,auto-cleared
+83,ALERT0000083,6378,2026-06-20T10:40:08Z,20260620,198,387,R03,Amount exceeds 6x customer average,High,0.99,275.06,Open,Under Review,unassigned
+84,ALERT0000084,6423,2026-05-21T08:29:51Z,20260521,23,51,R02,Impossible travel velocity,Critical,0.704,44.13,Closed,False Positive,Maya Iyer
+85,ALERT0000085,6484,2026-02-17T03:44:58Z,20260217,109,209,R07,Dormant account suddenly active,Critical,0.866,633.54,Closed,Confirmed Fraud,Ken Watanabe
+86,ALERT0000086,6509,2025-12-08T02:14:19Z,20251208,8,18,R04,Card-not-present + international,Medium,0.721,77.12,Closed,Confirmed Fraud,Maya Iyer
+87,ALERT0000087,6597,2025-09-25T15:25:29Z,20250925,168,327,R07,Dormant account suddenly active,Critical,0.846,56991.82,Closed,Confirmed Fraud,Tom Becker
+88,ALERT0000088,6682,2025-03-06T20:42:28Z,20250306,65,129,R02,Impossible travel velocity,Critical,0.958,27134.25,Closed,Confirmed Fraud,Tom Becker
+89,ALERT0000089,6737,2025-02-12T21:30:25Z,20250212,77,155,R05,Rapid-fire authorizations,High,0.99,34975.65,Open,Under Review,unassigned
+90,ALERT0000090,7016,2026-01-13T00:07:29Z,20260113,18,43,R02,Impossible travel velocity,Critical,0.857,43482.04,Closed,Confirmed Fraud,Sara Lopez
+91,ALERT0000091,7071,2026-06-19T19:26:51Z,20260619,160,308,R03,Amount exceeds 6x customer average,High,0.723,42473.49,Closed,Confirmed Fraud,Tom Becker
+92,ALERT0000092,7105,2026-03-28T18:55:58Z,20260328,220,431,R04,Card-not-present + international,Medium,0.778,8.37,Open,Under Review,unassigned
+93,ALERT0000093,7553,2025-06-20T04:57:05Z,20250620,68,137,R03,Amount exceeds 6x customer average,High,0.816,60978.01,Open,Under Review,unassigned
+94,ALERT0000094,7634,2025-11-28T05:14:41Z,20251128,66,133,R06,First transaction in new country,Medium,0.863,333.1,Open,Under Review,unassigned
+95,ALERT0000095,7660,2026-06-20T08:39:35Z,20260620,150,288,R02,Impossible travel velocity,Critical,0.889,4048.46,Open,Under Review,unassigned
+96,ALERT0000096,7806,2025-12-28T16:10:23Z,20251228,181,352,R03,Amount exceeds 6x customer average,High,0.908,160.37,Closed,False Positive,Sara Lopez
+97,ALERT0000097,7831,2026-06-18T22:45:42Z,20260618,55,111,R02,Impossible travel velocity,Critical,0.99,29668.34,Open,Under Review,unassigned
+98,ALERT0000098,7990,2026-02-19T12:10:40Z,20260219,220,430,R04,Card-not-present + international,Medium,0.947,7.13,Closed,Confirmed Fraud,Maya Iyer
+99,ALERT0000099,8020,2026-06-18T15:59:42Z,20260618,208,404,R06,First transaction in new country,Medium,0.71,485.54,Closed,False Positive,Tom Becker
+100,ALERT0000100,8052,2025-04-02T06:48:43Z,20250402,165,319,R06,First transaction in new country,Medium,0.723,3512.46,Open,Under Review,unassigned
+101,ALERT0000101,8070,2026-06-19T16:46:50Z,20260619,165,319,R01,High-risk merchant category,High,0.704,74.45,Closed,Confirmed Fraud,Sara Lopez
+102,ALERT0000102,8150,2025-12-31T03:33:38Z,20251231,88,171,R04,Card-not-present + international,Medium,0.928,392.08,Open,Under Review,unassigned
+103,ALERT0000103,8161,2025-06-15T12:54:52Z,20250615,6,15,R01,High-risk merchant category,High,0.727,55035.64,Closed,False Positive,auto-cleared
+104,ALERT0000104,8171,2026-06-20T02:13:33Z,20260620,66,131,R03,Amount exceeds 6x customer average,High,0.99,168.21,Closed,Confirmed Fraud,Sara Lopez
+105,ALERT0000105,8257,2025-10-12T15:12:42Z,20251012,66,131,R07,Dormant account suddenly active,Critical,0.99,493.68,Open,Under Review,unassigned
+106,ALERT0000106,8306,2026-06-19T07:44:49Z,20260619,220,429,R06,First transaction in new country,Medium,0.979,238.47,Open,Under Review,unassigned
+107,ALERT0000107,8571,2025-10-01T16:46:12Z,20251001,169,329,R06,First transaction in new country,Medium,0.779,146.52,Closed,False Positive,Sara Lopez
+108,ALERT0000108,8597,2025-02-15T07:58:35Z,20250215,70,141,R03,Amount exceeds 6x customer average,High,0.719,317.43,Closed,Confirmed Fraud,Tom Becker
+109,ALERT0000109,8687,2026-06-19T11:35:30Z,20260619,185,361,R06,First transaction in new country,Medium,0.977,24421.12,Closed,Confirmed Fraud,auto-cleared
+110,ALERT0000110,8908,2025-08-26T06:17:59Z,20250826,54,108,R07,Dormant account suddenly active,Critical,0.99,495.39,Closed,Confirmed Fraud,Ken Watanabe

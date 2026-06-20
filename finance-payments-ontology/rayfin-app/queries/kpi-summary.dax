@@ -1,0 +1,14 @@
+// Headline KPI strip for the Rayfin app home / command center.
+EVALUATE
+ROW (
+    "Total Transactions", [Total Transactions],
+    "Total Transaction Value", [Total Transaction Value],
+    "Approval Rate", [Approval Rate],
+    "Fraud Rate", [Fraud Rate],
+    "Fraud Value", [Fraud Value],
+    "High Risk Transactions", [High Risk Transactions],
+    "Open Alerts", [Open Alerts],
+    "Critical Open Alerts", [Critical Open Alerts],
+    "Total Customers", [Total Customers],
+    "Active Customers", [Active Customers (30d)]
+)

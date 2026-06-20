@@ -1,0 +1,272 @@
+{
+  "$schema": "https://learn.microsoft.com/fabric/iq/ontology/overview",
+  "name": "ContosoBankPaymentsOntology",
+  "displayName": "Contoso Bank — Payments & Fraud Intelligence",
+  "version": "1.0.0",
+  "description": "A shared business vocabulary for retail & commercial banking payments: customers, accounts, cards, merchants, channels and the real-time transaction stream, plus the fraud alerts raised against it. Designed to ground a Fabric Data Agent and be published to Copilot Studio.",
+  "domain": "Financial Services / Retail & Commercial Banking",
+  "owner": "Contoso Data & AI Center of Excellence",
+  "binding": {
+    "type": "Lakehouse",
+    "name": "ContosoBankLakehouse",
+    "notes": "Each entity type binds to a Delta table built by fabric/notebooks/01_build_lakehouse_tables.py. Semantic-model measures (fabric/semantic-model/measures.*) expose the governed KPIs."
+  },
+  "entityTypes": [
+    {
+      "name": "Customer",
+      "kind": "Dimension",
+      "description": "A banking customer (retail, business or private-wealth) who holds one or more accounts.",
+      "binding": { "table": "dim_customer", "key": "CustomerKey" },
+      "properties": [
+        { "name": "CustomerKey", "type": "integer", "isKey": true, "column": "CustomerKey" },
+        { "name": "CustomerId", "type": "string", "semanticType": "BusinessId", "column": "CustomerId" },
+        { "name": "CustomerName", "type": "string", "semanticType": "PersonName", "column": "CustomerName" },
+        { "name": "Segment", "type": "string", "description": "Mass Retail | Affluent | Student | Business | Private Wealth", "column": "Segment" },
+        { "name": "Country", "type": "string", "semanticType": "Country", "column": "Country" },
+        { "name": "CreditScore", "type": "integer", "column": "CreditScore" },
+        { "name": "RiskBand", "type": "string", "description": "Low | Medium | High", "column": "RiskBand" },
+        { "name": "ChurnScore", "type": "decimal", "description": "Modelled probability of attrition 0..1", "column": "ChurnScore" },
+        { "name": "IsPoliticallyExposed", "type": "boolean", "description": "PEP flag for compliance/AML", "column": "IsPoliticallyExposed" },
+        { "name": "OnboardedAt", "type": "datetime", "column": "OnboardedAt" }
+      ]
+    },
+    {
+      "name": "Account",
+      "kind": "Dimension",
+      "description": "A financial account (deposit, credit card, lending or investment) owned by a customer.",
+      "binding": { "table": "dim_account", "key": "AccountKey" },
+      "properties": [
+        { "name": "AccountKey", "type": "integer", "isKey": true, "column": "AccountKey" },
+        { "name": "AccountNumber", "type": "string", "semanticType": "BusinessId", "column": "AccountNumber" },
+        { "name": "Category", "type": "string", "description": "Deposit | Credit Card | Lending | Investment", "column": "Category" },
+        { "name": "CurrencyCode", "type": "string", "semanticType": "CurrencyCode", "column": "CurrencyCode" },
+        { "name": "Status", "type": "string", "description": "Active | Dormant | Frozen", "column": "Status" },
+        { "name": "CreditLimit", "type": "decimal", "semanticType": "MonetaryAmount", "column": "CreditLimit" },
+        { "name": "OpenedAt", "type": "datetime", "column": "OpenedAt" }
+      ]
+    },
+    {
+      "name": "Card",
+      "kind": "Dimension",
+      "description": "A payment card (debit or credit) issued against an account.",
+      "binding": { "table": "dim_card", "key": "CardKey" },
+      "properties": [
+        { "name": "CardKey", "type": "integer", "isKey": true, "column": "CardKey" },
+        { "name": "CardNumberMasked", "type": "string", "semanticType": "MaskedPan", "column": "CardNumberMasked" },
+        { "name": "CardType", "type": "string", "description": "Debit | Credit", "column": "CardType" },
+        { "name": "Network", "type": "string", "description": "Visa | Mastercard | Amex", "column": "Network" },
+        { "name": "Status", "type": "string", "description": "Active | Blocked | Expired", "column": "Status" },
+        { "name": "ContactlessEnabled", "type": "boolean", "column": "ContactlessEnabled" },
+        { "name": "InternationalEnabled", "type": "boolean", "column": "InternationalEnabled" },
+        { "name": "ExpiresAt", "type": "datetime", "column": "ExpiresAt" }
+      ]
+    },
+    {
+      "name": "Merchant",
+      "kind": "Dimension",
+      "description": "A merchant / payee where card or online transactions occur. Geo-located for map visuals.",
+      "binding": { "table": "dim_merchant", "key": "MerchantKey" },
+      "properties": [
+        { "name": "MerchantKey", "type": "integer", "isKey": true, "column": "MerchantKey" },
+        { "name": "MerchantName", "type": "string", "column": "MerchantName" },
+        { "name": "Category", "type": "string", "description": "MCC-style category (Grocery, Airline, Crypto, Gambling, ...)", "column": "Category" },
+        { "name": "Country", "type": "string", "semanticType": "Country", "column": "Country" },
+        { "name": "Latitude", "type": "decimal", "semanticType": "Latitude", "column": "Latitude" },
+        { "name": "Longitude", "type": "decimal", "semanticType": "Longitude", "column": "Longitude" },
+        { "name": "BaseRiskScore", "type": "decimal", "description": "Inherent merchant-category risk weight", "column": "BaseRiskScore" }
+      ]
+    },
+    {
+      "name": "Channel",
+      "kind": "Dimension",
+      "description": "The channel a transaction was made through (POS, ATM, E-Commerce, Mobile, Wire, ACH).",
+      "binding": { "table": "dim_channel", "key": "ChannelKey" },
+      "properties": [
+        { "name": "ChannelKey", "type": "integer", "isKey": true, "column": "ChannelKey" },
+        { "name": "ChannelName", "type": "string", "column": "ChannelName" },
+        { "name": "ChannelType", "type": "string", "column": "ChannelType" },
+        { "name": "IsCardPresent", "type": "boolean", "column": "IsCardPresent" },
+        { "name": "IsOnline", "type": "boolean", "column": "IsOnline" },
+        { "name": "RiskWeight", "type": "decimal", "column": "RiskWeight" }
+      ]
+    },
+    {
+      "name": "Product",
+      "kind": "Dimension",
+      "description": "A banking product an account is opened under.",
+      "binding": { "table": "dim_product", "key": "ProductKey" },
+      "properties": [
+        { "name": "ProductKey", "type": "integer", "isKey": true, "column": "ProductKey" },
+        { "name": "ProductName", "type": "string", "column": "ProductName" },
+        { "name": "Category", "type": "string", "column": "Category" },
+        { "name": "Segment", "type": "string", "column": "Segment" },
+        { "name": "MonthlyFee", "type": "decimal", "semanticType": "MonetaryAmount", "column": "MonthlyFee" },
+        { "name": "InterestRate", "type": "decimal", "semanticType": "Percentage", "column": "InterestRate" }
+      ]
+    },
+    {
+      "name": "Branch",
+      "kind": "Dimension",
+      "description": "A physical branch, ATM or digital channel node, geo-located.",
+      "binding": { "table": "dim_branch", "key": "BranchKey" },
+      "properties": [
+        { "name": "BranchKey", "type": "integer", "isKey": true, "column": "BranchKey" },
+        { "name": "BranchName", "type": "string", "column": "BranchName" },
+        { "name": "BranchType", "type": "string", "description": "Branch | ATM | Digital", "column": "BranchType" },
+        { "name": "City", "type": "string", "column": "City" },
+        { "name": "Country", "type": "string", "semanticType": "Country", "column": "Country" },
+        { "name": "Region", "type": "string", "column": "Region" },
+        { "name": "Latitude", "type": "decimal", "semanticType": "Latitude", "column": "Latitude" },
+        { "name": "Longitude", "type": "decimal", "semanticType": "Longitude", "column": "Longitude" }
+      ]
+    },
+    {
+      "name": "Currency",
+      "kind": "Dimension",
+      "description": "Currency reference with USD conversion rate.",
+      "binding": { "table": "dim_currency", "key": "CurrencyKey" },
+      "properties": [
+        { "name": "CurrencyKey", "type": "integer", "isKey": true, "column": "CurrencyKey" },
+        { "name": "CurrencyCode", "type": "string", "semanticType": "CurrencyCode", "column": "CurrencyCode" },
+        { "name": "CurrencyName", "type": "string", "column": "CurrencyName" },
+        { "name": "UsdRate", "type": "decimal", "column": "UsdRate" }
+      ]
+    },
+    {
+      "name": "Date",
+      "kind": "Dimension",
+      "description": "Calendar date dimension for time intelligence.",
+      "binding": { "table": "dim_date", "key": "DateKey" },
+      "properties": [
+        { "name": "DateKey", "type": "integer", "isKey": true, "column": "DateKey" },
+        { "name": "Date", "type": "date", "column": "Date" },
+        { "name": "Year", "type": "integer", "column": "Year" },
+        { "name": "QuarterLabel", "type": "string", "column": "QuarterLabel" },
+        { "name": "MonthName", "type": "string", "column": "MonthName" },
+        { "name": "YearMonth", "type": "string", "column": "YearMonth" },
+        { "name": "IsWeekend", "type": "boolean", "column": "IsWeekend" }
+      ]
+    },
+    {
+      "name": "Transaction",
+      "kind": "Fact",
+      "grain": "One row per payment / authorization (the real-time stream).",
+      "description": "The core event stream: every card, ATM, online, wire or ACH transaction with amount, status, geolocation and model fraud score.",
+      "binding": { "table": "fact_transaction", "key": "TransactionKey" },
+      "properties": [
+        { "name": "TransactionKey", "type": "integer", "isKey": true, "column": "TransactionKey" },
+        { "name": "TransactionId", "type": "string", "semanticType": "BusinessId", "column": "TransactionId" },
+        { "name": "TransactionTs", "type": "datetime", "semanticType": "EventTimestamp", "column": "TransactionTs" },
+        { "name": "Amount", "type": "decimal", "semanticType": "MonetaryAmount", "column": "Amount" },
+        { "name": "AmountUsd", "type": "decimal", "semanticType": "MonetaryAmount", "column": "AmountUsd" },
+        { "name": "TransactionType", "type": "string", "column": "TransactionType" },
+        { "name": "Status", "type": "string", "description": "Approved | Declined | Flagged", "column": "Status" },
+        { "name": "FraudScore", "type": "decimal", "description": "Model risk score 0..1", "column": "FraudScore" },
+        { "name": "IsFraud", "type": "boolean", "description": "Confirmed-fraud label", "column": "IsFraud" },
+        { "name": "IsInternational", "type": "boolean", "column": "IsInternational" },
+        { "name": "MerchantLatitude", "type": "decimal", "semanticType": "Latitude", "column": "MerchantLatitude" },
+        { "name": "MerchantLongitude", "type": "decimal", "semanticType": "Longitude", "column": "MerchantLongitude" }
+      ]
+    },
+    {
+      "name": "FraudAlert",
+      "kind": "Fact",
+      "grain": "One row per fraud alert raised against a transaction.",
+      "description": "Alerts generated by the fraud rules engine, with severity, rule, disposition and assigned analyst.",
+      "binding": { "table": "fact_fraud_alert", "key": "AlertKey" },
+      "properties": [
+        { "name": "AlertKey", "type": "integer", "isKey": true, "column": "AlertKey" },
+        { "name": "AlertId", "type": "string", "semanticType": "BusinessId", "column": "AlertId" },
+        { "name": "AlertTs", "type": "datetime", "semanticType": "EventTimestamp", "column": "AlertTs" },
+        { "name": "RuleCode", "type": "string", "column": "RuleCode" },
+        { "name": "RuleName", "type": "string", "column": "RuleName" },
+        { "name": "Severity", "type": "string", "description": "Low | Medium | High | Critical", "column": "Severity" },
+        { "name": "FraudScore", "type": "decimal", "column": "FraudScore" },
+        { "name": "AmountUsd", "type": "decimal", "semanticType": "MonetaryAmount", "column": "AmountUsd" },
+        { "name": "Status", "type": "string", "description": "Open | Closed", "column": "Status" },
+        { "name": "Disposition", "type": "string", "description": "Confirmed Fraud | False Positive | Under Review", "column": "Disposition" },
+        { "name": "Analyst", "type": "string", "column": "Analyst" }
+      ]
+    },
+    {
+      "name": "AccountBalanceSnapshot",
+      "kind": "Fact",
+      "grain": "One row per account per snapshot date (weekly).",
+      "description": "Periodic balance / available-credit / utilization snapshot per account.",
+      "binding": { "table": "fact_account_balance_daily", "key": "BalanceKey" },
+      "properties": [
+        { "name": "BalanceKey", "type": "integer", "isKey": true, "column": "BalanceKey" },
+        { "name": "Balance", "type": "decimal", "semanticType": "MonetaryAmount", "column": "Balance" },
+        { "name": "AvailableBalance", "type": "decimal", "semanticType": "MonetaryAmount", "column": "AvailableBalance" },
+        { "name": "CreditUtilization", "type": "decimal", "semanticType": "Percentage", "column": "CreditUtilization" }
+      ]
+    },
+    {
+      "name": "CustomerSnapshot",
+      "kind": "Fact",
+      "grain": "One row per customer per snapshot date (weekly).",
+      "description": "Customer-level KPI snapshot: balances, activity, credit and churn risk.",
+      "binding": { "table": "fact_customer_daily_snapshot", "key": "SnapshotKey" },
+      "properties": [
+        { "name": "SnapshotKey", "type": "integer", "isKey": true, "column": "SnapshotKey" },
+        { "name": "AccountsHeld", "type": "integer", "column": "AccountsHeld" },
+        { "name": "TotalBalanceUsd", "type": "decimal", "semanticType": "MonetaryAmount", "column": "TotalBalanceUsd" },
+        { "name": "MtdTransactions", "type": "integer", "column": "MtdTransactions" },
+        { "name": "MtdSpendUsd", "type": "decimal", "semanticType": "MonetaryAmount", "column": "MtdSpendUsd" },
+        { "name": "ChurnScore", "type": "decimal", "column": "ChurnScore" }
+      ]
+    },
+    {
+      "name": "BranchSnapshot",
+      "kind": "Fact",
+      "grain": "One row per branch per day (last 90 days).",
+      "description": "Daily branch / ATM operational KPIs.",
+      "binding": { "table": "fact_branch_daily_snapshot", "key": "SnapshotKey" },
+      "properties": [
+        { "name": "SnapshotKey", "type": "integer", "isKey": true, "column": "SnapshotKey" },
+        { "name": "TransactionVolume", "type": "integer", "column": "TransactionVolume" },
+        { "name": "TransactionValueUsd", "type": "decimal", "semanticType": "MonetaryAmount", "column": "TransactionValueUsd" },
+        { "name": "NewAccountsOpened", "type": "integer", "column": "NewAccountsOpened" },
+        { "name": "FraudCasesCaught", "type": "integer", "column": "FraudCasesCaught" },
+        { "name": "CustomerSatScore", "type": "decimal", "column": "CustomerSatScore" }
+      ]
+    }
+  ],
+  "relationships": [
+    { "name": "CustomerOwnsAccount", "from": "Account", "to": "Customer", "fromColumn": "CustomerKey", "toColumn": "CustomerKey", "cardinality": "many-to-one", "crossFilter": "single" },
+    { "name": "AccountUsesProduct", "from": "Account", "to": "Product", "fromColumn": "ProductKey", "toColumn": "ProductKey", "cardinality": "many-to-one", "crossFilter": "single" },
+    { "name": "CardBelongsToAccount", "from": "Card", "to": "Account", "fromColumn": "AccountKey", "toColumn": "AccountKey", "cardinality": "many-to-one", "crossFilter": "single" },
+    { "name": "CustomerHomeBranch", "from": "Customer", "to": "Branch", "fromColumn": "HomeBranchKey", "toColumn": "BranchKey", "cardinality": "many-to-one", "crossFilter": "single" },
+    { "name": "TransactionOnAccount", "from": "Transaction", "to": "Account", "fromColumn": "AccountKey", "toColumn": "AccountKey", "cardinality": "many-to-one", "crossFilter": "single" },
+    { "name": "TransactionByCustomer", "from": "Transaction", "to": "Customer", "fromColumn": "CustomerKey", "toColumn": "CustomerKey", "cardinality": "many-to-one", "crossFilter": "single" },
+    { "name": "TransactionWithCard", "from": "Transaction", "to": "Card", "fromColumn": "CardKey", "toColumn": "CardKey", "cardinality": "many-to-one", "crossFilter": "single" },
+    { "name": "TransactionAtMerchant", "from": "Transaction", "to": "Merchant", "fromColumn": "MerchantKey", "toColumn": "MerchantKey", "cardinality": "many-to-one", "crossFilter": "single" },
+    { "name": "TransactionViaChannel", "from": "Transaction", "to": "Channel", "fromColumn": "ChannelKey", "toColumn": "ChannelKey", "cardinality": "many-to-one", "crossFilter": "single" },
+    { "name": "TransactionInCurrency", "from": "Transaction", "to": "Currency", "fromColumn": "CurrencyKey", "toColumn": "CurrencyKey", "cardinality": "many-to-one", "crossFilter": "single" },
+    { "name": "TransactionOnDate", "from": "Transaction", "to": "Date", "fromColumn": "DateKey", "toColumn": "DateKey", "cardinality": "many-to-one", "crossFilter": "single" },
+    { "name": "AlertOnTransaction", "from": "FraudAlert", "to": "Transaction", "fromColumn": "TransactionKey", "toColumn": "TransactionKey", "cardinality": "many-to-one", "crossFilter": "single" },
+    { "name": "AlertForCustomer", "from": "FraudAlert", "to": "Customer", "fromColumn": "CustomerKey", "toColumn": "CustomerKey", "cardinality": "many-to-one", "crossFilter": "single" },
+    { "name": "AlertOnDate", "from": "FraudAlert", "to": "Date", "fromColumn": "DateKey", "toColumn": "DateKey", "cardinality": "many-to-one", "crossFilter": "single" },
+    { "name": "BalanceForAccount", "from": "AccountBalanceSnapshot", "to": "Account", "fromColumn": "AccountKey", "toColumn": "AccountKey", "cardinality": "many-to-one", "crossFilter": "single" },
+    { "name": "BalanceOnDate", "from": "AccountBalanceSnapshot", "to": "Date", "fromColumn": "DateKey", "toColumn": "DateKey", "cardinality": "many-to-one", "crossFilter": "single" },
+    { "name": "CustomerSnapshotOnDate", "from": "CustomerSnapshot", "to": "Date", "fromColumn": "DateKey", "toColumn": "DateKey", "cardinality": "many-to-one", "crossFilter": "single" },
+    { "name": "CustomerSnapshotForCustomer", "from": "CustomerSnapshot", "to": "Customer", "fromColumn": "CustomerKey", "toColumn": "CustomerKey", "cardinality": "many-to-one", "crossFilter": "single" },
+    { "name": "BranchSnapshotForBranch", "from": "BranchSnapshot", "to": "Branch", "fromColumn": "BranchKey", "toColumn": "BranchKey", "cardinality": "many-to-one", "crossFilter": "single" },
+    { "name": "BranchSnapshotOnDate", "from": "BranchSnapshot", "to": "Date", "fromColumn": "DateKey", "toColumn": "DateKey", "cardinality": "many-to-one", "crossFilter": "single" }
+  ],
+  "rules": [
+    { "name": "HighRiskTransaction", "appliesTo": "Transaction", "expression": "FraudScore >= 0.75", "description": "Any transaction at or above 0.75 model score is high-risk and should raise/queue an alert.", "severity": "High" },
+    { "name": "BlockedCardDecline", "appliesTo": "Transaction", "expression": "Card.Status == 'Blocked' AND Status != 'Declined'", "description": "A transaction on a blocked card must be declined; flag any that are not.", "severity": "Critical" },
+    { "name": "DormantAccountActivity", "appliesTo": "Transaction", "expression": "Account.Status == 'Dormant' AND Amount > 0", "description": "Activity on a dormant account is suspicious and must be reviewed.", "severity": "Critical" },
+    { "name": "CreditLimitBreach", "appliesTo": "AccountBalanceSnapshot", "expression": "CreditUtilization > 1.0", "description": "Credit utilization above 100% indicates an over-limit account.", "severity": "High" },
+    { "name": "OpenCriticalAlertSLA", "appliesTo": "FraudAlert", "expression": "Severity == 'Critical' AND Status == 'Open'", "description": "Critical alerts must be dispositioned within SLA; surface any still open.", "severity": "High" },
+    { "name": "PEPLargeWire", "appliesTo": "Transaction", "expression": "Customer.IsPoliticallyExposed == true AND TransactionType == 'Wire' AND AmountUsd > 10000", "description": "Large wires by politically-exposed persons require enhanced due diligence (AML).", "severity": "Critical" }
+  ],
+  "glossary": [
+    { "term": "Fraud rate", "definition": "Share of transactions where IsFraud = true, by count or by AmountUsd." },
+    { "term": "Approval rate", "definition": "Share of transactions with Status = 'Approved'." },
+    { "term": "High-value transaction", "definition": "A transaction with AmountUsd > 3,000." },
+    { "term": "Active customer", "definition": "A customer with at least one Approved transaction in the trailing 30 days." },
+    { "term": "Card-not-present (CNP)", "definition": "A transaction whose Channel.IsCardPresent = false (online/mobile/wire/ACH)." }
+  ]
+}

@@ -1,0 +1,159 @@
+// ============================================================================
+// Contoso Bank — Payments & Fraud Intelligence : semantic-model measures
+// ----------------------------------------------------------------------------
+// Paste into the DAX query view of the semantic model built on the lakehouse,
+// run once, then "Update model with changes" to persist the measures.
+// These are the governed KPIs shared by the Data Agent and the Rayfin app.
+// ============================================================================
+DEFINE
+    // ---- Volume & value -----------------------------------------------------
+    MEASURE fact_transaction[Total Transactions] =
+        COUNTROWS ( fact_transaction )
+
+    MEASURE fact_transaction[Total Transaction Value] =
+        SUM ( fact_transaction[AmountUsd] )
+
+    MEASURE fact_transaction[Average Transaction Value] =
+        AVERAGE ( fact_transaction[AmountUsd] )
+
+    MEASURE fact_transaction[Approved Transactions] =
+        CALCULATE ( [Total Transactions], fact_transaction[Status] = "Approved" )
+
+    MEASURE fact_transaction[Declined Transactions] =
+        CALCULATE ( [Total Transactions], fact_transaction[Status] = "Declined" )
+
+    MEASURE fact_transaction[Approval Rate] =
+        DIVIDE ( [Approved Transactions], [Total Transactions] )
+
+    MEASURE fact_transaction[High Value Transactions] =
+        CALCULATE ( [Total Transactions], fact_transaction[AmountUsd] > 3000 )
+
+    // ---- Fraud --------------------------------------------------------------
+    MEASURE fact_transaction[Fraud Transactions] =
+        CALCULATE ( [Total Transactions], fact_transaction[IsFraud] = 1 )
+
+    MEASURE fact_transaction[Fraud Rate] =
+        DIVIDE ( [Fraud Transactions], [Total Transactions] )
+
+    MEASURE fact_transaction[Fraud Value] =
+        CALCULATE ( [Total Transaction Value], fact_transaction[IsFraud] = 1 )
+
+    MEASURE fact_transaction[Fraud Value Rate] =
+        DIVIDE ( [Fraud Value], [Total Transaction Value] )
+
+    MEASURE fact_transaction[High Risk Transactions] =
+        CALCULATE ( [Total Transactions], fact_transaction[FraudScore] >= 0.75 )
+
+    MEASURE fact_transaction[Average Fraud Score] =
+        AVERAGE ( fact_transaction[FraudScore] )
+
+    MEASURE fact_transaction[International Transactions] =
+        CALCULATE ( [Total Transactions], fact_transaction[IsInternational] = 1 )
+
+    MEASURE fact_transaction[International Share] =
+        DIVIDE ( [International Transactions], [Total Transactions] )
+
+    // ---- Alerts -------------------------------------------------------------
+    MEASURE fact_fraud_alert[Total Alerts] =
+        COUNTROWS ( fact_fraud_alert )
+
+    MEASURE fact_fraud_alert[Open Alerts] =
+        CALCULATE ( [Total Alerts], fact_fraud_alert[Status] = "Open" )
+
+    MEASURE fact_fraud_alert[Critical Open Alerts] =
+        CALCULATE (
+            [Total Alerts],
+            fact_fraud_alert[Status] = "Open",
+            fact_fraud_alert[Severity] = "Critical"
+        )
+
+    MEASURE fact_fraud_alert[Confirmed Fraud Alerts] =
+        CALCULATE ( [Total Alerts], fact_fraud_alert[Disposition] = "Confirmed Fraud" )
+
+    MEASURE fact_fraud_alert[False Positive Alerts] =
+        CALCULATE ( [Total Alerts], fact_fraud_alert[Disposition] = "False Positive" )
+
+    MEASURE fact_fraud_alert[Alert Precision] =
+        DIVIDE ( [Confirmed Fraud Alerts], [Total Alerts] )
+
+    MEASURE fact_fraud_alert[False Positive Rate] =
+        DIVIDE ( [False Positive Alerts], [Total Alerts] )
+
+    MEASURE fact_fraud_alert[Alerted Value] =
+        SUM ( fact_fraud_alert[AmountUsd] )
+
+    // ---- Customers & accounts ----------------------------------------------
+    MEASURE dim_customer[Total Customers] =
+        DISTINCTCOUNT ( dim_customer[CustomerKey] )
+
+    MEASURE dim_customer[High Risk Customers] =
+        CALCULATE ( [Total Customers], dim_customer[RiskBand] = "High" )
+
+    MEASURE dim_customer[PEP Customers] =
+        CALCULATE ( [Total Customers], dim_customer[IsPoliticallyExposed] = 1 )
+
+    MEASURE dim_customer[Average Churn Score] =
+        AVERAGE ( dim_customer[ChurnScore] )
+
+    MEASURE fact_transaction[Active Customers (30d)] =
+        CALCULATE (
+            DISTINCTCOUNT ( fact_transaction[CustomerKey] ),
+            fact_transaction[Status] = "Approved",
+            DATESINPERIOD ( dim_date[Date], MAX ( dim_date[Date] ), -30, DAY )
+        )
+
+    MEASURE dim_account[Total Accounts] =
+        DISTINCTCOUNT ( dim_account[AccountKey] )
+
+    MEASURE dim_card[Total Cards] =
+        DISTINCTCOUNT ( dim_card[CardKey] )
+
+    MEASURE dim_card[Blocked Cards] =
+        CALCULATE ( [Total Cards], dim_card[Status] = "Blocked" )
+
+    // ---- Balances -----------------------------------------------------------
+    MEASURE fact_account_balance_daily[Latest Total Balance] =
+        VAR LastSnap = MAX ( fact_account_balance_daily[DateKey] )
+        RETURN
+            CALCULATE (
+                SUM ( fact_account_balance_daily[Balance] ),
+                fact_account_balance_daily[DateKey] = LastSnap
+            )
+
+    MEASURE fact_account_balance_daily[Average Credit Utilization] =
+        AVERAGE ( fact_account_balance_daily[CreditUtilization] )
+
+    MEASURE fact_account_balance_daily[Over Limit Accounts] =
+        CALCULATE (
+            DISTINCTCOUNT ( fact_account_balance_daily[AccountKey] ),
+            fact_account_balance_daily[CreditUtilization] > 1
+        )
+
+    // ---- Branch operations --------------------------------------------------
+    MEASURE fact_branch_daily_snapshot[Branch Transaction Volume] =
+        SUM ( fact_branch_daily_snapshot[TransactionVolume] )
+
+    MEASURE fact_branch_daily_snapshot[New Accounts Opened] =
+        SUM ( fact_branch_daily_snapshot[NewAccountsOpened] )
+
+    MEASURE fact_branch_daily_snapshot[Fraud Cases Caught] =
+        SUM ( fact_branch_daily_snapshot[FraudCasesCaught] )
+
+    MEASURE fact_branch_daily_snapshot[Average Customer Sat] =
+        AVERAGE ( fact_branch_daily_snapshot[CustomerSatScore] )
+
+EVALUATE
+ROW (
+    "Total Transactions", [Total Transactions],
+    "Total Transaction Value", [Total Transaction Value],
+    "Approval Rate", [Approval Rate],
+    "Fraud Transactions", [Fraud Transactions],
+    "Fraud Rate", [Fraud Rate],
+    "Fraud Value", [Fraud Value],
+    "High Risk Transactions", [High Risk Transactions],
+    "Open Alerts", [Open Alerts],
+    "Critical Open Alerts", [Critical Open Alerts],
+    "Alert Precision", [Alert Precision],
+    "Total Customers", [Total Customers],
+    "High Risk Customers", [High Risk Customers]
+)

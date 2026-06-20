@@ -1,0 +1,9 @@
+CurrencyKey,CurrencyCode,CurrencyName,Symbol,UsdRate
+1,USD,US Dollar,$,1.0
+2,EUR,Euro,€,1.09
+3,GBP,Pound Sterling,£,1.27
+4,INR,Indian Rupee,₹,0.012
+5,JPY,Japanese Yen,¥,0.0064
+6,AED,UAE Dirham,د.إ,0.27
+7,SGD,Singapore Dollar,S$,0.74
+8,CAD,Canadian Dollar,C$,0.73

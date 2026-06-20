@@ -1,0 +1,26 @@
+MerchantKey,MerchantName,Category,City,Country,Latitude,Longitude,BaseRiskScore
+1,Amazon Marketplace,E-Commerce,Seattle,USA,47.6062,-122.3321,0.5
+2,Walmart Supercenter,Grocery,Bentonville,USA,36.3729,-94.2088,0.2
+3,Shell Fuel,Fuel,Houston,USA,29.7604,-95.3698,0.6
+4,Starbucks,Dining,Seattle,USA,47.581,-122.336,0.2
+5,Apple Store,Electronics,Cupertino,USA,37.3318,-122.0312,0.4
+6,Uber Rides,Transport,San Francisco,USA,37.7749,-122.4194,0.5
+7,Netflix Subscription,Digital Goods,Los Gatos,USA,37.2266,-121.9747,0.3
+8,Marriott Hotels,Travel,Bethesda,USA,38.9847,-77.0947,0.7
+9,British Airways,Airline,London,UK,51.47,-0.4543,0.9
+10,Tesco Express,Grocery,London,UK,51.5074,-0.1278,0.2
+11,Zara,Apparel,Madrid,Spain,40.4168,-3.7038,0.4
+12,Carrefour,Grocery,Paris,France,48.8566,2.3522,0.3
+13,Lufthansa,Airline,Frankfurt,Germany,50.0379,8.5622,0.9
+14,Emirates,Airline,Dubai,UAE,25.2532,55.3657,1.0
+15,Dubai Mall Retail,Retail,Dubai,UAE,25.1972,55.2796,0.6
+16,Flipkart,E-Commerce,Bengaluru,India,12.9716,77.5946,0.6
+17,Reliance Fresh,Grocery,Mumbai,India,19.076,72.8777,0.3
+18,Singapore Airlines,Airline,Singapore,Singapore,1.3644,103.9915,0.9
+19,Grab Transport,Transport,Singapore,Singapore,1.2966,103.7764,0.5
+20,Rakuten,E-Commerce,Tokyo,Japan,35.6655,139.73,0.6
+21,CryptoX Exchange,Crypto,Valletta,Malta,35.8989,14.5146,1.8
+22,FastCash Wire Co,Money Transfer,Lagos,Nigeria,6.5244,3.3792,1.9
+23,GlobalBet Online,Gambling,San Jose,Costa Rica,9.9281,-84.0907,1.7
+24,LuxWatch Boutique,Luxury,Geneva,Switzerland,46.2044,6.1432,1.2
+25,QuickGadget Deals,E-Commerce,Shenzhen,China,22.5431,114.0579,1.5

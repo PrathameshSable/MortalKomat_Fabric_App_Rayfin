@@ -1,0 +1,10 @@
+// Card-present vs card-not-present fraud — bar/donut comparison.
+EVALUATE
+SUMMARIZECOLUMNS (
+    dim_channel[ChannelName],
+    dim_channel[IsCardPresent],
+    "Transactions", [Total Transactions],
+    "Fraud Rate", [Fraud Rate],
+    "Average Fraud Score", [Average Fraud Score]
+)
+ORDER BY [Fraud Rate] DESC

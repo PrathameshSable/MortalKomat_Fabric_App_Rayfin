@@ -1,0 +1,11 @@
+ProductKey,ProductName,Category,Segment,MonthlyFee,InterestRate
+1,Everyday Checking,Deposit,Retail,0.0,0.001
+2,Premier Savings,Deposit,Retail,0.0,0.041
+3,Student Checking,Deposit,Retail,0.0,0.0
+4,Contoso Cashback Credit,Credit Card,Retail,0.0,0.2199
+5,Contoso Platinum Credit,Credit Card,Affluent,95.0,0.1899
+6,Business Operating Account,Deposit,Business,25.0,0.005
+7,Business Line of Credit,Lending,Business,0.0,0.0975
+8,Auto Loan,Lending,Retail,0.0,0.0689
+9,Home Mortgage,Lending,Retail,0.0,0.0599
+10,Wealth Brokerage,Investment,Affluent,0.0,0.0

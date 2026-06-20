@@ -1,0 +1,21 @@
+// Most recent transactions for the live stream / map (newest first).
+// Geo columns drive the world-map pins; FraudScore drives the color.
+EVALUATE
+TOPN (
+    300,
+    SELECTCOLUMNS (
+        fact_transaction,
+        "TransactionId", fact_transaction[TransactionId],
+        "TransactionTs", fact_transaction[TransactionTs],
+        "AmountUsd", fact_transaction[AmountUsd],
+        "Status", fact_transaction[Status],
+        "Type", fact_transaction[TransactionType],
+        "FraudScore", fact_transaction[FraudScore],
+        "IsFraud", fact_transaction[IsFraud],
+        "Country", fact_transaction[MerchantCountry],
+        "Latitude", fact_transaction[MerchantLatitude],
+        "Longitude", fact_transaction[MerchantLongitude]
+    ),
+    fact_transaction[TransactionTs], DESC
+)
+ORDER BY fact_transaction[TransactionTs] DESC

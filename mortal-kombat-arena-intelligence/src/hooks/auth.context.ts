@@ -17,6 +17,14 @@ export interface AuthContextValue {
     isLoading: boolean;
     /** Last error from the embedded auth flow, if any. */
     error: Error | null;
+    /**
+     * True when running inside a Fabric extension iframe. Combined with
+     * `isAuthenticated`, this distinguishes "opened standalone" (expected,
+     * unsupported) from "embedded but the handoff failed" (a real fault).
+     */
+    isEmbedded: boolean;
+    /** Rayfin backend base URL, shown in the handoff-failure diagnostics. */
+    apiUrl: string;
 }
 
 export const AuthContext = createContext<AuthContextValue | undefined>(undefined);

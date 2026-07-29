@@ -11,6 +11,7 @@ import {
     initEmbeddedAuth as sdkInitEmbeddedAuth,
     type FabricAuthOptions,
 } from "@microsoft/rayfin-auth-provider-fabric";
+import { isEmbeddedMode } from "@microsoft/fabric-embedded-host";
 import { getRayfinClient } from "@/lib/rayfin-client";
 
 export interface IAuthService {
@@ -19,8 +20,28 @@ export interface IAuthService {
      * without any UI. Returns `null` when not running inside a Fabric
      * iframe — the {@link AuthGate} renders the "not embedded" notice in
      * that case.
+     *
+     * Note: the SDK also returns `null` when the handoff itself fails
+     * (it swallows the error and warns). Pair this with
+     * {@link IAuthService.isEmbedded} to tell the two cases apart.
      */
     initEmbeddedAuth(): Promise<OpaqueSession | null>;
+
+    /**
+     * True when the app is running inside a Fabric extension iframe
+     * (`?fabricEmbedded=true`, or the sessionStorage flag persisted from
+     * an earlier hit). A `null` session while this is `true` means the
+     * handoff failed — not that the user opened the app standalone.
+     */
+    isEmbedded(): boolean;
+
+    /**
+     * The Rayfin backend base URL this service is configured against.
+     * Surfaced in the failure UI because the most common cause of a
+     * failed handoff is a stale backend URL baked into the bundle at
+     * build time (e.g. after the workspace moves to a new capacity).
+     */
+    readonly apiUrl: string;
 }
 
 /**
@@ -69,12 +90,20 @@ export function bootstrapAuth(): IAuthService {
  * (`@microsoft/rayfin-auth-provider-fabric`).
  */
 class RayfinAuthService implements IAuthService {
+    readonly apiUrl: string;
+
     constructor(
         private readonly client: RayfinClient,
         private readonly fabricOptions: FabricAuthOptions,
-    ) {}
+    ) {
+        this.apiUrl = import.meta.env.VITE_RAYFIN_API_URL ?? "";
+    }
 
     async initEmbeddedAuth(): Promise<OpaqueSession | null> {
         return sdkInitEmbeddedAuth(this.client.auth, this.fabricOptions);
+    }
+
+    isEmbedded(): boolean {
+        return isEmbeddedMode(this.fabricOptions);
     }
 }

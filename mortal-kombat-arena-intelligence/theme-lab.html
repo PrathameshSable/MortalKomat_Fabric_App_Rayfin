@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Theme Lab — Arena Intelligence</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Saira:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="/src/styles/mk-theme.css" />
+    <link rel="stylesheet" href="/src/styles/mk-spotlight.css" />
+    <style>
+        /* Harness chrome only — never shipped. Keeps swatches/labels out of the themed surface. */
+        body { margin: 0; }
+        .lab-label {
+            font: 600 11px/1 'Saira', sans-serif;
+            letter-spacing: .16em;
+            text-transform: uppercase;
+            color: #8a8178;
+            padding: 14px 18px 6px;
+            background: #000;
+        }
+        .lab-swatches { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px 18px 20px; background: #000; }
+        .lab-swatches i {
+            width: 92px; height: 46px; border-radius: 6px; display: grid; place-items: end center;
+            font: 500 9px/2.2 'Saira', sans-serif; color: #fff; text-shadow: 0 1px 2px #000;
+            font-style: normal;
+        }
+        /* Let both theme surfaces stack on one page instead of each taking 100vh. */
+        .mk-app { height: auto !important; min-height: 0 !important; }
+        .mk-app .mk-scroll { max-height: 240px; }
+        .mk-app .mk-home { height: 420px; }
+        .mk-app .mk-stage { min-height: 380px; }
+        /* ?only=light / ?only=dark isolates one surface for review. */
+        body.only-light .lab-label, body.only-light .lab-swatches,
+        body.only-light .mk-app[data-theme="dark"] { display: none; }
+        body.only-dark .mk-app[data-theme="light"] { display: none; }
+    </style>
+</head>
+
+<body>
+    <script>
+        const only = new URLSearchParams(location.search).get('only');
+        if (only) document.body.classList.add('only-' + only);
+    </script>
+    <div class="lab-label">Palette</div>
+    <div class="lab-swatches">
+        <i style="background:var(--mk-bg)">bg</i>
+        <i style="background:var(--mk-bg-2)">bg-2</i>
+        <i style="background:var(--mk-panel)">panel</i>
+        <i style="background:var(--mk-panel-strong)">panel-strong</i>
+        <i style="background:var(--mk-gold)">gold</i>
+        <i style="background:var(--mk-orange)">orange</i>
+        <i style="background:var(--mk-red)">red</i>
+        <i style="background:var(--mk-ice)">ice</i>
+        <i style="background:var(--mk-green)">green</i>
+        <i style="background:var(--mk-purple)">purple</i>
+        <i style="background:var(--mk-text)">text</i>
+        <i style="background:var(--mk-muted)">muted</i>
+    </div>
+
+    <div class="lab-label">Dark theme — app surface</div>
+    <main class="mk-app" data-theme="dark">
+        <header class="mk-top-nav">
+            <button type="button" class="mk-nav-brand">
+                <span class="mk-brand-text">
+                    <strong>Arena Intelligence</strong>
+                    <em>Microsoft Fabric + Rayfin</em>
+                </span>
+            </button>
+            <nav class="mk-nav-tabs" aria-label="App navigation">
+                <button type="button"><strong>Home</strong><span>Enter the arena</span></button>
+                <button type="button" class="is-active"><strong>Command Center</strong><span>Executive KPIs</span></button>
+                <button type="button"><strong>Roster</strong><span>Choose your fighter</span></button>
+                <button type="button"><strong>Compare</strong><span>Fighter vs fighter</span></button>
+            </nav>
+            <button type="button" class="mk-theme-toggle">Light Mode</button>
+        </header>
+
+        <div class="mk-page-host">
+            <section class="mk-home" style="margin-bottom:18px">
+                <div class="mk-stage" style="--sc:#f2b448">
+                    <div class="mk-stage__shade"></div>
+                    <div class="mk-stage__ghost">LIU KANG</div>
+                    <div class="mk-stage__copy">
+                        <div>
+                            <span class="mk-eyebrow">Live Fabric Data App</span>
+                            <h1>Arena<br />Intelligence</h1>
+                            <p>Live combat analytics from Microsoft Fabric semantic models, DAX and
+                                Rayfin. 35 fighters. 15,000 matches. One champion.</p>
+                            <div class="mk-home-actions">
+                                <button type="button">Choose Your Fighter</button>
+                                <button type="button">Compare</button>
+                            </div>
+                        </div>
+                        <div class="mk-plate">
+                            <div>
+                                <span class="mk-plate__rank">Rank #1 · Earthrealm</span>
+                                <h2>Liu Kang</h2>
+                                <p class="mk-plate__style">Fire · Expert</p>
+                                <div class="mk-plate__stats">
+                                    <div><span>XP</span><strong>284,110</strong></div>
+                                    <div><span>KOs</span><strong>7,104</strong></div>
+                                    <div><span>Win</span><strong>58.2%</strong></div>
+                                    <div><span>Matches</span><strong>2,584</strong></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <aside class="mk-stage__rail">
+                        <span class="mk-eyebrow">Top 5 · Total Score</span>
+                        <button type="button" class="mk-lead-row is-active" style="--rc:#f2b448">
+                            <span class="mk-lead-row__rank">#1</span>
+                            <span class="mk-lead-row__who"><strong>Liu Kang</strong><span>284K score · 58.2% win</span></span>
+                            <span class="mk-lead-row__bar"><i style="width:100%"></i></span>
+                        </button>
+                        <button type="button" class="mk-lead-row" style="--rc:#58c4ff">
+                            <span class="mk-lead-row__rank">#2</span>
+                            <span class="mk-lead-row__who"><strong>Raiden</strong><span>271K score · 56.9% win</span></span>
+                            <span class="mk-lead-row__bar"><i style="width:88%"></i></span>
+                        </button>
+                        <button type="button" class="mk-lead-row" style="--rc:#e5484d">
+                            <span class="mk-lead-row__rank">#3</span>
+                            <span class="mk-lead-row__who"><strong>Shao Kahn</strong><span>268K score · 55.4% win</span></span>
+                            <span class="mk-lead-row__bar"><i style="width:81%"></i></span>
+                        </button>
+                    </aside>
+                </div>
+                <div class="mk-ticker">
+                    <div class="mk-ticker__track">
+                        <span class="mk-ticker__item"><span class="mk-ticker__dot">◆</span> Total Matches <strong>15,000</strong></span>
+                        <span class="mk-ticker__item"><span class="mk-ticker__dot">◆</span> Win Rate <strong>52.4%</strong></span>
+                        <span class="mk-ticker__item"><span class="mk-ticker__dot">◆</span> #1 Fighter <strong>Liu Kang</strong></span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="mk-cmd">
+                <div class="mk-cmd-title">
+                    <span class="mk-eyebrow">Command Center</span>
+                    <h2>Combat Performance</h2>
+                </div>
+
+                <div class="mk-kpi-strip">
+                    <div class="mk-kpi-chip"><div class="mk-kpi-chip__icon">⚔</div><div><span>Total Matches</span><strong class="mk-num">15,000</strong></div></div>
+                    <div class="mk-kpi-chip"><div class="mk-kpi-chip__icon">✦</div><div><span>Total XP</span><strong class="mk-num">8,420,115</strong></div></div>
+                    <div class="mk-kpi-chip"><div class="mk-kpi-chip__icon">♛</div><div><span>Total Score</span><strong class="mk-num">2,904,338</strong></div></div>
+                    <div class="mk-kpi-chip"><div class="mk-kpi-chip__icon">☠</div><div><span>KOs</span><strong class="mk-num">41,207</strong></div></div>
+                    <div class="mk-kpi-chip"><div class="mk-kpi-chip__icon">◈</div><div><span>Win Rate</span><strong class="mk-num">52.4%</strong></div></div>
+                    <div class="mk-kpi-chip"><div class="mk-kpi-chip__icon">🔥</div><div><span>Fatalities</span><strong class="mk-num">6,933</strong></div></div>
+                </div>
+
+                <div class="mk-slicers">
+                    <span class="mk-eyebrow">Slicers</span>
+                    <select class="mk-mini-select"><option>All realms</option></select>
+                    <select class="mk-mini-select"><option>Any matches</option></select>
+                    <input class="mk-mini-input" placeholder="Search kameo or assist..." />
+                    <button type="button" class="mk-slicer-chip">✕ Clear filters</button>
+                </div>
+
+                <div class="mk-cmd-tables">
+                    <div class="mk-panel2">
+                        <div class="mk-panel2__head">
+                            <h3>Battlefield Performance</h3>
+                            <span class="mk-eyebrow">12 of 12 arenas</span>
+                        </div>
+                        <div class="mk-scroll">
+                            <table class="mk-table2">
+                                <thead>
+                                    <tr><th>Arena</th><th>Realm</th><th>Hazard</th><th class="r">Matches</th><th class="r">Win rate</th><th class="r">KOs</th></tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td>The Pit</td><td>Earthrealm</td><td>Spikes</td><td class="r">2,584</td><td class="r">51.8%</td><td class="r">7,104</td></tr>
+                                    <tr><td>Living Forest</td><td>Earthrealm</td><td>Trees</td><td class="r">2,511</td><td class="r">49.2%</td><td class="r">6,880</td></tr>
+                                    <tr><td>Shang Tsung's Throne</td><td>Outworld</td><td>Souls</td><td class="r">2,498</td><td class="r">53.6%</td><td class="r">7,012</td></tr>
+                                    <tr><td>Sea of Blood</td><td>Netherrealm</td><td>Tide</td><td class="r">2,470</td><td class="r">50.4%</td><td class="r">6,744</td></tr>
+                                    <tr><td>Fire Temple</td><td>Outworld</td><td>Lava</td><td class="r">2,455</td><td class="r">54.1%</td><td class="r">6,991</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="mk-panel2">
+                        <div class="mk-panel2__head">
+                            <h3>Best Assist Fighters</h3>
+                            <span class="mk-eyebrow">Kameo Intelligence</span>
+                        </div>
+                        <div class="mk-scroll">
+                            <table class="mk-table2">
+                                <thead>
+                                    <tr><th>Kameo</th><th>Group</th><th>Assist</th><th class="r">Matches</th><th class="r">Win rate</th></tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td>Sub-Zero</td><td>Lin Kuei</td><td>Ice Klone</td><td class="r">1,204</td><td class="r">55.2%</td></tr>
+                                    <tr><td>Scorpion</td><td>Shirai Ryu</td><td>Spear</td><td class="r">1,188</td><td class="r">54.7%</td></tr>
+                                    <tr><td>Jax</td><td>Special Forces</td><td>Ground Pound</td><td class="r">1,102</td><td class="r">52.1%</td></tr>
+                                    <tr><td>Kung Lao</td><td>Shaolin</td><td>Hat Toss</td><td class="r">1,077</td><td class="r">51.4%</td></tr>
+                                    <tr><td>Sonya</td><td>Special Forces</td><td>Air Drop</td><td class="r">1,043</td><td class="r">50.9%</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <div class="mk-section-header"><span>Roster</span><h2>Choose Your Fighter</h2></div>
+
+            <div class="mk-filter-row">
+                <input class="mk-mini-input" placeholder="Search fighters..." />
+                <span class="mk-pill">Earthrealm</span>
+                <span class="mk-pill">Outworld</span>
+                <span class="mk-pill">Netherrealm</span>
+                <span class="mk-gallery-count">35 fighters</span>
+            </div>
+
+            <div class="mk-panel">
+                <table class="mk-table">
+                    <thead>
+                        <tr><th>Fighter</th><th>Realm</th><th>Style</th><th class="r">XP</th><th class="r">Win rate</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Liu Kang</td><td>Earthrealm</td><td>Fire</td><td class="r">284,110</td><td class="r">58.2%</td></tr>
+                        <tr><td>Raiden</td><td>Earthrealm</td><td>Thunder</td><td class="r">271,884</td><td class="r">56.9%</td></tr>
+                        <tr><td>Shao Kahn</td><td>Outworld</td><td>Brute</td><td class="r">268,402</td><td class="r">55.4%</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="mk-ticker">
+                <div class="mk-ticker__track">
+                    <span class="mk-ticker__item"><span class="mk-ticker__dot">◆</span> Total Matches <strong>15,000</strong></span>
+                    <span class="mk-ticker__item"><span class="mk-ticker__dot">◆</span> Win Rate <strong>52.4%</strong></span>
+                    <span class="mk-ticker__item"><span class="mk-ticker__dot">◆</span> #1 Fighter <strong>Liu Kang</strong></span>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div class="lab-label">Light theme — app surface</div>
+    <main class="mk-app" data-theme="light">
+        <header class="mk-top-nav">
+            <button type="button" class="mk-nav-brand">
+                <span class="mk-brand-text">
+                    <strong>Arena Intelligence</strong>
+                    <em>Microsoft Fabric + Rayfin</em>
+                </span>
+            </button>
+            <nav class="mk-nav-tabs" aria-label="App navigation">
+                <button type="button"><strong>Home</strong><span>Enter the arena</span></button>
+                <button type="button" class="is-active"><strong>Command Center</strong><span>Executive KPIs</span></button>
+                <button type="button"><strong>Roster</strong><span>Choose your fighter</span></button>
+            </nav>
+            <button type="button" class="mk-theme-toggle">Dark Mode</button>
+        </header>
+        <div class="mk-page-host">
+            <section class="mk-cmd">
+                <div class="mk-cmd-title">
+                    <span class="mk-eyebrow">Command Center</span>
+                    <h2>Combat Performance</h2>
+                </div>
+                <div class="mk-kpi-strip">
+                    <div class="mk-kpi-chip"><div class="mk-kpi-chip__icon">⚔</div><div><span>Total Matches</span><strong class="mk-num">15,000</strong></div></div>
+                    <div class="mk-kpi-chip"><div class="mk-kpi-chip__icon">✦</div><div><span>Total XP</span><strong class="mk-num">8,420,115</strong></div></div>
+                    <div class="mk-kpi-chip"><div class="mk-kpi-chip__icon">◈</div><div><span>Win Rate</span><strong class="mk-num">52.4%</strong></div></div>
+                </div>
+                <div class="mk-cmd-tables">
+                    <div class="mk-panel2">
+                        <div class="mk-panel2__head">
+                            <h3>Battlefield Performance</h3>
+                            <span class="mk-eyebrow">12 arenas</span>
+                        </div>
+                        <div class="mk-scroll">
+                            <table class="mk-table2">
+                                <thead><tr><th>Arena</th><th>Realm</th><th class="r">Matches</th><th class="r">Win rate</th></tr></thead>
+                                <tbody>
+                                    <tr><td>The Pit</td><td>Earthrealm</td><td class="r">2,584</td><td class="r">51.8%</td></tr>
+                                    <tr><td>Living Forest</td><td>Earthrealm</td><td class="r">2,511</td><td class="r">49.2%</td></tr>
+                                    <tr><td>Fire Temple</td><td>Outworld</td><td class="r">2,455</td><td class="r">54.1%</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+</body>
+
+</html>

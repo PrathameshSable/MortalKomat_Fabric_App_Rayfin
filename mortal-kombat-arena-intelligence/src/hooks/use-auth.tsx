@@ -23,8 +23,12 @@ interface AuthProviderProps {
  * - When loaded inside a Fabric iframe (`?fabricEmbedded=true`), calls
  *   `initEmbeddedAuth` to acquire a Rayfin session via postMessage.
  * - When loaded standalone, `initEmbeddedAuth` returns `null` immediately
- *   and the provider settles in an unauthenticated state and `<AuthGate>` 
+ *   and the provider settles in an unauthenticated state and `<AuthGate>`
  *   renders the "not embedded" notice.
+ * - When loaded embedded but the handoff fails (e.g. the Rayfin backend
+ *   URL baked into the bundle is stale), the SDK also returns `null` —
+ *   so `isEmbedded` is exposed alongside the session to let `<AuthGate>`
+ *   report the real fault instead of the "not embedded" notice.
  *
  * Consume the session with the `useAuth` hook.
  */
@@ -65,8 +69,10 @@ export function AuthProvider({ children, rayfinAuthService }: AuthProviderProps)
             isAuthenticated: session?.isAuthenticated ?? false,
             isLoading,
             error,
+            isEmbedded: rayfinAuthService.isEmbedded(),
+            apiUrl: rayfinAuthService.apiUrl,
         }),
-        [session, isLoading, error],
+        [session, isLoading, error, rayfinAuthService],
     );
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

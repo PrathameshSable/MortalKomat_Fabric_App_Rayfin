@@ -23,6 +23,7 @@
     "@microsoft/fabric-app-data-embed-client": "1.0.0",
     "@microsoft/fabric-app-data-proxy": "1.0.0",
     "@microsoft/fabric-datagrid": "1.0.0",
+    "@microsoft/fabric-embedded-host": "^1.32.0",
     "@microsoft/fabric-visuals": "1.0.0",
     "@microsoft/fabric-visuals-core": "1.0.0",
     "@microsoft/rayfin-auth-provider-fabric": "^1.32.0",

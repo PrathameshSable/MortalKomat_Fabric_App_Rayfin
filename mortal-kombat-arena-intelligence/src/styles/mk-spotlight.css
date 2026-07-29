@@ -8,6 +8,11 @@
 :root {
     --mk-font-display: "Anton", "Arial Narrow", "Segoe UI", sans-serif;
     --mk-font-body: "Saira", "Segoe UI", sans-serif;
+    /* Numerals get their own face. Anton is a heavy condensed display cut
+       with no tabular figures — fine for a hero word, poor for a KPI where
+       digits must be scanned and compared. Saira has true tabular numerals,
+       so columns line up and figures stay legible at 12-20px. */
+    --mk-font-numeric: "Saira", "Segoe UI", sans-serif;
 }
 
 /* ---------- canvas shell ---------- */
@@ -21,6 +26,11 @@
     grid-template-rows: 44px minmax(0, 1fr);
     gap: 10px;
     padding: 12px;
+    /* Light-on-dark text renders heavy without this; antialiased keeps the
+       stems even and stops the accent colours from fringing. */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
 }
 
 .mk-app--home {
@@ -38,9 +48,22 @@
 
 .mk-num,
 .mk-table td,
+.mk-table2 td,
 .mk-kpi-chip strong,
+.mk-kpi-card strong,
 .mk-plate__stats strong {
     font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" 1, "lnum" 1;
+}
+
+/* Metric readouts: clear tabular figures, not display type. */
+.mk-num,
+.mk-kpi-chip strong,
+.mk-kpi-card strong,
+.mk-plate__stats strong {
+    font-family: var(--mk-font-numeric);
+    font-weight: 600;
+    letter-spacing: 0.005em;
 }
 
 .mk-page-host {
@@ -111,10 +134,10 @@
 }
 
 .mk-nav-tabs button.is-active {
-    color: #160504;
+    color: var(--mk-ink);
     background: linear-gradient(135deg, var(--mk-gold), var(--mk-orange));
     border-color: transparent;
-    box-shadow: 0 0 18px rgba(255, 90, 31, 0.35);
+    box-shadow: 0 2px 10px rgb(var(--mk-gold-rgb) / 0.28);
     transform: none;
 }
 
@@ -133,11 +156,11 @@
 .mk-mini-input,
 .mk-mini-select {
     height: 30px;
-    border: 1px solid rgba(248, 184, 78, 0.28);
+    border: 1px solid var(--mk-border-strong);
     border-radius: 9px;
     padding: 0 10px;
     color: var(--mk-text);
-    background: rgba(5, 3, 2, 0.82);
+    background: rgb(var(--mk-bg-rgb) / 0.82);
     outline: none;
     font-family: var(--mk-font-body);
     font-size: 11px;
@@ -145,17 +168,17 @@
 
 .mk-mini-input:focus,
 .mk-mini-select:focus {
-    border-color: rgba(248, 184, 78, 0.72);
+    border-color: var(--mk-gold); box-shadow: 0 0 0 3px rgb(var(--mk-gold-rgb) / 0.16);
 }
 
 .mk-panel2 {
     min-height: 0;
     padding: 12px 14px;
     border-radius: 14px;
-    border: 1px solid rgba(255, 90, 31, 0.24);
+    border: 1px solid var(--mk-border);
     background:
-        radial-gradient(circle at top left, rgba(255, 90, 31, 0.10), transparent 34%),
-        linear-gradient(145deg, rgba(30, 20, 15, 0.95), rgba(8, 6, 5, 0.95));
+        linear-gradient(180deg, rgb(var(--mk-hi-rgb) / 0.035), transparent 38%),
+        linear-gradient(145deg, rgb(var(--mk-surface-2-rgb) / 0.95), rgb(var(--mk-surface-rgb) / 0.95));
 }
 
 .mk-scroll {
@@ -165,35 +188,38 @@
 }
 
 .mk-scroll::-webkit-scrollbar { width: 6px; }
-.mk-scroll::-webkit-scrollbar-thumb { background: rgba(255, 144, 60, 0.3); border-radius: 999px; }
+.mk-scroll::-webkit-scrollbar-thumb { background: rgb(var(--mk-hi-rgb) / 0.16); border-radius: 999px; }
 
 .mk-table2 { width: 100%; border-collapse: collapse; }
 
 .mk-table2 th,
 .mk-table2 td { padding: 7px 9px; text-align: left; }
 
+/* Headers are labels, not data: muted grey so the numbers below them are
+   the brightest thing in the table. Gold headers competed with the values. */
 .mk-table2 th {
     position: sticky;
     top: 0;
     z-index: 1;
-    color: var(--mk-gold);
-    font-size: 9.5px;
-    font-weight: 700;
-    letter-spacing: 0.12em;
+    color: var(--mk-muted);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
-    background: #221208;
+    background: var(--mk-surface);
+    box-shadow: inset 0 -1px 0 var(--mk-border);
 }
 
 .mk-table2 td {
     font-size: 12px;
     font-variant-numeric: tabular-nums;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid rgb(var(--mk-hi-rgb) / 0.05);
 }
 
 .mk-table2 tbody tr { transition: background 120ms ease; }
-.mk-table2 tbody tr:nth-child(even) td { background: rgba(255, 255, 255, 0.022); }
-.mk-table2 tbody tr:hover td { background: rgba(255, 90, 31, 0.10); }
-.mk-table2 tbody tr:hover td:first-child { box-shadow: inset 3px 0 0 var(--mk-orange); color: var(--mk-gold); }
+.mk-table2 tbody tr:nth-child(even) td { background: rgb(var(--mk-hi-rgb) / 0.022); }
+.mk-table2 tbody tr:hover td { background: rgb(var(--mk-gold-rgb) / 0.06); }
+.mk-table2 tbody tr:hover td:first-child { box-shadow: inset 3px 0 0 var(--mk-gold); color: var(--mk-gold); }
 
 .mk-table2 td.r,
 .mk-table2 th.r { text-align: right; }
@@ -215,9 +241,9 @@
     grid-template-columns: 330px minmax(0, 1fr) 250px;
     min-height: 0;
     border-radius: 16px;
-    border: 1px solid rgba(255, 111, 28, 0.30);
+    border: 1px solid var(--mk-border-strong);
     background: url("/assets/backgrounds/home-arena.png") center 30% / cover no-repeat;
-    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgb(var(--mk-hi-rgb) / 0.08);
 }
 
 .mk-stage__video {
@@ -233,7 +259,7 @@
     position: absolute;
     inset: 0;
     z-index: 1;
-    background: linear-gradient(110deg, rgba(5, 3, 2, 0.95) 0%, rgba(5, 3, 2, 0.45) 48%, rgba(5, 3, 2, 0.86) 100%);
+    background: linear-gradient(110deg, rgb(var(--mk-bg-rgb) / 0.95) 0%, rgb(var(--mk-bg-rgb) / 0.45) 48%, rgb(var(--mk-bg-rgb) / 0.86) 100%);
 }
 
 .mk-stage__ghost {
@@ -248,7 +274,7 @@
     text-transform: uppercase;
     white-space: nowrap;
     color: transparent;
-    -webkit-text-stroke: 1.5px rgba(255, 244, 230, 0.10);
+    -webkit-text-stroke: 1.5px rgb(var(--mk-text-rgb) / 0.10);
     pointer-events: none;
     user-select: none;
 }
@@ -269,7 +295,7 @@
     font-size: 38px;
     line-height: 1.02;
     text-transform: uppercase;
-    text-shadow: 0 0 18px rgba(255, 90, 31, 0.45), 0 10px 26px rgba(0, 0, 0, 0.8);
+    text-shadow: 0 1px 0 rgb(var(--mk-ember-rgb) / 0.25), 0 8px 22px rgba(0, 0, 0, 0.85);
 }
 
 .mk-stage__copy > div > p {
@@ -296,10 +322,10 @@
     overflow: hidden;
     padding: 12px 14px 12px 19px;
     border-radius: 14px;
-    border: 1px solid color-mix(in srgb, var(--sc, var(--mk-gold)) 40%, rgba(255, 255, 255, 0.1));
+    border: 1px solid color-mix(in srgb, var(--sc, var(--mk-gold)) 40%, rgb(var(--mk-hi-rgb) / 0.1));
     background:
         radial-gradient(circle at 0% 0%, color-mix(in srgb, var(--sc, var(--mk-gold)) 14%, transparent), transparent 55%),
-        rgba(8, 6, 5, 0.78);
+        rgb(var(--mk-bg-rgb) / 0.78);
     backdrop-filter: blur(12px);
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 26px color-mix(in srgb, var(--sc, var(--mk-gold)) 14%, transparent);
     transition: border-color 600ms ease, box-shadow 600ms ease;
@@ -325,8 +351,8 @@
     font-weight: 800;
     letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: #160504;
-    background: linear-gradient(135deg, color-mix(in srgb, var(--sc, var(--mk-gold)) 70%, #ffd), var(--sc, var(--mk-gold)));
+    color: var(--mk-ink);
+    background: linear-gradient(135deg, color-mix(in srgb, var(--sc, var(--mk-gold)) 70%, var(--mk-gold-soft)), var(--sc, var(--mk-gold)));
 }
 
 .mk-plate h2 {
@@ -335,7 +361,7 @@
     line-height: 1;
     white-space: nowrap;
     text-transform: uppercase;
-    text-shadow: 0 0 16px color-mix(in srgb, var(--sc, var(--mk-gold)) 55%, transparent);
+    text-shadow: 0 2px 14px rgba(0, 0, 0, 0.7);
 }
 
 .mk-plate__style {
@@ -353,8 +379,8 @@
 .mk-plate__stats div {
     padding: 6px 7px;
     border-radius: 9px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgb(var(--mk-hi-rgb) / 0.05);
+    border: 1px solid rgb(var(--mk-hi-rgb) / 0.08);
     border-top: 2px solid color-mix(in srgb, var(--sc, var(--mk-gold)) 45%, transparent);
 }
 
@@ -421,7 +447,7 @@
     gap: 6px;
     padding: 16px 14px;
     background: linear-gradient(270deg, rgba(0, 0, 0, 0.6), transparent);
-    border-left: 1px solid rgba(255, 255, 255, 0.06);
+    border-left: 1px solid rgb(var(--mk-hi-rgb) / 0.06);
 }
 
 .mk-stage__rail .mk-eyebrow { margin-bottom: 4px; }
@@ -435,7 +461,7 @@
     padding: 6px 9px;
     border-radius: 11px;
     border: 1px solid transparent;
-    background: rgba(255, 255, 255, 0.03);
+    background: rgb(var(--mk-hi-rgb) / 0.03);
     color: var(--mk-text);
     text-align: left;
     cursor: pointer;
@@ -443,7 +469,7 @@
     transition: border-color 180ms ease, background 180ms ease, transform 180ms ease;
 }
 
-.mk-lead-row:hover { transform: translateX(-3px); background: rgba(255, 255, 255, 0.06); }
+.mk-lead-row:hover { transform: translateX(-3px); background: rgb(var(--mk-hi-rgb) / 0.06); }
 
 .mk-lead-row.is-active {
     border-color: color-mix(in srgb, var(--rc, var(--mk-gold)) 65%, transparent);
@@ -451,7 +477,7 @@
 }
 
 .mk-lead-row:focus-visible {
-    outline: 2px solid rgba(248, 184, 78, 0.78);
+    outline: 2px solid rgb(var(--mk-gold-rgb) / 0.78);
     outline-offset: 2px;
 }
 
@@ -487,7 +513,7 @@
     grid-column: 1 / -1;
     height: 3px;
     border-radius: 999px;
-    background: rgba(255, 255, 255, 0.07);
+    background: rgb(var(--mk-hi-rgb) / 0.07);
     overflow: hidden;
 }
 
@@ -504,7 +530,7 @@
     overflow: hidden;
     border-radius: 11px;
     border: 1px solid var(--mk-border);
-    background: rgba(12, 5, 4, 0.74);
+    background: rgb(var(--mk-bg-rgb) / 0.74);
     -webkit-mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent);
     mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent);
 }
@@ -567,17 +593,20 @@
     gap: 10px;
     padding: 0 12px;
     border-radius: 12px;
-    border: 1px solid rgba(255, 90, 31, 0.24);
+    /* Neutral card, warm only on the hairline top edge — six of these sit
+       in a row, so an orange border on each turned the strip into a block
+       of colour and flattened the values. */
+    border: 1px solid var(--mk-border);
     background:
-        radial-gradient(circle at top left, rgba(255, 90, 31, 0.14), transparent 40%),
-        linear-gradient(145deg, rgba(35, 24, 18, 0.95), rgba(8, 6, 5, 0.95));
+        linear-gradient(180deg, rgb(var(--mk-hi-rgb) / 0.04), transparent 42%),
+        linear-gradient(145deg, rgb(var(--mk-surface-2-rgb) / 0.95), rgb(var(--mk-surface-rgb) / 0.95));
     transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
 }
 
 .mk-kpi-chip:hover {
     transform: translateY(-3px);
-    border-color: rgba(248, 184, 78, 0.55);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 26px rgba(255, 90, 31, 0.22);
+    border-color: var(--mk-border-accent);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 0 1px rgb(var(--mk-gold-rgb) / 0.12);
 }
 
 .mk-kpi-chip .mk-kpi-chip__icon {
@@ -588,8 +617,11 @@
     height: 30px;
     border-radius: 9px;
     font-size: 13px;
-    color: #160504;
-    background: linear-gradient(135deg, var(--mk-gold), var(--mk-orange));
+    /* Tinted tile rather than six solid gold blocks in a row — the icon
+       marks the metric, the value is what should read first. */
+    color: var(--mk-gold);
+    background: rgb(var(--mk-gold-rgb) / 0.12);
+    box-shadow: inset 0 0 0 1px rgb(var(--mk-gold-rgb) / 0.22);
     transition: transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
@@ -619,7 +651,7 @@
     content: "";
     position: absolute;
     inset: 0;
-    background: linear-gradient(100deg, transparent 30%, rgba(255, 200, 130, 0.10) 50%, transparent 70%);
+    background: linear-gradient(100deg, transparent 30%, rgb(var(--mk-gold-soft-rgb) / 0.10) 50%, transparent 70%);
     animation: mk-shimmer 1.4s infinite;
 }
 
@@ -640,8 +672,8 @@
     gap: 6px;
     padding: 4px 10px;
     border-radius: 999px;
-    border: 1px solid rgba(248, 184, 78, 0.35);
-    background: rgba(255, 90, 31, 0.10);
+    border: 1px solid rgb(var(--mk-gold-rgb) / 0.35);
+    background: rgb(var(--mk-ember-rgb) / 0.10);
     color: var(--mk-gold);
     font-family: var(--mk-font-body);
     font-size: 10px;
@@ -651,7 +683,7 @@
     cursor: pointer;
 }
 
-.mk-slicer-chip:hover { background: rgba(255, 90, 31, 0.2); }
+.mk-slicer-chip:hover { background: rgb(var(--mk-ember-rgb) / 0.2); }
 
 .mk-cmd-tables {
     display: grid;
@@ -700,10 +732,10 @@
     position: relative;
     overflow: hidden;
     border-radius: 10px;
-    border: 1px solid rgba(255, 255, 255, 0.10);
+    border: 1px solid rgb(var(--mk-hi-rgb) / 0.10);
     background:
         radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--tc, var(--mk-orange)) 22%, transparent), transparent 60%),
-        rgba(10, 6, 4, 0.9);
+        rgb(var(--mk-bg-rgb) / 0.9);
     cursor: pointer;
     padding: 0;
     transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
@@ -756,7 +788,7 @@
     font-weight: 800;
     color: var(--mk-gold);
     background: rgba(0, 0, 0, 0.62);
-    border: 1px solid rgba(248, 184, 78, 0.3);
+    border: 1px solid rgb(var(--mk-gold-rgb) / 0.3);
     opacity: 0;
     transition: opacity 160ms ease;
     font-variant-numeric: tabular-nums;
@@ -765,7 +797,7 @@
 .mk-tile:hover {
     transform: scale(1.06);
     z-index: 3;
-    border-color: rgba(248, 184, 78, 0.7);
+    border-color: rgb(var(--mk-gold-rgb) / 0.7);
     box-shadow: 0 8px 28px rgba(0, 0, 0, 0.6), 0 0 22px color-mix(in srgb, var(--tc, var(--mk-orange)) 35%, transparent);
 }
 
@@ -774,7 +806,7 @@
 
 .mk-tile.is-selected {
     border-color: var(--mk-gold);
-    box-shadow: 0 0 0 2px rgba(248, 184, 78, 0.55), 0 0 26px color-mix(in srgb, var(--tc, var(--mk-orange)) 40%, transparent);
+    box-shadow: 0 0 0 2px rgb(var(--mk-gold-rgb) / 0.55), 0 0 26px color-mix(in srgb, var(--tc, var(--mk-orange)) 40%, transparent);
 }
 
 .mk-tile__fallback {
@@ -809,7 +841,7 @@
     border: 1px solid color-mix(in srgb, var(--pc, var(--mk-gold)) 50%, transparent);
     background:
         radial-gradient(circle at 80% 0%, color-mix(in srgb, var(--pc, var(--mk-gold)) 18%, transparent), transparent 50%),
-        rgba(8, 5, 3, 0.96);
+        rgb(var(--mk-bg-rgb) / 0.96);
     backdrop-filter: blur(16px);
     box-shadow: -20px 0 60px rgba(0, 0, 0, 0.6);
     transform: translateX(108%);
@@ -824,7 +856,7 @@
 
 .mk-profile-pane__close {
     appearance: none;
-    border: 1px solid rgba(248, 184, 78, 0.42);
+    border: 1px solid rgb(var(--mk-gold-rgb) / 0.42);
     border-radius: 999px;
     width: 26px;
     height: 26px;
@@ -856,8 +888,8 @@
 .mk-profile-pane__stats div {
     padding: 8px;
     border-radius: 10px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgb(var(--mk-hi-rgb) / 0.05);
+    border: 1px solid rgb(var(--mk-hi-rgb) / 0.08);
     border-top: 2px solid color-mix(in srgb, var(--pc, var(--mk-gold)) 45%, transparent);
 }
 
@@ -888,8 +920,8 @@
     gap: 9px;
     padding: 7px 10px;
     border-radius: 11px;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgb(var(--mk-hi-rgb) / 0.04);
+    border: 1px solid rgb(var(--mk-hi-rgb) / 0.08);
     color: var(--mk-text);
     text-align: left;
     cursor: pointer;
@@ -897,7 +929,7 @@
     transition: background 150ms ease, border-color 150ms ease;
 }
 
-.mk-matchup-row:hover { background: rgba(255, 255, 255, 0.07); border-color: rgba(248, 184, 78, 0.4); }
+.mk-matchup-row:hover { background: rgb(var(--mk-hi-rgb) / 0.07); border-color: rgb(var(--mk-gold-rgb) / 0.4); }
 
 .mk-matchup-row .mk-mu-label {
     width: 86px;
@@ -907,8 +939,8 @@
     text-transform: uppercase;
 }
 
-.mk-matchup-row.is-prey .mk-mu-label { color: #39ff88; }
-.mk-matchup-row.is-nemesis .mk-mu-label { color: #ff6b6b; }
+.mk-matchup-row.is-prey .mk-mu-label { color: var(--mk-jade); }
+.mk-matchup-row.is-nemesis .mk-mu-label { color: var(--mk-red-soft); }
 
 .mk-matchup-row .mk-mu-thumb { width: 34px; height: 34px; display: grid; place-items: center; overflow: hidden; }
 .mk-matchup-row .mk-mu-thumb img { width: 34px; height: 34px; object-fit: contain; object-position: top; }
@@ -926,8 +958,8 @@
     font-variant-numeric: tabular-nums;
 }
 
-.mk-matchup-row.is-prey .mk-mu-count { color: #0a2415; background: #39ff88; }
-.mk-matchup-row.is-nemesis .mk-mu-count { color: #2a0b0b; background: #ff6b6b; }
+.mk-matchup-row.is-prey .mk-mu-count { color: var(--mk-jade-deep); background: var(--mk-jade); }
+.mk-matchup-row.is-nemesis .mk-mu-count { color: var(--mk-surface); background: var(--mk-red-soft); }
 
 /* ============================================================
    COMPARE — single-screen VS
@@ -953,9 +985,9 @@
     border-radius: 10px;
     font-family: var(--mk-font-display);
     font-size: 16px;
-    color: #140705;
+    color: var(--mk-bg-2);
     background: linear-gradient(135deg, var(--mk-gold), var(--mk-orange));
-    box-shadow: 0 0 22px rgba(255, 90, 31, 0.30);
+    box-shadow: 0 0 22px rgb(var(--mk-ember-rgb) / 0.30);
 }
 
 .mk-vs-arena {
@@ -972,7 +1004,7 @@
     border: 1px solid var(--mk-border);
     background:
         radial-gradient(circle at 50% 10%, color-mix(in srgb, var(--fc, var(--mk-gold)) 22%, transparent), transparent 45%),
-        rgba(12, 5, 4, 0.84);
+        rgb(var(--mk-bg-rgb) / 0.84);
 }
 
 .mk-vs-side__render {
@@ -999,8 +1031,8 @@
     bottom: 8px;
     padding: 9px 12px;
     border-radius: 11px;
-    background: linear-gradient(180deg, rgba(20, 10, 8, 0.55), rgba(20, 10, 8, 0.94));
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: linear-gradient(180deg, rgb(var(--mk-surface-rgb) / 0.55), rgb(var(--mk-surface-rgb) / 0.94));
+    border: 1px solid rgb(var(--mk-hi-rgb) / 0.1);
     backdrop-filter: blur(10px);
 }
 
@@ -1008,7 +1040,7 @@
 .mk-vs-side__plate p { margin: 1px 0 6px; color: var(--mk-muted); font-size: 10px; }
 
 .mk-vs-side__mini { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
-.mk-vs-side__mini div { padding: 5px 6px; border-radius: 8px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.08); }
+.mk-vs-side__mini div { padding: 5px 6px; border-radius: 8px; background: rgb(var(--mk-hi-rgb) / 0.05); border: 1px solid rgb(var(--mk-hi-rgb) / 0.08); }
 .mk-vs-side__mini span { display: block; font-size: 7.5px; letter-spacing: 0.07em; text-transform: uppercase; color: var(--mk-muted); }
 .mk-vs-side__mini strong { display: block; font-size: 11px; font-variant-numeric: tabular-nums; }
 
@@ -1022,7 +1054,7 @@
     gap: 8px;
     align-items: center;
     padding: 6px 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid rgb(var(--mk-hi-rgb) / 0.05);
 }
 
 .mk-metric-row2:last-child { border-bottom: 0; }
@@ -1043,13 +1075,13 @@
 }
 
 .mk-metric-row2 .mk-metric-val.is-right { text-align: right; }
-.mk-metric-row2 .mk-metric-val.is-win { color: var(--mk-gold); text-shadow: 0 0 12px rgba(248, 184, 78, 0.55); }
+.mk-metric-row2 .mk-metric-val.is-win { color: var(--mk-gold); }
 
 .mk-bar {
     position: relative;
     height: 7px;
     border-radius: 999px;
-    background: rgba(255, 255, 255, 0.07);
+    background: rgb(var(--mk-hi-rgb) / 0.07);
     overflow: hidden;
 }
 
@@ -1061,7 +1093,7 @@
 }
 
 .mk-bar.is-left .mk-bar__fill { right: 0; background: linear-gradient(90deg, var(--mk-gold), var(--mk-orange)); }
-.mk-bar.is-right .mk-bar__fill { left: 0; background: linear-gradient(90deg, var(--mk-ice), #a855f7); }
+.mk-bar.is-right .mk-bar__fill { left: 0; background: linear-gradient(90deg, var(--mk-ice), var(--mk-violet)); }
 
 /* ---------- accessibility / perf ---------- */
 
